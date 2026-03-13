@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mats Amazing Needs Calculator | Coastal Advisory Australia</title>
+<title>Wealth Protection Calculator | Coastal Advisory Australia</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -1144,6 +1144,7 @@ function deleteUser(id) {
 
 // ══════════ HISTORY ══════════
 let _calcNameDirty = false;
+let _lastSavedEntryId = null; // tracks the most recently saved calc entry
 
 function onCalcNameEdit() {
   _calcNameDirty = true;
@@ -1152,6 +1153,30 @@ function onCalcNameEdit() {
 }
 
 function saveCalcName() {
+  const nameInput = document.getElementById('calc-name-input');
+  const newName = nameInput ? nameInput.value.trim() : '';
+
+  // If a calc has already been saved this session, update that entry
+  if (_lastSavedEntryId && newName) {
+    for (const uid in HISTORY) {
+      const entry = HISTORY[uid].find(h => h.id === _lastSavedEntryId);
+      if (entry) {
+        entry.calcName = newName;
+        // Persist the rename to Supabase
+        (async () => {
+          try {
+            await fetch(SB_URL + '/rest/v1/caa_history?id=eq.' + encodeURIComponent(_lastSavedEntryId), {
+              method: 'PATCH',
+              headers: Object.assign({}, SB_HDR, {'Prefer': 'return=minimal'}),
+              body: JSON.stringify({ calc_name: newName })
+            });
+          } catch(e) { console.warn('Calc name update error:', e); }
+        })();
+        break;
+      }
+    }
+  }
+
   _calcNameDirty = false;
   const saveBtn = document.getElementById('calc-name-save-btn');
   if (saveBtn) {
@@ -1182,7 +1207,7 @@ function saveCalc() {
   HISTORY[currentUser.id].unshift(entry);
   persistSaveHistory(currentUser.id, entry);
   updateHistCount();
-  // Hide the "Save Name" button — name is now locked in via the calc save
+  _lastSavedEntryId = entry.id; // remember this entry so Save Name can update it
   _calcNameDirty = false;
   const nameBtn = document.getElementById('calc-name-save-btn');
   if (nameBtn) nameBtn.classList.add('hidden');
@@ -1827,6 +1852,7 @@ function resetAllFields() {
   const nameInput = document.getElementById('calc-name-input');
   if (nameInput) { nameInput.value = ''; nameInput.dataset.autoFilled = 'false'; }
   _calcNameDirty = false;
+  _lastSavedEntryId = null;
   const nameBtn = document.getElementById('calc-name-save-btn');
   if (nameBtn) nameBtn.classList.add('hidden');
 }
