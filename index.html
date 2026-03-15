@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mats Awesome Needs Calculator | Coastal Advisory Australia</title>
+<title>Wealth Protection Calculator | Coastal Advisory Australia</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -30,8 +30,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 
 /* ── LOGIN ── */
 #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg, #0d2333 0%, #1a3a4a 40%, #b8c8cc 75%, #e8816a 100%);position:relative;overflow:hidden}
-#login-screen::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(26,158,154,.18),transparent 65%);top:-150px;right:-150px}
-#login-screen::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(26,158,154,.10),transparent 65%);bottom:-100px;left:-100px}
+#login-screen::before{content:'';position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(26,158,154,.18),transparent 65%);top:-150px;right:-150px;pointer-events:none}
+#login-screen::after{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(26,158,154,.10),transparent 65%);bottom:-100px;left:-100px;pointer-events:none}
 .login-card{background:white;border-radius:20px;padding:52px 48px;width:100%;max-width:440px;box-shadow:0 24px 80px rgba(0,0,0,.35);position:relative;z-index:1;animation:fadeUp .5s ease;border-bottom:4px solid var(--sand)}
 .login-logo{font-family:'Playfair Display',serif;font-size:11px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:4px}
 .login-wordmark{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--navy);margin-bottom:2px;line-height:1.1}
@@ -730,7 +730,7 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
         <div class="sct">Income & Employment</div><div class="scs">Your income determines how much your family needs to maintain their lifestyle.</div>
         <div class="sublabel">Your Income</div>
         <div class="fg">
-          <div class="f"><label>Annual Gross Income <span class="hint">(before tax)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-income" placeholder="e.g. 95000"></div></div>
+          <div class="f"><label>Annual Gross Income <span class="hint">(before tax)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-income" placeholder="e.g. 95000"></div></div>
           <div class="f"><label>Years Until Retirement</label><input type="number" id="s-retire" placeholder="e.g. 25" min="1" max="50"></div>
           <div class="f" id="f-repyrs"><label>Income Replacement Period <span class="hint">(years)</span></label><input type="number" id="s-repyrs" min="1" max="40"></div>
           <div class="f" id="f-incpct"><label>% of Income to Replace</label><div class="tbg" id="tbg-incpct"><button class="tb" onclick="setTb(this,'s-incpct','60')">60%</button><button class="tb active" onclick="setTb(this,'s-incpct','75')">75%</button><button class="tb" onclick="setTb(this,'s-incpct','100')">100%</button></div></div>
@@ -744,7 +744,7 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
         <div class="divline"></div>
         <div class="sublabel">Partner & Existing Cover</div>
         <div class="fg">
-          <div class="f"><label>Partner's Annual Income</label><div class="pfx"><span class="p">$</span><input type="number" id="s-partner" placeholder="e.g. 70000"></div></div>
+          <div class="f"><label>Partner's Annual Income</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-partner" placeholder="e.g. 70000"></div></div>
         </div>
         <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(1)">← Back</button><button class="btn btn-primary" onclick="goStep(3)">Next: Debts →</button></div>
       </div>
@@ -754,17 +754,17 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
         <div class="sct">Debts & Liabilities</div><div class="scs">Outstanding debts that would need to be cleared.</div>
         <div class="info-tip">Life insurance can clear these debts immediately, relieving financial pressure on your family.</div>
         <div class="fg">
-          <div class="f" id="df-mortgage"><label>Outstanding Mortgage <span class="hint">(non-deductible)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-mortgage" placeholder="e.g. 450000"></div></div>
-          <div class="f" id="df-otherloan"><label>Other Property Loans <span class="hint">(deductible)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-otherloan" placeholder="e.g. 0"></div></div>
-          <div class="f" id="df-personal"><label>Personal / Car Loans <span class="hint">(non-deductible)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-personal" placeholder="e.g. 15000"></div></div>
-          <div class="f" id="df-cc"><label>Credit Card Debt <span class="hint">(non-deductible)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-cc" placeholder="e.g. 8000"></div></div>
-          <div class="f" id="df-biz"><label>Business Debts <span class="hint">(deductible)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-biz" placeholder="e.g. 0"></div></div>
+          <div class="f" id="df-mortgage"><label>Outstanding Mortgage <span class="hint">(non-deductible)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-mortgage" placeholder="e.g. 450000"></div></div>
+          <div class="f" id="df-otherloan"><label>Other Property Loans <span class="hint">(deductible)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-otherloan" placeholder="e.g. 0"></div></div>
+          <div class="f" id="df-personal"><label>Personal / Car Loans <span class="hint">(non-deductible)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-personal" placeholder="e.g. 15000"></div></div>
+          <div class="f" id="df-cc"><label>Credit Card Debt <span class="hint">(non-deductible)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cc" placeholder="e.g. 8000"></div></div>
+          <div class="f" id="df-biz"><label>Business Debts <span class="hint">(deductible)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-biz" placeholder="e.g. 0"></div></div>
         </div>
         <div class="divline"></div>
         <div class="sublabel">Final Expenses</div>
         <div class="fg">
-          <div class="f" id="df-legalcost"><label>Legal / Estate Costs</label><div class="pfx"><span class="p">$</span><input type="number" id="s-legalcost"></div></div>
-          <div class="f"><label>Funeral &amp; Final Expenses</label><div class="pfx"><span class="p">$</span><input type="number" id="s-funeral"></div></div>
+          <div class="f" id="df-legalcost"><label>Legal / Estate Costs</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-legalcost"></div></div>
+          <div class="f"><label>Funeral &amp; Final Expenses</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-funeral"></div></div>
         </div>
         <!-- Debt clearance % — shown only if admin unlocks -->
         <div id="df-debtclear-section" style="display:none">
@@ -807,12 +807,12 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
           <div class="f"><label>School Type</label>
             <select id="s-school"><option value="0">No schooling costs</option><option value="gov">Government</option><option value="cath">Catholic / Independent</option><option value="priv">Private</option></select>
           </div>
-          <div class="f"><label>Childcare / Nanny <span class="hint">(per year)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-childcare" placeholder="e.g. 15000"></div></div>
+          <div class="f"><label>Childcare / Nanny <span class="hint">(per year)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-childcare" placeholder="e.g. 15000"></div></div>
         </div>
         <div class="divline"></div>
         <div class="sublabel">Other Dependants</div>
         <div class="fg">
-          <div class="f"><label>Annual Support for Others</label><div class="pfx"><span class="p">$</span><input type="number" id="s-odep" placeholder="e.g. 0"></div></div>
+          <div class="f"><label>Annual Support for Others</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-odep" placeholder="e.g. 0"></div></div>
           <div class="f"><label>Years of Support Required</label><input type="number" id="s-odepyrs" placeholder="e.g. 10" min="0" max="30"></div>
         </div>
         <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(3)">← Back</button><button class="btn btn-primary" onclick="goStep(5)">Next: Assets →</button></div>
@@ -827,13 +827,13 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
         <div class="assets-group">
           <div class="assets-fields" id="assets-fields">
             <div class="fg" style="margin-top:14px">
-              <div class="f" id="af-cash"><label>Cash / Bank Accounts</label><div class="pfx"><span class="p">$</span><input type="number" id="s-cash" placeholder="e.g. 40000" oninput="updateAssetPreview()"></div></div>
-              <div class="f" id="af-resprop"><label>Residential Property <span class="hint">(net equity)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-resprop" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
-              <div class="f" id="af-comprop"><label>Commercial Property <span class="hint">(net equity)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-comprop" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
-              <div class="f" id="af-invprop"><label>Investment Property <span class="hint">(net equity)</span></label><div class="pfx"><span class="p">$</span><input type="number" id="s-invprop" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
-              <div class="f" id="af-shares"><label>Shares / Equities</label><div class="pfx"><span class="p">$</span><input type="number" id="s-shares" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
-              <div class="f" id="af-managed"><label>Managed Funds</label><div class="pfx"><span class="p">$</span><input type="number" id="s-managed" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
-              <div class="f" id="af-super-asset"><label>Superannuation</label><div class="pfx"><span class="p">$</span><input type="number" id="s-super" placeholder="e.g. 180000" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-cash"><label>Cash / Bank Accounts</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cash" placeholder="e.g. 40000" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-resprop"><label>Residential Property <span class="hint">(net equity)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-resprop" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-comprop"><label>Commercial Property <span class="hint">(net equity)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-comprop" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-invprop"><label>Investment Property <span class="hint">(net equity)</span></label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-invprop" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-shares"><label>Shares / Equities</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-shares" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-managed"><label>Managed Funds</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-managed" placeholder="e.g. 0" oninput="updateAssetPreview()"></div></div>
+              <div class="f" id="af-super-asset"><label>Superannuation</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-super" placeholder="e.g. 180000" oninput="updateAssetPreview()"></div></div>
             </div>
           </div>
         </div>
@@ -843,7 +843,7 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
           <div class="divline"></div>
           <div class="sublabel">TPD — Medical Costs</div>
           <div class="fg">
-            <div class="f"><label>Medical / Rehabilitation Costs ($)</label><div class="pfx"><span class="p">$</span><input type="number" id="s-tpdmedcost"></div></div>
+            <div class="f"><label>Medical / Rehabilitation Costs ($)</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-tpdmedcost"></div></div>
           </div>
         </div>
 
@@ -855,7 +855,7 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
             <div class="f"><label>Does the client own their home?</label>
               <div class="tbg"><button class="tb active" onclick="setTb(this,'tpd-ownsres','yes')">Yes</button><button class="tb" onclick="setTb(this,'tpd-ownsres','no')">No — include purchase cost</button></div>
             </div>
-            <div class="f" id="af-tpdbuyres-amt" style="display:none"><label>Estimated Purchase Cost ($)</label><div class="pfx"><span class="p">$</span><input type="number" id="s-tpdbuyresamt" placeholder="e.g. 800000"></div></div>
+            <div class="f" id="af-tpdbuyres-amt" style="display:none"><label>Estimated Purchase Cost ($)</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-tpdbuyresamt" placeholder="e.g. 800000"></div></div>
           </div>
         </div>
 
@@ -864,8 +864,8 @@ table.bkt tr.tot td{border-bottom:none;font-weight:700;font-size:15px;color:var(
           <div class="divline"></div>
           <div class="sublabel">Trauma — Medical &amp; Care Costs</div>
           <div class="fg">
-            <div class="f"><label>Medical Costs ($)</label><div class="pfx"><span class="p">$</span><input type="number" id="s-traumamedcost"></div></div>
-            <div class="f"><label>Carers Cost ($)</label><div class="pfx"><span class="p">$</span><input type="number" id="s-traumacareramt"></div></div>
+            <div class="f"><label>Medical Costs ($)</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-traumamedcost"></div></div>
+            <div class="f"><label>Carers Cost ($)</label><div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-traumacareramt"></div></div>
           </div>
         </div>
 
@@ -1119,7 +1119,13 @@ async function persistSaveHistory(userId, entry) {
   try {
     await sbUpsert('caa_history', {
       id: entry.id, user_id: userId, client: entry.client, date: entry.date,
-      results: entry.results, breakdown: entry.breakdown, inputs: entry.inputs || {}
+      results: entry.results, breakdown: entry.breakdown,
+      inputs: {
+        ...(entry.inputs || {}),
+        _tpdBreakdown: entry.tpdBreakdown || [],
+        _ipBreakdown: entry.ipBreakdown || [],
+        _traumaBreakdown: entry.traumaBreakdown || []
+      }
     });
   } catch(e) { console.warn('Supabase history save error:', e); }
 }
@@ -1141,7 +1147,14 @@ async function persistLoad() {
     HISTORY = {};
     histRows.forEach(h => {
       if (!HISTORY[h.user_id]) HISTORY[h.user_id] = [];
-      HISTORY[h.user_id].push({id:h.id, client:h.client, calcName:h.client, date:h.date, results:h.results, breakdown:h.breakdown, inputs:h.inputs});
+      HISTORY[h.user_id].push({
+        id:h.id, client:h.client, calcName:h.client, date:h.date,
+        results:h.results, breakdown:h.breakdown,
+        tpdBreakdown:(h.inputs&&h.inputs._tpdBreakdown)||[],
+        ipBreakdown:(h.inputs&&h.inputs._ipBreakdown)||[],
+        traumaBreakdown:(h.inputs&&h.inputs._traumaBreakdown)||[],
+        inputs:h.inputs
+      });
     });
   } catch(e) { console.warn('Supabase load error:', e); }
 }
@@ -1227,9 +1240,29 @@ document.getElementById('pw-reset-overlay').addEventListener('click', e => { if(
 document.getElementById('fp-new').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('fp-confirm').focus(); });
 document.getElementById('fp-confirm').addEventListener('keydown', e => { if(e.key==='Enter') submitForcePw(); });
 
+
+// ══════════ DOLLAR INPUT COMMA FORMATTING ══════════
+function initDollarFormatting() {
+  const ids = ['s-income','s-partner','s-mortgage','s-otherloan','s-personal','s-cc','s-biz',
+    's-legalcost','s-funeral','s-cash','s-resprop','s-comprop','s-invprop','s-shares',
+    's-managed','s-super','s-childcare','s-odep','s-tpdmedcost','s-tpdbuyresamt',
+    's-traumamedcost','s-traumacareramt'];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const fmt = () => {
+      const raw = el.value.replace(/[^0-9]/g, '');
+      el.value = raw ? parseInt(raw, 10).toLocaleString('en-AU') : '';
+    };
+    el.addEventListener('input', fmt);
+    el.addEventListener('blur',  fmt);
+  });
+}
+
 function launchApp(role, userObj) {
   currentRole = role;
   currentUser = userObj;
+  initDollarFormatting();
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
   const badge = document.getElementById('mbadge');
@@ -1561,6 +1594,9 @@ function saveCalc() {
     calcName: clientVal,
     results: {...lastResult.results},
     breakdown: [...lastResult.breakdown],
+    tpdBreakdown: [...(lastResult.tpdBreakdown||[])],
+    ipBreakdown: [...(lastResult.ipBreakdown||[])],
+    traumaBreakdown: [...(lastResult.traumaBreakdown||[])],
     inputs: {...lastResult.inputs}
   };
   HISTORY[currentUser.id].unshift(entry);
@@ -1709,7 +1745,7 @@ function saveRename(histId, userId) {
   const item = document.getElementById('hi-' + histId);
   if (item) {
     const head = item.querySelector('.hist-head > div:first-child');
-    if (head) head.innerHTML = `<div class="hist-client">${newName}</div>`;
+    if (head) head.innerHTML = `<div class="hist-client">${escapeHTML(newName)}</div>`;
   }
   // Close rename row
   const row = document.getElementById('rename-row-' + histId);
@@ -1926,7 +1962,7 @@ function previewHistInputs(histId) {
   overlay.innerHTML = '<div style="background:white;border-radius:16px;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:fadeUp .3s ease">'
     + '<div style="padding:22px 26px;border-bottom:1px solid var(--bg2);display:flex;align-items:flex-start;justify-content:space-between">'
     + '<div><div style="font-family:Playfair Display,serif;font-size:20px;font-weight:700;color:var(--navy)">' + escapeHTML(entry.client||'Unnamed') + '</div>'
-    + '<div style="font-size:12px;color:var(--light);margin-top:2px">' + entry.date + '</div></div>'
+    + '<div style="font-size:12px;color:var(--light);margin-top:2px">' + escapeHTML(entry.date||'') + '</div></div>'
     + '<button id="preview-close-btn" style="width:30px;height:30px;border-radius:50%;background:var(--bg);border:none;cursor:pointer;font-size:16px;color:var(--mid)">✕</button>'
     + '</div>'
     + '<div style="overflow-y:auto;padding:20px 26px">'
@@ -1943,14 +1979,20 @@ function exportHistPDF(userId, histId) {
   const staffName = user ? user.name : (currentUser ? currentUser.name : '');
   const hist = (HISTORY[userId] || []).find(h => h.id === histId);
   if (!hist) return;
-  generatePDF(hist.client, hist.date, hist.results, hist.breakdown, hist.inputs || {}, staffName);
+  const tpd = hist.tpdBreakdown || [];
+  const ip  = hist.ipBreakdown  || [];
+  const trm = hist.traumaBreakdown || [];
+  generatePDF(hist.client, hist.date, hist.results, hist.breakdown, tpd, ip, trm, hist.inputs || {}, staffName);
 }
 
 function exportAllHistPDF(staffName, histId) {
   for (const u of USERS) {
     const hist = (HISTORY[u.id] || []).find(h => h.id === histId);
     if (hist) {
-      generatePDF(hist.client, hist.date, hist.results, hist.breakdown, hist.inputs || {}, staffName);
+      const tpd2 = hist.tpdBreakdown || [];
+      const ip2  = hist.ipBreakdown  || [];
+      const trm2 = hist.traumaBreakdown || [];
+      generatePDF(hist.client, hist.date, hist.results, hist.breakdown, tpd2, ip2, trm2, hist.inputs || {}, staffName);
       return;
     }
   }
@@ -2091,7 +2133,7 @@ function gv(id, def=0) {
   // Only skip if the element itself is explicitly hidden via display:none
   // (e.g. admin-toggled fields), NOT if it's inside a hidden step card
   if(el.style.display === 'none') return def;
-  const v = parseFloat(el.value);
+  const v = parseFloat(el.value.replace(/,/g,''));
   return isNaN(v) ? def : v;
 }
 
@@ -2267,7 +2309,7 @@ function runCalc() {
     life:   fmt(lifeCover),
     tpd:    fmt(tpdCover),
     ip:     fmt(ipMonthly)+'/mo',
-    ipSuper:fmt(ipSuperMonthly)+'/mo',
+    ipSuper:ipSuperMonthly > 0 ? fmt(ipSuperMonthly)+'/mo' : '',
     trauma: fmt(traumaCover),
     ipHighIncomeWarn
   };
@@ -2516,9 +2558,23 @@ function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown
   function miniTable(data, startY, startX, titleLabel, titleColor, totalIdx) {
     const bodyW = colW;
     const rightM = W - startX - bodyW;
+    // Graceful fallback for empty arrays (e.g. old Supabase records)
+    if (!data || data.length === 0) {
+      doc.setFillColor(...titleColor);
+      doc.rect(startX, startY, bodyW, 5.5, 'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(6.8); doc.setFont('helvetica','bold');
+      doc.text(titleLabel.toUpperCase(), startX + 3, startY + 3.8);
+      doc.autoTable({
+        startY: startY + 5.5, body:[['Breakdown available on new calculations','']],
+        margin:{left:startX, right:rightM, top:0, bottom:0}, tableWidth:bodyW,
+        styles:{font:'helvetica',fontSize:6.5,cellPadding:1.8,textColor:[160,165,170],fontStyle:'italic'},
+        columnStyles:{0:{cellWidth:'auto'},1:{cellWidth:amtW}},
+      });
+      return doc.lastAutoTable.finalY;
+    }
     const rows = data.map(row => [
       row.label + (row.note ? `\n${row.note}` : ''),
-      (row.amt < 0 ? '−' : '') + fmt(Math.abs(row.amt))
+      row.amt < 0 ? '(' + fmt(Math.abs(row.amt)) + ')' : fmt(row.amt)
     ]);
 
     // Coloured title bar
@@ -2532,7 +2588,7 @@ function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown
     doc.autoTable({
       startY: startY + 5.5,
       body: rows,
-      margin: {left: startX, right: rightM},
+      margin: {left: startX, right: rightM, top: 0, bottom: 0},
       tableWidth: bodyW,
       styles: {font:'helvetica', fontSize:7.2, cellPadding:1.8, textColor:[50,60,70]},
       columnStyles: {0:{cellWidth:'auto'}, 1:{halign:'right', cellWidth:amtW}},
@@ -2554,9 +2610,12 @@ function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown
   let leftY = startY;
   leftY = miniTable(breakdown, leftY, M, 'Life Cover', [26,158,154], breakdown.length - 1) + 4;
   // IP — monthly figures, no "total" row styling needed
-  const ipRows = ipBreakdown.map(row => [
+  const ipRowsData = (!ipBreakdown || ipBreakdown.length === 0)
+    ? [{label:'Monthly benefit available on new calculations', note:'', amt:0}]
+    : ipBreakdown;
+  const ipRows = ipRowsData.map(row => [
     row.label + (row.note ? `\n${row.note}` : ''),
-    fmt(row.amt) + '/mo'
+    row.amt > 0 ? fmt(row.amt) + '/mo' : '—'
   ]);
   doc.setFillColor(37,99,168);
   doc.rect(M, leftY, colW, 5.5, 'F');
@@ -2567,7 +2626,7 @@ function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown
   doc.autoTable({
     startY: leftY + 5.5,
     body: ipRows,
-    margin: {left: M, right: W - M - colW},
+    margin: {left: M, right: W - M - colW, top: 0, bottom: 0},
     tableWidth: colW,
     styles: {font:'helvetica', fontSize:7.2, cellPadding:1.8, textColor:[50,60,70]},
     columnStyles: {0:{cellWidth:'auto'}, 1:{halign:'right', cellWidth:amtW}},
@@ -2580,7 +2639,7 @@ function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown
   rightY = miniTable(tpdBreakdown, rightY, colR, 'Total & Permanent Disability', [15,51,82], tpdBreakdown.length - 1) + 4;
   rightY = miniTable(traumaBreakdown, rightY, colR, 'Trauma Cover', [13,106,106], traumaBreakdown.length - 1);
 
-  y = Math.max(leftY, rightY) + 10;
+  y = Math.max(leftY, rightY) + 5;
 
   // Inputs summary — card grid (3 per row × 2 rows)
   if (inputs && Object.keys(inputs).length) {
@@ -2630,7 +2689,7 @@ function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown
     doc.setFontSize(7.5);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(160, 70, 10);
-    doc.text('⚠  SMOKER LOADING NOTICE', M+7, y+5.5);
+    doc.text('SMOKER LOADING NOTICE', M+7, y+5.5);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(120, 70, 20);
     const bodyLines = doc.splitTextToSize(smokerText.replace('Smoker Loading Notice: ', ''), W-M*2-12);
