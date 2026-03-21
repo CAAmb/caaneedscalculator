@@ -3604,12 +3604,8 @@
         // Admin accounts can log in via Staff tab to access the calculator
         const launchRole = selectedRole; // respect the tab the user chose
         const userObj = { id: user.id, name: displayName, email: user.email, role };
-        // Check if force-password-change is needed:
-        // - JWT flag (set by add-users.mjs), OR
-        // - caa_users flag (set by admin reset action), OR
-        // - no profile at all (brand-new user created manually in Supabase dashboard)
-        const mustResetFromJwt = meta.must_reset_password === true;
-        if (mustResetFromJwt || (profile && profile.mustResetPassword)) {
+        // Check if force-password-change is needed (DB flag is authoritative):
+        if (profile && profile.mustResetPassword) {
           currentUser = userObj;
           pendingLaunchRole = launchRole; // remember which role to launch after reset
           showForcePwModal(userObj, 'reset');
@@ -3950,11 +3946,14 @@
           if (tokenData.access_token) currentToken = tokenData.access_token;
           if (tokenData.refresh_token) currentRefreshToken = tokenData.refresh_token;
         } catch(_) {}
-        // Create/update caa_users profile with role and cleared reset flag
-        // This also handles brand-new users who had no caa_users row yet
+        // Clear the reset flag directly in caa_users
         const u = USERS.find(x => x.id === currentUser.id);
         if (u) { u.mustResetPassword = false; currentUser = { ...currentUser, mustResetPassword: false }; }
-        await persistSaveUser({ ...currentUser, role: currentUser.role || 'staff', mustResetPassword: false });
+        await sbFetch(SB_URL + '/rest/v1/caa_users?id=eq.' + encodeURIComponent(currentUser.id), {
+          method: 'PATCH',
+          headers: Object.assign({}, authHeaders(), { 'Prefer': 'return=minimal' }),
+          body: JSON.stringify({ must_reset_password: false })
+        });
       } catch (e) {
         err.textContent = 'Connection error. Please try again.';
         if (btn) { btn.textContent = 'Set Password'; btn.disabled = false; }
