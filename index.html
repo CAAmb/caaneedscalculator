@@ -3942,12 +3942,22 @@
           if (btn) { btn.textContent = 'Set Password'; btn.disabled = false; }
           return;
         }
-        // Supabase issues a new session after password change — capture new token
-        // so subsequent authenticated calls (persistSaveUser) don't use the invalidated old token
+        // After password change Supabase rotates the session — re-authenticate with the new
+        // password to guarantee a fresh valid token before calling persistSaveUser.
+        // (Relying on the PUT response body alone is unreliable: if token capture fails silently
+        //  the stale token hits a 401, the refresh also fails because it was invalidated, and
+        //  persistSaveUser never clears must_reset_password in the DB → loop repeats every login.)
         try {
-          const tokenData = await r.json();
-          if (tokenData.access_token) currentToken = tokenData.access_token;
-          if (tokenData.refresh_token) currentRefreshToken = tokenData.refresh_token;
+          const reAuth = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
+            body: JSON.stringify({ email: currentUser.email, password: np })
+          });
+          if (reAuth.ok) {
+            const reAuthData = await reAuth.json();
+            if (reAuthData.access_token) currentToken = reAuthData.access_token;
+            if (reAuthData.refresh_token) currentRefreshToken = reAuthData.refresh_token;
+          }
         } catch(_) {}
         // Create or update caa_users row with reset flag cleared
         // persistSaveUser uses POST merge-duplicates: creates row if new, updates if existing
