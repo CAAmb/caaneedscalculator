@@ -3604,8 +3604,11 @@
         // Admin accounts can log in via Staff tab to access the calculator
         const launchRole = selectedRole; // respect the tab the user chose
         const userObj = { id: user.id, name: displayName, email: user.email, role };
-        // Check if force-password-change is needed (DB flag is authoritative):
-        if (profile && profile.mustResetPassword) {
+        // Check if force-password-change is needed:
+        // JWT flag catches brand-new users (set by add-users.mjs, no DB row yet)
+        // DB flag catches admin-triggered resets on existing users
+        const mustResetFromJwt = meta.must_reset_password === true;
+        if (mustResetFromJwt || (profile && profile.mustResetPassword)) {
           currentUser = userObj;
           pendingLaunchRole = launchRole; // remember which role to launch after reset
           showForcePwModal(userObj, 'reset');
