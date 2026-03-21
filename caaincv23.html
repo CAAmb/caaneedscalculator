@@ -3470,7 +3470,8 @@
               ...(entry.inputs || {}),
               _tpdBreakdown: entry.tpdBreakdown || [],
               _ipBreakdown: entry.ipBreakdown || [],
-              _traumaBreakdown: entry.traumaBreakdown || []
+              _traumaBreakdown: entry.traumaBreakdown || [],
+              _userName: entry.userName || ''
             }
           })
         });
@@ -3507,6 +3508,7 @@
           if (!HISTORY[h.user_id]) HISTORY[h.user_id] = [];
           HISTORY[h.user_id].push({
             id: h.id, client: h.client, calcName: h.client, date: h.date,
+            userName: (h.inputs && h.inputs._userName) || '',
             results: h.results, breakdown: h.breakdown,
             tpdBreakdown: (h.inputs && h.inputs._tpdBreakdown) || [],
             ipBreakdown: (h.inputs && h.inputs._ipBreakdown) || [],
@@ -3968,6 +3970,7 @@
         date: new Date().toLocaleString('en-AU'),
         client: clientVal,
         calcName: clientVal,
+        userName: currentUser.name,
         results: { ...lastResult.results },
         breakdown: [...lastResult.breakdown],
         tpdBreakdown: [...(lastResult.tpdBreakdown || [])],
@@ -4047,7 +4050,7 @@
       // auto-registration may not have completed yet
       Object.keys(HISTORY).forEach(uid => {
         const u = USERS.find(x => x.id === uid);
-        (HISTORY[uid] || []).forEach(h => allEntries.push({ ...h, userName: u ? u.name : h.userEmail || uid }));
+        (HISTORY[uid] || []).forEach(h => allEntries.push({ ...h, userName: h.userName || (u ? u.name : uid) }));
       });
       allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
       if (!allEntries.length) { el.innerHTML = '<div class="no-hist">No calculations saved yet.</div>'; return; }
@@ -5017,40 +5020,6 @@
       rightY = miniTable(traumaBreakdown, rightY, colR, 'Trauma Cover', [13, 106, 106], traumaBreakdown.length - 1);
 
       y = Math.max(leftY, rightY) + 5;
-
-      // Inputs summary — card grid (3 per row × 2 rows)
-      if (inputs && Object.keys(inputs).length) {
-        drawHeading('KEY INPUTS USED');
-
-        const inputCards = [
-          { label: 'Annual Income', value: inputs.income ? fmt(inputs.income) : '—' },
-          { label: 'Income Replacement', value: `${inputs.incPct || 0}% / ${inputs.repYrs || 0} yrs` },
-          { label: 'Earnings / Inflation', value: `${inputs.earn || 0}% / ${inputs.infl || 0}%` },
-          { label: 'Outstanding Mortgage', value: inputs.mortgage ? fmt(inputs.mortgage) : '$0' },
-          { label: 'Superannuation Balance', value: inputs.superBal ? fmt(inputs.superBal) : '$0' },
-          { label: 'IP Super Contribution', value: `${inputs.superContribPct || 0}%` },
-        ];
-        const cpr = 3, cgap = 5;
-        const cw = (W - M * 2 - cgap * (cpr - 1)) / cpr;  // ~54.7mm
-        const ch = 17;
-        inputCards.forEach((card, i) => {
-          const col = i % cpr, row = Math.floor(i / cpr);
-          const cx = M + col * (cw + cgap), cy = y + row * (ch + 3);
-          doc.setFillColor(242, 246, 248);
-          doc.roundedRect(cx, cy, cw, ch, 2, 2, 'F');
-          doc.setFillColor(26, 158, 154);
-          doc.rect(cx, cy, cw, 1.8, 'F');
-          doc.setTextColor(120, 130, 140);
-          doc.setFontSize(6.2);
-          doc.setFont('helvetica', 'normal');
-          doc.text(card.label.toUpperCase(), cx + 4, cy + 7);
-          doc.setTextColor(15, 30, 46);
-          doc.setFontSize(9.5);
-          doc.setFont('helvetica', 'bold');
-          doc.text(card.value, cx + 4, cy + 13.5);
-        });
-        y += Math.ceil(inputCards.length / cpr) * (ch + 3) + 4;
-      }
 
       // Smoker loading notice
       if (inputs && inputs.smoker === 'yes') {
