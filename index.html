@@ -2361,10 +2361,8 @@
           <div class="sb-label">Defaults</div>
           <div class="sb-item" onclick="showPanel('defaults',this)"><span class="icon">⚙️</span>Assumptions</div>
           <div class="sb-item" onclick="showPanel('brand',this)"><span class="icon">🎨</span>Branding</div>
-          <div class="sb-label">Access & Data</div>
-          <div class="sb-item" onclick="showPanel('users',this)"><span class="icon">👥</span>Manage Users</div>
+          <div class="sb-label">Data</div>
           <div class="sb-item" onclick="showPanel('allhist',this)"><span class="icon">📋</span>All Calculations</div>
-          <div class="sb-item" onclick="showPanel('creds',this)"><span class="icon">🔐</span>Admin Credentials</div>
         </nav>
 
         <div class="admin-content">
@@ -2814,23 +2812,6 @@
               id="sk-brand">✓ Saved</span>
           </div>
 
-          <!-- Users -->
-          <div class="admin-panel" id="panel-users">
-            <div class="ph">
-              <h2>Manage Staff Users</h2>
-              <p>Add or remove staff accounts. Each user's calculations are stored separately.</p>
-            </div>
-            <div class="acard">
-              <div class="acard-title"><span class="dot"></span>Current Staff Users</div>
-              <div class="users-grid" id="users-list"></div>
-              <div class="info-tip" style="margin-top:12px">
-                To add staff in bulk, use <strong>add-users.mjs</strong> — users will appear here immediately. For
-                one-off additions, create the account in the <strong>Supabase Authentication dashboard</strong>, then
-                they'll appear here automatically on their first login and be prompted to set their password.
-              </div>
-            </div>
-          </div>
-
           <!-- All Calculations -->
           <div class="admin-panel" id="panel-allhist">
             <div class="ph">
@@ -2843,26 +2824,6 @@
             </div>
           </div>
 
-          <!-- Admin creds -->
-          <div class="admin-panel" id="panel-creds">
-            <div class="ph">
-              <h2>Admin Credentials</h2>
-              <p>User accounts and passwords are now managed via Supabase Authentication.</p>
-            </div>
-            <div class="acard">
-              <div class="acard-title"><span class="dot"></span>Manage Users &amp; Passwords</div>
-              <div class="info-tip" style="margin-bottom:0">
-                <strong>To add, remove, or reset passwords for any user:</strong><br>
-                1. Go to your <strong>Supabase project dashboard</strong> → <strong>Authentication</strong> →
-                <strong>Users</strong><br>
-                2. Create new users with their email address and a temporary password<br>
-                3. Set their role in <strong>User Metadata</strong>:
-                <code>{"role": "staff", "display_name": "Their Name"}</code><br>
-                4. For admins: <code>{"role": "admin"}</code><br><br>
-                Users will appear in the Staff Users list after their first login.
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>
@@ -3499,16 +3460,31 @@
 
     async function persistSaveHistory(userId, entry) {
       try {
-        await sbUpsert('caa_history', {
-          id: entry.id, user_id: userId, client: entry.client, date: entry.date,
-          results: entry.results, breakdown: entry.breakdown,
-          inputs: {
-            ...(entry.inputs || {}),
-            _tpdBreakdown: entry.tpdBreakdown || [],
-            _ipBreakdown: entry.ipBreakdown || [],
-            _traumaBreakdown: entry.traumaBreakdown || []
-          }
+        const r = await sbFetch(SB_URL + '/rest/v1/caa_history', {
+          method: 'POST',
+          headers: Object.assign({}, authHeaders(), { 'Prefer': 'resolution=merge-duplicates' }),
+          body: JSON.stringify({
+            id: entry.id, user_id: userId, client: entry.client, date: entry.date,
+            results: entry.results, breakdown: entry.breakdown,
+            inputs: {
+              ...(entry.inputs || {}),
+              _tpdBreakdown: entry.tpdBreakdown || [],
+              _ipBreakdown: entry.ipBreakdown || [],
+              _traumaBreakdown: entry.traumaBreakdown || []
+            }
+          })
         });
+        if (!r.ok) {
+          const errBody = await r.text().catch(() => r.status);
+          console.warn('History save failed:', r.status, errBody);
+          // Show a visible warning so the user knows the save didn't persist
+          const toast = document.createElement('div');
+          toast.className = 'load-toast';
+          toast.style.background = 'var(--red)';
+          toast.textContent = '⚠️ Calculation saved locally but could not sync to cloud (status ' + r.status + '). Check Supabase RLS policies on caa_history.';
+          document.body.appendChild(toast);
+          setTimeout(() => toast.remove(), 8000);
+        }
       } catch (e) { console.warn('Supabase history save error:', e); }
     }
 
@@ -3662,7 +3638,7 @@
         uEl.textContent = 'Admin';
         document.getElementById('admin-view').style.display = 'block';
         document.getElementById('staff-view').style.display = 'none';
-        loadAdminUI(); renderUsersList(); renderAllHist();
+        loadAdminUI(); renderAllHist();
       } else {
         badge.textContent = '✦ Staff'; badge.className = 'mbadge staff';
         uEl.textContent = userObj.name;
@@ -3702,7 +3678,6 @@
       document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
       document.getElementById('panel-' + id).classList.add('active');
       el.classList.add('active');
-      if (id === 'users') renderUsersList();
       if (id === 'allhist') renderAllHist();
     }
 
@@ -3797,6 +3772,7 @@
     // ══════════ USER MANAGEMENT ══════════
     function renderUsersList() {
       const el = document.getElementById('users-list');
+      if (!el) return; // panel removed — manage users via Supabase dashboard
       if (!USERS.length) { el.innerHTML = '<div class="no-users">No staff users added yet.</div>'; return; }
       el.innerHTML = USERS.map(u => {
         const histCount = (HISTORY[u.id] || []).length;
@@ -4061,11 +4037,17 @@
       document.getElementById('hist-modal').classList.remove('hidden');
     }
 
-    function renderAllHist() {
+    async function renderAllHist() {
       const el = document.getElementById('all-hist-list');
+      el.innerHTML = '<div class="no-hist">Loading…</div>';
+      // Always reload from Supabase so admin sees latest data from all staff
+      await persistLoad();
       const allEntries = [];
-      USERS.forEach(u => {
-        (HISTORY[u.id] || []).forEach(h => allEntries.push({ ...h, userName: u.name }));
+      // Iterate all HISTORY keys, not just USERS — catches entries whose profile
+      // auto-registration may not have completed yet
+      Object.keys(HISTORY).forEach(uid => {
+        const u = USERS.find(x => x.id === uid);
+        (HISTORY[uid] || []).forEach(h => allEntries.push({ ...h, userName: u ? u.name : h.userEmail || uid }));
       });
       allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
       if (!allEntries.length) { el.innerHTML = '<div class="no-hist">No calculations saved yet.</div>'; return; }
