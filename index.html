@@ -3581,7 +3581,17 @@
         const displayName = meta.display_name || user.email;
         // Load profiles first — caa_users.role is authoritative; JWT metadata is fallback for brand-new users
         await persistLoad();
-        const profile = USERS.find(x => x.id === user.id);
+        let profile = USERS.find(x => x.id === user.id);
+        // Fallback: if persistLoad couldn't populate USERS (e.g. RLS), fetch this user's row directly
+        if (!profile) {
+          try {
+            const rows = await sbGet('caa_users', 'id=eq.' + encodeURIComponent(user.id));
+            if (rows.length) {
+              profile = { id: rows[0].id, name: rows[0].name, email: rows[0].email || '',
+                          role: rows[0].role || 'staff', mustResetPassword: !!rows[0].must_reset_password };
+            }
+          } catch(_) {}
+        }
         const role = (profile && profile.role) ? profile.role : (meta.role || appMeta.role || 'staff');
         // Only block non-admin accounts from using the Admin tab
         if (selectedRole === 'admin' && role !== 'admin') {
@@ -3599,8 +3609,7 @@
         // - caa_users flag (set by admin reset action), OR
         // - no profile at all (brand-new user created manually in Supabase dashboard)
         const mustResetFromJwt = meta.must_reset_password === true;
-        const isNewUser = !profile;
-        if (mustResetFromJwt || isNewUser || (profile && profile.mustResetPassword)) {
+        if (mustResetFromJwt || (profile && profile.mustResetPassword)) {
           currentUser = userObj;
           pendingLaunchRole = launchRole; // remember which role to launch after reset
           showForcePwModal(userObj, 'reset');
