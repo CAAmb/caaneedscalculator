@@ -3605,10 +3605,11 @@
         const launchRole = selectedRole; // respect the tab the user chose
         const userObj = { id: user.id, name: displayName, email: user.email, role };
         // Check if force-password-change is needed:
-        // JWT flag catches brand-new users (set by add-users.mjs, no DB row yet)
-        // DB flag catches admin-triggered resets on existing users
+        // !profile = brand-new user (no caa_users row yet, created via dashboard)
+        // mustResetFromJwt = created via add-users.mjs script
+        // profile.mustResetPassword = admin manually triggered a reset
         const mustResetFromJwt = meta.must_reset_password === true;
-        if (mustResetFromJwt || (profile && profile.mustResetPassword)) {
+        if (mustResetFromJwt || !profile || profile.mustResetPassword) {
           currentUser = userObj;
           pendingLaunchRole = launchRole; // remember which role to launch after reset
           showForcePwModal(userObj, 'reset');
@@ -3949,14 +3950,11 @@
           if (tokenData.access_token) currentToken = tokenData.access_token;
           if (tokenData.refresh_token) currentRefreshToken = tokenData.refresh_token;
         } catch(_) {}
-        // Clear the reset flag directly in caa_users
+        // Create or update caa_users row with reset flag cleared
+        // persistSaveUser uses POST merge-duplicates: creates row if new, updates if existing
         const u = USERS.find(x => x.id === currentUser.id);
         if (u) { u.mustResetPassword = false; currentUser = { ...currentUser, mustResetPassword: false }; }
-        await sbFetch(SB_URL + '/rest/v1/caa_users?id=eq.' + encodeURIComponent(currentUser.id), {
-          method: 'PATCH',
-          headers: Object.assign({}, authHeaders(), { 'Prefer': 'return=minimal' }),
-          body: JSON.stringify({ must_reset_password: false })
-        });
+        await persistSaveUser({ ...currentUser, role: currentUser.role || 'staff', mustResetPassword: false });
       } catch (e) {
         err.textContent = 'Connection error. Please try again.';
         if (btn) { btn.textContent = 'Set Password'; btn.disabled = false; }
