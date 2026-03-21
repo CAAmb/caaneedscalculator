@@ -3570,7 +3570,7 @@
             }
           } catch(_) {}
         }
-        const role = (profile && profile.role) ? profile.role : (meta.role || appMeta.role || 'staff');
+        const role = (profile && profile.role) ? profile.role : (appMeta.role || meta.role || 'staff');
         // Only block non-admin accounts from using the Admin tab
         if (selectedRole === 'admin' && role !== 'admin') {
           errEl.textContent = 'No admin access. Role: "' + role + '"';
