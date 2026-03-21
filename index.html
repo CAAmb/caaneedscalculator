@@ -3605,11 +3605,10 @@
         const launchRole = selectedRole; // respect the tab the user chose
         const userObj = { id: user.id, name: displayName, email: user.email, role };
         // Check if force-password-change is needed:
-        // !profile = brand-new user (no caa_users row yet, created via dashboard)
-        // mustResetFromJwt = created via add-users.mjs script
+        // mustResetFromJwt = set in user_metadata when user was created (dashboard or add-users.mjs)
         // profile.mustResetPassword = admin manually triggered a reset
         const mustResetFromJwt = meta.must_reset_password === true;
-        if (mustResetFromJwt || !profile || profile.mustResetPassword) {
+        if (mustResetFromJwt || (profile && profile.mustResetPassword)) {
           currentUser = userObj;
           pendingLaunchRole = launchRole; // remember which role to launch after reset
           showForcePwModal(userObj, 'reset');
