@@ -3934,6 +3934,13 @@
           if (btn) { btn.textContent = 'Set Password'; btn.disabled = false; }
           return;
         }
+        // Supabase issues a new session after password change — capture new token
+        // so subsequent authenticated calls (persistSaveUser) don't use the invalidated old token
+        try {
+          const tokenData = await r.json();
+          if (tokenData.access_token) currentToken = tokenData.access_token;
+          if (tokenData.refresh_token) currentRefreshToken = tokenData.refresh_token;
+        } catch(_) {}
         // Create/update caa_users profile with role and cleared reset flag
         // This also handles brand-new users who had no caa_users row yet
         const u = USERS.find(x => x.id === currentUser.id);
