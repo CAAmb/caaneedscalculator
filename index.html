@@ -3585,6 +3585,29 @@
     }
 
     // ══════════ MICROSOFT SSO ══════════
+
+    async function doStaffLogin() {
+      // Copy values from staff fields into the shared login inputs, then delegate to doLogin()
+      document.getElementById('li-user').value = document.getElementById('staff-li-user').value.trim();
+      document.getElementById('li-pass').value = document.getElementById('staff-li-pass').value;
+      selectedRole = 'staff';
+
+      const staffBtn = document.getElementById('staff-li-btn');
+      const staffErr = document.getElementById('staff-li-err');
+      staffBtn.textContent = 'Signing in...'; staffBtn.disabled = true;
+      staffErr.classList.add('hidden');
+
+      await doLogin();
+
+      // Sync any error back to the staff error element
+      const adminErr = document.getElementById('li-err');
+      if (!adminErr.classList.contains('hidden')) {
+        staffErr.textContent = adminErr.textContent;
+        staffErr.classList.remove('hidden');
+        adminErr.classList.add('hidden');
+      }
+      staffBtn.textContent = 'Sign In'; staffBtn.disabled = false;
+    }
     function doMicrosoftLogin() {
       const btn = document.getElementById('ms-btn');
       btn.textContent = 'Redirecting…'; btn.disabled = true;
