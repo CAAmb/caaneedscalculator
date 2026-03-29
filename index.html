@@ -2643,7 +2643,7 @@
         <button class="forgot-link" onclick="toggleForgotPw(true)">Forgot your password?</button>
       </div>
 
-      <!-- Staff: Microsoft SSO + email/password (shown by default) -->
+      <!-- Staff: Microsoft SSO primary, email/password collapsible fallback -->
       <div id="staff-login-section">
         <button class="login-btn" id="ms-btn" onclick="doMicrosoftLogin()" style="background:#2f2f2f;display:flex;align-items:center;justify-content:center;gap:10px">
           <svg width="18" height="18" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2655,12 +2655,21 @@
           Sign in with Microsoft
         </button>
         <div style="font-size:12px;color:var(--light);text-align:center;margin-top:12px">Use your Coastal Advisory Microsoft account</div>
-        <div class="login-divider" style="margin:18px 0"><span>or</span></div>
-        <div class="lf"><label>Email Address</label><input type="email" id="staff-li-user" placeholder="you@example.com" autocomplete="off"></div>
-        <div class="lf"><label>Password</label><input type="password" id="staff-li-pass" placeholder="Password"></div>
-        <button class="login-btn" id="staff-li-btn" onclick="doStaffLogin()">Sign In</button>
-        <div class="login-err hidden" id="staff-li-err">Incorrect email or password.</div>
-        <button class="forgot-link" onclick="toggleForgotPw(true)">Forgot your password?</button>
+
+        <!-- Email fallback toggle — subtle, secondary -->
+        <div style="text-align:center;margin-top:22px">
+          <button class="forgot-link" id="staff-email-toggle" onclick="toggleStaffEmail()">🔑 Sign in with email instead</button>
+        </div>
+
+        <!-- Collapsible email + password section -->
+        <div id="staff-email-section" class="hidden" style="margin-top:4px">
+          <div class="login-divider" style="margin:14px 0"></div>
+          <div class="lf"><label>Email Address</label><input type="email" id="staff-li-user" placeholder="you@example.com" autocomplete="off"></div>
+          <div class="lf"><label>Password</label><input type="password" id="staff-li-pass" placeholder="Password"></div>
+          <button class="login-btn" id="staff-li-btn" onclick="doStaffLogin()">Sign In</button>
+          <div class="login-err hidden" id="staff-li-err">Incorrect email or password.</div>
+          <button class="forgot-link" onclick="toggleForgotPw(true)">Forgot your password?</button>
+        </div>
       </div>
 
       <!-- Forgot password section -->
@@ -4021,6 +4030,20 @@
         + '&code_challenge_method=S256';
     }
 
+    // ══════════ STAFF EMAIL FALLBACK TOGGLE ══════════
+    function toggleStaffEmail() {
+      const section = document.getElementById('staff-email-section');
+      const toggle  = document.getElementById('staff-email-toggle');
+      const opening = section.classList.contains('hidden');
+      section.classList.toggle('hidden', !opening);
+      toggle.textContent = opening ? '✕ Cancel' : '🔑 Sign in with email instead';
+      if (opening) {
+        // Focus email field when expanding
+        const emailField = document.getElementById('staff-li-user');
+        if (emailField) setTimeout(() => emailField.focus(), 50);
+      }
+    }
+
     // ══════════ LOGIN ══════════
     function selRole(role, btn) {
       selectedRole = role;
@@ -4034,6 +4057,11 @@
       // Hide forgot password section when switching tabs
       const fs = document.getElementById('forgot-section');
       if (fs) fs.classList.add('hidden');
+      // Collapse staff email fallback section when switching tabs
+      const emailSec    = document.getElementById('staff-email-section');
+      const emailToggle = document.getElementById('staff-email-toggle');
+      if (emailSec)    emailSec.classList.add('hidden');
+      if (emailToggle) emailToggle.textContent = '🔑 Sign in with email instead';
     }
 
     async function doLogin() {
