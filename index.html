@@ -1369,6 +1369,118 @@
       padding: 32px 0
     }
 
+    /* ── PLATFORM INSIGHTS ── */
+    .insights-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .insights-stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+      border-left: 4px solid var(--peach);
+    }
+    .insights-stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 8px;
+    }
+    .insights-stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      font-family: 'Playfair Display', serif;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .insights-stat-sub {
+      font-size: 12px;
+      color: var(--mid);
+      margin-top: 4px;
+    }
+    .insights-cover-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .insights-cover-card {
+      background: var(--sky3);
+      border-radius: 10px;
+      padding: 16px 18px;
+      border: 1.5px solid var(--sky2);
+    }
+    .insights-cover-card .insights-stat-label { color: var(--mid); }
+    .insights-cover-card .insights-stat-value { font-size: 20px; color: var(--navy2); }
+    .insights-bar-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      height: 100px;
+      padding: 0 4px 0;
+      margin-top: 10px;
+    }
+    .insights-bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      gap: 6px;
+    }
+    .insights-bar {
+      width: 100%;
+      background: linear-gradient(180deg, var(--peach), var(--peach2));
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height .4s ease;
+    }
+    .insights-bar-label {
+      font-size: 10px;
+      color: var(--light);
+      text-align: center;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+    .insights-bar-val {
+      font-size: 11px;
+      color: var(--mid);
+      font-weight: 700;
+      text-align: center;
+    }
+    #insights-refresh-btn,
+    #insights-pdf-btn {
+      margin-top: 0;
+      height: 38px;
+      line-height: 1;
+      padding-top: 0;
+      padding-bottom: 0;
+      box-sizing: border-box;
+    }
+    .insights-loading {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--light);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .insights-spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid var(--bg2);
+      border-top-color: var(--peach);
+      border-radius: 50%;
+      animation: pdf-spin .8s linear infinite;
+      flex-shrink: 0;
+    }
+
     /* ── HISTORY MODAL ── */
     .modal-overlay {
       position: fixed;
@@ -1437,6 +1549,65 @@
     .modal-body {
       overflow-y: auto;
       padding: 24px 28px
+    }
+
+    /* ── HISTORY FILTER BAR ── */
+    .hist-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      padding: 14px 20px;
+      background: var(--sky3);
+      border-bottom: 1px solid var(--border);
+    }
+    .hist-filter-bar input[type="text"],
+    .hist-filter-bar input[type="date"] {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      background: white;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .hist-filter-bar input[type="text"]:focus,
+    .hist-filter-bar input[type="date"]:focus {
+      border-color: var(--peach);
+    }
+    .hist-filter-bar input[type="text"] {
+      min-width: 180px;
+      flex: 1;
+    }
+    .hist-filter-bar label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mid);
+      white-space: nowrap;
+    }
+    .hist-filter-clear {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--mid);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all .2s;
+    }
+    .hist-filter-clear:hover {
+      border-color: var(--peach);
+      color: var(--peach2);
+    }
+    .hist-filter-count {
+      font-size: 12px;
+      color: var(--light);
+      margin-left: auto;
+      white-space: nowrap;
     }
 
     .hist-item {
@@ -1940,6 +2111,57 @@
       background: linear-gradient(135deg, #162d42, #1e3d58);
       transform: translateY(-2px);
       box-shadow: 0 10px 30px rgba(15, 36, 51, .38)
+    }
+
+    /* ── PER-FIELD INLINE VALIDATION ── */
+    .field-error {
+      display: none;
+      font-size: 11.5px;
+      color: #c0392b;
+      font-weight: 500;
+      margin-top: 1px;
+      animation: fadeUp .15s ease;
+    }
+    .field-error.visible {
+      display: block;
+    }
+    input.field-invalid,
+    input.field-invalid:focus {
+      border-color: #e07060 !important;
+      background: #fff5f4 !important;
+      box-shadow: 0 0 0 2px rgba(224,112,96,.18) !important;
+    }
+
+    /* ── INPUT VALIDATION ERROR BANNER ── */
+    .calc-error-banner {
+      background: #fff0ee;
+      border: 1.5px solid #e07060;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .calc-error-banner.visible {
+      display: block;
+      animation: fadeUp .25s ease;
+    }
+    .calc-error-banner-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #b03020;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .calc-error-banner ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    .calc-error-banner ul li {
+      font-size: 13px;
+      color: #b03020;
+      line-height: 1.6;
     }
 
     /* ── RESULTS ── */
@@ -2496,6 +2718,7 @@
           <div class="sb-item" onclick="showPanel('brand',this)"><span class="icon">🎨</span>Branding</div>
           <div class="sb-label">Data</div>
           <div class="sb-item" onclick="showPanel('allhist',this)"><span class="icon">📋</span>All Calculations</div>
+          <div class="sb-item" onclick="showPanel('insights',this)"><span class="icon">📊</span>Platform Insights</div>
         </nav>
 
         <div class="admin-content">
@@ -2970,6 +3193,23 @@
             </div>
           </div>
 
+          <!-- Platform Insights -->
+          <div class="admin-panel" id="panel-insights">
+            <div class="ph" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+              <div>
+                <h2>Platform Insights</h2>
+                <p>Aggregate statistics across all staff and calculations.</p>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
+                <button class="save-btn" id="insights-pdf-btn" onclick="exportInsightsPDF()" style="background:linear-gradient(135deg,#eba380,#d4825a);color:#fff;white-space:nowrap;padding:9px 20px;font-size:13px">📄 Export Report PDF</button>
+                <button class="save-btn" id="insights-refresh-btn" onclick="loadInsights()" style="white-space:nowrap;padding:9px 20px;font-size:13px">↻ Refresh</button>
+              </div>
+            </div>
+            <div id="insights-body">
+              <div class="no-hist" style="padding:32px 0;text-align:center;color:var(--light)">Click Refresh to load statistics.</div>
+            </div>
+          </div>
+
 
         </div>
       </div>
@@ -3360,8 +3600,12 @@
               <div class="f"><label>Super Offset %</label><input type="number" id="s-superpct" min="0" max="100"></div>
             </div>
           </div>
+          <div class="calc-error-banner" id="calc-error-banner">
+            <div class="calc-error-banner-title">⚠ Please fix the following before calculating:</div>
+            <ul id="calc-error-list"></ul>
+          </div>
           <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(4)">← Back</button><button
-              class="btn btn-calc" onclick="runCalc()">★ Calculate My Cover</button></div>
+              class="btn btn-calc" onclick="runCalcWithValidation()">★ Calculate My Cover</button></div>
         </div>
 
         <!-- RESULTS -->
@@ -3462,6 +3706,15 @@
           <p id="modal-subtitle"></p>
         </div>
         <button class="modal-close" onclick="closeHistModal()">✕</button>
+      </div>
+      <div class="hist-filter-bar" id="hist-filter-bar">
+        <input type="text" id="hist-search" placeholder="Search client name…" oninput="filterHistModal()" autocomplete="off">
+        <label>From</label>
+        <input type="date" id="hist-date-from" oninput="filterHistModal()">
+        <label>To</label>
+        <input type="date" id="hist-date-to" oninput="filterHistModal()">
+        <button class="hist-filter-clear" onclick="clearHistFilters()">Clear filters</button>
+        <span class="hist-filter-count" id="hist-filter-count"></span>
       </div>
       <div class="modal-body" id="modal-body"></div>
     </div>
@@ -3739,13 +3992,33 @@
       }
       staffBtn.textContent = 'Sign In'; staffBtn.disabled = false;
     }
-    function doMicrosoftLogin() {
+    // ── PKCE helpers ──────────────────────────────────────────
+    function generatePkceVerifier() {
+      const array = new Uint8Array(64);
+      crypto.getRandomValues(array);
+      return btoa(String.fromCharCode(...array))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+        .substring(0, 128);
+    }
+    async function generatePkceChallenge(verifier) {
+      const data = new TextEncoder().encode(verifier);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      return btoa(String.fromCharCode(...new Uint8Array(digest)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+
+    async function doMicrosoftLogin() {
       const btn = document.getElementById('ms-btn');
       btn.textContent = 'Redirecting…'; btn.disabled = true;
       const redirectTo = window.location.href.split('?')[0].split('#')[0];
+      const verifier = generatePkceVerifier();
+      const challenge = await generatePkceChallenge(verifier);
+      sessionStorage.setItem('pkce_code_verifier', verifier);
       window.location.href = SB_URL + '/auth/v1/authorize?provider=azure'
         + '&redirect_to=' + encodeURIComponent(redirectTo)
-        + '&flow_type=implicit';
+        + '&flow_type=pkce'
+        + '&code_challenge=' + encodeURIComponent(challenge)
+        + '&code_challenge_method=S256';
     }
 
     // ══════════ LOGIN ══════════
@@ -3768,8 +4041,11 @@
       const pass = document.getElementById('li-pass').value;
       const errEl = document.getElementById('li-err');
       const btn = document.getElementById('li-btn');
+      // Only update the admin button when the admin panel is actually visible —
+      // prevents the button going stale when called from doStaffLogin() while admin tab is hidden
+      const adminVisible = document.getElementById('admin-login-section').style.display !== 'none';
       errEl.classList.add('hidden');
-      btn.textContent = 'Signing in…'; btn.disabled = true;
+      if (adminVisible) { btn.textContent = 'Signing in…'; btn.disabled = true; }
       try {
         const r = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
           method: 'POST',
@@ -3780,8 +4056,7 @@
         if (!r.ok) {
           errEl.textContent = data.error_description || 'Incorrect email or password.';
           errEl.classList.remove('hidden');
-          btn.textContent = selectedRole === 'admin' ? 'Sign In as Admin' : 'Sign In';
-          btn.disabled = false;
+          if (adminVisible) { btn.textContent = 'Sign In as Admin'; btn.disabled = false; }
           return;
         }
         currentToken = data.access_token;
@@ -3809,7 +4084,7 @@
           errEl.textContent = 'No admin access. Role: "' + role + '"';
           errEl.classList.remove('hidden');
           currentToken = null;
-          btn.textContent = 'Sign In as Admin'; btn.disabled = false;
+          if (adminVisible) { btn.textContent = 'Sign In as Admin'; btn.disabled = false; }
           return;
         }
         // Admin accounts can log in via Staff tab to access the calculator
@@ -3823,24 +4098,127 @@
           currentUser = userObj;
           pendingLaunchRole = launchRole; // remember which role to launch after reset
           showForcePwModal(userObj, 'reset');
-          btn.textContent = selectedRole === 'admin' ? 'Sign In as Admin' : 'Sign In';
-          btn.disabled = false;
+          if (adminVisible) { btn.textContent = 'Sign In as Admin'; btn.disabled = false; }
           return;
         }
         launchApp(launchRole, launchRole === 'admin' ? null : userObj);
       } catch (e) {
         errEl.textContent = 'Connection error. Please try again.';
         errEl.classList.remove('hidden');
-        btn.textContent = selectedRole === 'admin' ? 'Sign In as Admin' : 'Sign In';
-        btn.disabled = false;
+        if (adminVisible) { btn.textContent = 'Sign In as Admin'; btn.disabled = false; }
       }
     }
 
+    // Admin login — Enter from either field triggers login
+    document.getElementById('li-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
     document.getElementById('li-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+    // Staff login — Enter from either field triggers staff login
+    document.getElementById('staff-li-user').addEventListener('keydown', e => { if (e.key === 'Enter') doStaffLogin(); });
+    document.getElementById('staff-li-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doStaffLogin(); });
     document.getElementById('pw-reset-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePwReset(); });
     document.getElementById('fp-new').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('fp-confirm').focus(); });
     document.getElementById('fp-confirm').addEventListener('keydown', e => { if (e.key === 'Enter') submitForcePw(); });
 
+
+    // ══════════ PER-FIELD INLINE VALIDATION ══════════
+    function initFieldValidation() {
+      const rules = [
+        {
+          id: 's-age',
+          validate(v) {
+            const n = parseFloat(v);
+            if (v.trim() === '' || isNaN(n)) return 'Please enter your age';
+            if (n < 18 || n > 75)           return 'Age must be between 18 and 75';
+            return null;
+          }
+        },
+        {
+          id: 's-income',
+          validate(v) {
+            const n = parseFloat(v.replace(/[^0-9.]/g, ''));
+            if (!v.trim() || isNaN(n) || n <= 0) return 'Please enter a valid annual income greater than $0';
+            return null;
+          }
+        },
+        {
+          id: 's-retire',
+          validate(v) {
+            const n = parseFloat(v);
+            if (v.trim() === '' || isNaN(n) || n < 0) return 'Please enter years to retirement (0 if already retired)';
+            return null;
+          }
+        },
+        {
+          id: 's-kids',
+          validate(v) {
+            if (v.trim() === '' || v.trim() === '0') return null;
+            const n = Number(v);
+            if (!Number.isInteger(n) || n < 0) return 'Please enter a whole number (0 or more)';
+            return null;
+          }
+        },
+        {
+          id: 's-youngest',
+          validate(v) {
+            const kidsEl = document.getElementById('s-kids');
+            const kids = kidsEl ? parseInt(kidsEl.value, 10) : 0;
+            if (!kids || kids <= 0) return null; // not required when no kids
+            const n = parseFloat(v);
+            if (v.trim() === '' || isNaN(n) || n < 0 || n > 17)
+              return 'Please enter the youngest child\'s age (0–17)';
+            return null;
+          }
+        }
+      ];
+
+      rules.forEach(({ id, validate }) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        // Create and inject the error message element
+        const errEl = document.createElement('span');
+        errEl.className = 'field-error';
+        errEl.id = 'err-' + id;
+        // Insert after the input or its .pfx wrapper
+        const anchor = el.closest('.pfx') || el;
+        anchor.parentNode.insertBefore(errEl, anchor.nextSibling);
+
+        function showErr(msg) {
+          errEl.textContent = msg || '';
+          errEl.classList.toggle('visible', !!msg);
+          el.classList.toggle('field-invalid', !!msg);
+        }
+
+        // Validate on blur — show error when user leaves the field
+        el.addEventListener('blur', () => showErr(validate(el.value)));
+
+        // Clear error as soon as the user starts correcting it
+        el.addEventListener('input', () => {
+          if (el.classList.contains('field-invalid')) {
+            const msg = validate(el.value);
+            showErr(msg); // live update while they fix it
+          }
+        });
+      });
+
+      // When kids count changes, re-validate youngest immediately
+      const kidsEl = document.getElementById('s-kids');
+      if (kidsEl) {
+        kidsEl.addEventListener('change', () => {
+          const youngEl = document.getElementById('s-youngest');
+          const errEl   = document.getElementById('err-s-youngest');
+          if (!youngEl || !errEl) return;
+          const kids = parseInt(kidsEl.value, 10);
+          if (!kids || kids <= 0) {
+            // No kids — clear youngest error
+            errEl.classList.remove('visible');
+            youngEl.classList.remove('field-invalid');
+          } else if (youngEl.value.trim() !== '') {
+            youngEl.dispatchEvent(new Event('blur'));
+          }
+        });
+      }
+    }
 
     // ══════════ DOLLAR INPUT COMMA FORMATTING ══════════
     function initDollarFormatting() {
@@ -3864,6 +4242,7 @@
       currentRole = role;
       currentUser = userObj;
       initDollarFormatting();
+      initFieldValidation();
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       const badge = document.getElementById('mbadge');
@@ -3920,6 +4299,7 @@
       document.getElementById('panel-' + id).classList.add('active');
       el.classList.add('active');
       if (id === 'allhist') renderAllHist();
+      if (id === 'insights') loadInsights();
     }
 
     function loadAdminUI() {
@@ -4258,6 +4638,16 @@
     function renderHistModal(userId, title, subtitle) {
       document.getElementById('modal-title').textContent = title;
       document.getElementById('modal-subtitle').textContent = subtitle;
+      // Reset filters on each open
+      const searchEl = document.getElementById('hist-search');
+      const fromEl = document.getElementById('hist-date-from');
+      const toEl = document.getElementById('hist-date-to');
+      if (searchEl) searchEl.value = '';
+      if (fromEl) fromEl.value = '';
+      if (toEl) toEl.value = '';
+      const countEl = document.getElementById('hist-filter-count');
+      if (countEl) countEl.textContent = '';
+
       const hist = HISTORY[userId] || [];
       const body = document.getElementById('modal-body');
       if (!hist.length) {
@@ -4265,10 +4655,15 @@
       } else {
         body.innerHTML = hist.map(h => {
           const sc = escapeHTML(h.client);
-          return `<div class="hist-item" id="hi-${h.id}">
+          // Derive ISO date string for filtering (date stored as locale string)
+          const rawDate = h.date || '';
+          // Try to parse the AU locale date string (e.g. "12/05/2024, 14:30:00")
+          const parsedTs = Date.parse(rawDate.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, '$3-$2-$1'));
+          const isoDate = isNaN(parsedTs) ? '' : new Date(parsedTs).toISOString().slice(0, 10);
+          return `<div class="hist-item" id="hi-${h.id}" data-client="${sc.toLowerCase()}" data-date="${isoDate}">
         <div class="hist-head">
           <div><div class="hist-client">${sc}</div></div>
-          <div class="hist-date">${escapeHTML(h.date)}</div>
+          <div class="hist-date">${escapeHTML(rawDate)}</div>
         </div>
         <div class="hist-covers">
           <div class="hc"><div class="hc-lbl">Life Cover</div><div class="hc-val">${h.results.life}</div></div>
@@ -4291,6 +4686,39 @@
         }).join('');
       }
       document.getElementById('hist-modal').classList.remove('hidden');
+    }
+
+    function filterHistModal() {
+      const query = (document.getElementById('hist-search').value || '').toLowerCase().trim();
+      const fromVal = document.getElementById('hist-date-from').value; // YYYY-MM-DD or ''
+      const toVal = document.getElementById('hist-date-to').value;
+      const items = document.querySelectorAll('#modal-body .hist-item');
+      let visible = 0;
+      items.forEach(item => {
+        const client = item.getAttribute('data-client') || '';
+        const dateStr = item.getAttribute('data-date') || '';
+        let show = true;
+        if (query && !client.includes(query)) show = false;
+        if (fromVal && dateStr && dateStr < fromVal) show = false;
+        if (toVal && dateStr && dateStr > toVal) show = false;
+        item.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      const countEl = document.getElementById('hist-filter-count');
+      if (countEl) {
+        const total = items.length;
+        countEl.textContent = (query || fromVal || toVal) ? `${visible} of ${total} shown` : '';
+      }
+    }
+
+    function clearHistFilters() {
+      const searchEl = document.getElementById('hist-search');
+      const fromEl = document.getElementById('hist-date-from');
+      const toEl = document.getElementById('hist-date-to');
+      if (searchEl) searchEl.value = '';
+      if (fromEl) fromEl.value = '';
+      if (toEl) toEl.value = '';
+      filterHistModal();
     }
 
     async function renderAllHist() {
@@ -4341,6 +4769,352 @@
 
     function closeHistModal() { document.getElementById('hist-modal').classList.add('hidden'); }
     function closeModal(e) { if (e.target.id === 'hist-modal') closeHistModal(); }
+
+    // ══════════ PLATFORM INSIGHTS ══════════
+    let lastInsightsData = null; // cached for PDF export
+
+    async function loadInsights() {
+      const body = document.getElementById('insights-body');
+      const btn = document.getElementById('insights-refresh-btn');
+      if (!body) return;
+
+      body.innerHTML = '<div class="insights-loading"><div class="insights-spinner"></div>Loading statistics…</div>';
+      if (btn) { btn.disabled = true; btn.textContent = '↻ Loading…'; }
+
+      try {
+        // Reload fresh data from Supabase
+        await persistLoad();
+
+        // ── Flatten all history entries ──
+        const allEntries = [];
+        Object.keys(HISTORY).forEach(uid => {
+          (HISTORY[uid] || []).forEach(h => allEntries.push(h));
+        });
+
+        const now = new Date();
+        const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+
+        // Total calculations
+        const totalCalcs = allEntries.length;
+
+        // Calculations this month
+        const thisMonthCalcs = allEntries.filter(h => {
+          if (!h.date) return false;
+          // Parse AU locale date e.g. "12/05/2024, 14:30:00"
+          const ts = Date.parse(h.date.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, '$3-$2-$1'));
+          if (isNaN(ts)) return false;
+          const d = new Date(ts);
+          return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        }).length;
+
+        // Unique clients (by client name, case-insensitive)
+        const uniqueClients = new Set(allEntries.map(h => (h.client || '').toLowerCase().trim()).filter(Boolean)).size;
+
+        // Average cover by type — results stored as formatted strings like "$500,000"
+        function parseAmt(s) {
+          if (!s) return 0;
+          const n = parseFloat(String(s).replace(/[^0-9.]/g, ''));
+          return isNaN(n) ? 0 : n;
+        }
+        const withLife  = allEntries.filter(h => h.results && parseAmt(h.results.life)  > 0);
+        const withTpd   = allEntries.filter(h => h.results && parseAmt(h.results.tpd)   > 0);
+        const withIp    = allEntries.filter(h => h.results && parseAmt(h.results.ip)     > 0);
+        const withTrauma= allEntries.filter(h => h.results && parseAmt(h.results.trauma) > 0);
+        const avg = (arr, key) => arr.length ? arr.reduce((s, h) => s + parseAmt(h.results[key]), 0) / arr.length : 0;
+        const avgLife   = avg(withLife,  'life');
+        const avgTpd    = avg(withTpd,   'tpd');
+        const avgIp     = avg(withIp,    'ip');
+        const avgTrauma = avg(withTrauma,'trauma');
+
+        // Most active staff member
+        const staffCount = {};
+        allEntries.forEach(h => {
+          const name = (h.userName || '').trim() || 'Unknown';
+          staffCount[name] = (staffCount[name] || 0) + 1;
+        });
+        let topStaff = '—', topStaffCount = 0;
+        Object.entries(staffCount).forEach(([name, cnt]) => {
+          if (cnt > topStaffCount) { topStaff = name; topStaffCount = cnt; }
+        });
+
+        // Calculations per month — last 6 months
+        const monthBuckets = [];
+        for (let i = 5; i >= 0; i--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+          const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+          const label = d.toLocaleDateString('en-AU', { month: 'short', year: '2-digit' });
+          monthBuckets.push({ key, label, count: 0 });
+        }
+        allEntries.forEach(h => {
+          if (!h.date) return;
+          const ts = Date.parse(h.date.replace(/(\d{1,2})\/(\d{1,2})\/(\d{4})/, '$3-$2-$1'));
+          if (isNaN(ts)) return;
+          const d = new Date(ts);
+          const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+          const bucket = monthBuckets.find(b => b.key === key);
+          if (bucket) bucket.count++;
+        });
+        const maxMonthCount = Math.max(...monthBuckets.map(b => b.count), 1);
+
+        // Cache for PDF export
+        lastInsightsData = { totalCalcs, thisMonthCalcs, uniqueClients, topStaff, topStaffCount,
+          avgLife, avgTpd, avgIp, avgTrauma,
+          lifeSamples: withLife.length, tpdSamples: withTpd.length,
+          ipSamples: withIp.length, traumaSamples: withTrauma.length,
+          monthBuckets, maxMonthCount };
+
+        // ── Render ──
+        body.innerHTML = `
+          <div class="insights-stat-grid">
+            <div class="insights-stat-card">
+              <div class="insights-stat-label">Total Calculations</div>
+              <div class="insights-stat-value">${totalCalcs.toLocaleString('en-AU')}</div>
+            </div>
+            <div class="insights-stat-card">
+              <div class="insights-stat-label">This Month</div>
+              <div class="insights-stat-value">${thisMonthCalcs.toLocaleString('en-AU')}</div>
+            </div>
+            <div class="insights-stat-card">
+              <div class="insights-stat-label">Unique Clients</div>
+              <div class="insights-stat-value">${uniqueClients.toLocaleString('en-AU')}</div>
+            </div>
+            <div class="insights-stat-card">
+              <div class="insights-stat-label">Most Active Staff</div>
+              <div class="insights-stat-value" style="font-size:18px">${escapeHTML(topStaff)}</div>
+              <div class="insights-stat-sub">${topStaffCount} calculation${topStaffCount !== 1 ? 's' : ''}</div>
+            </div>
+          </div>
+
+          <div class="acard">
+            <div class="acard-title"><span class="dot"></span>Average Recommended Cover</div>
+            <div class="insights-cover-grid" style="margin-top:16px">
+              <div class="insights-cover-card">
+                <div class="insights-stat-label">Avg Life Cover</div>
+                <div class="insights-stat-value">${fmt(avgLife)}</div>
+                <div class="insights-stat-sub">from ${withLife.length} calc${withLife.length !== 1 ? 's' : ''}</div>
+              </div>
+              <div class="insights-cover-card">
+                <div class="insights-stat-label">Avg TPD</div>
+                <div class="insights-stat-value">${fmt(avgTpd)}</div>
+                <div class="insights-stat-sub">from ${withTpd.length} calc${withTpd.length !== 1 ? 's' : ''}</div>
+              </div>
+              <div class="insights-cover-card">
+                <div class="insights-stat-label">Avg IP (Monthly)</div>
+                <div class="insights-stat-value">${fmt(avgIp)}</div>
+                <div class="insights-stat-sub">from ${withIp.length} calc${withIp.length !== 1 ? 's' : ''}</div>
+              </div>
+              <div class="insights-cover-card">
+                <div class="insights-stat-label">Avg Trauma</div>
+                <div class="insights-stat-value">${fmt(avgTrauma)}</div>
+                <div class="insights-stat-sub">from ${withTrauma.length} calc${withTrauma.length !== 1 ? 's' : ''}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="acard">
+            <div class="acard-title"><span class="dot"></span>Calculations — Last 6 Months</div>
+            <div class="insights-bar-chart">
+              ${monthBuckets.map(b => {
+                const pct = Math.round((b.count / maxMonthCount) * 100);
+                return `<div class="insights-bar-col">
+                  <div class="insights-bar-val">${b.count}</div>
+                  <div class="insights-bar" style="height:${Math.max(pct, 4)}px"></div>
+                  <div class="insights-bar-label">${b.label}</div>
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        console.error('Insights error:', err);
+        body.innerHTML = '<div class="no-hist" style="padding:24px;color:var(--red)">Failed to load statistics. Please try again.</div>';
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = '↻ Refresh'; }
+      }
+    }
+
+    // ══════════ INSIGHTS PDF EXPORT ══════════
+    function exportInsightsPDF() {
+      if (!lastInsightsData) {
+        alert('Please load the Platform Insights first by clicking Refresh.');
+        return;
+      }
+      const btn = document.getElementById('insights-pdf-btn');
+      const origText = btn ? btn.textContent : '';
+      if (btn) { btn.textContent = '⏳ Generating…'; btn.disabled = true; }
+      showPdfOverlay();
+      setTimeout(() => {
+        try {
+          const d = lastInsightsData;
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+          const W = 210, H = 297, M = 18;
+          let y = 0;
+
+          // ── Header band ──
+          const navy = [15, 36, 51], peach = [235, 163, 128], sky = [222, 245, 255];
+          doc.setFillColor(...navy);
+          doc.rect(0, 0, W, 48, 'F');
+          doc.setFillColor(...peach);
+          doc.rect(0, 45, W, 3, 'F');
+
+          // Logo (reuse LOGO_WHITE_B64 if available)
+          if (typeof LOGO_WHITE_B64 !== 'undefined' && LOGO_WHITE_B64) {
+            try { doc.addImage(LOGO_WHITE_B64, 'PNG', M, 8, 40, 20); } catch(e) {}
+          }
+
+          // Title block (right side)
+          doc.setTextColor(...peach);
+          doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+          doc.text('COASTAL ADVISORY AUSTRALIA', W - M, 12, { align: 'right' });
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+          doc.text('Platform Insights Report', W - M, 22, { align: 'right' });
+          doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+          doc.setTextColor(...sky);
+          const now = new Date().toLocaleDateString('en-AU', { day: '2-digit', month: 'long', year: 'numeric' });
+          doc.text(`Generated: ${now}`, W - M, 30, { align: 'right' });
+          const preparer = currentUser ? currentUser.name : '';
+          if (preparer) doc.text(`Prepared by: ${preparer}`, W - M, 37, { align: 'right' });
+
+          y = 56;
+
+          // ── Helper: section heading ──
+          function sectionLine(label) {
+            const mid = W / 2;
+            const tw = doc.getTextWidth(label);
+            doc.setDrawColor(200, 218, 238); doc.setLineWidth(0.4);
+            doc.line(M, y + 2.5, mid - tw / 2 - 4, y + 2.5);
+            doc.line(mid + tw / 2 + 4, y + 2.5, W - M, y + 2.5);
+            doc.setTextColor(140, 160, 180); doc.setFontSize(8); doc.setFont('helvetica', 'normal');
+            doc.text(label, mid, y + 5, { align: 'center' });
+            y += 11;
+          }
+
+          // ── Gradient banner helper (same bleed-proof technique as main PDF) ──
+          function insightsBanner(cx, cy, w, hdrH, r) {
+            const gTop = [28, 70, 102], gBot = [10, 28, 46];
+            doc.setFillColor(...gTop);
+            doc.roundedRect(cx, cy, w, hdrH, r, r, 'F');
+            const rangeH = hdrH - r, steps = 18;
+            for (let i = 0; i < steps; i++) {
+              const t = i / (steps - 1);
+              const R = Math.round(gTop[0] + t * (gBot[0] - gTop[0]));
+              const G = Math.round(gTop[1] + t * (gBot[1] - gTop[1]));
+              const B = Math.round(gTop[2] + t * (gBot[2] - gTop[2]));
+              doc.setFillColor(R, G, B);
+              doc.rect(cx, cy + r + i * rangeH / steps, w, rangeH / steps + 0.3, 'F');
+            }
+            // Peach accent line at banner bottom
+            doc.setDrawColor(...peach); doc.setLineWidth(0.6);
+            doc.line(cx, cy + hdrH, cx + w, cy + hdrH);
+          }
+
+          // ── Helper: mini stat card ──
+          function statCard(cx, cy, cw, ch, label, value, sub) {
+            const r = 3, hdrH = 9;
+            // White card body
+            doc.setFillColor(255, 255, 255);
+            doc.roundedRect(cx, cy, cw, ch, r, r, 'F');
+            // Gradient banner
+            insightsBanner(cx, cy, cw, hdrH, r);
+            // Label — white, centred inside banner
+            doc.setTextColor(255, 255, 255); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+            doc.text(label.toUpperCase(), cx + cw / 2, cy + 6, { align: 'center' });
+            // Value
+            doc.setTextColor(...navy); doc.setFontSize(14); doc.setFont('helvetica', 'bold');
+            doc.text(value, cx + cw / 2, cy + hdrH + 9, { align: 'center' });
+            // Sub
+            if (sub) {
+              doc.setTextColor(140, 155, 170); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+              doc.text(sub, cx + cw / 2, cy + hdrH + 14.5, { align: 'center' });
+            }
+            // Border
+            doc.setDrawColor(210, 225, 240); doc.setLineWidth(0.4);
+            doc.roundedRect(cx, cy, cw, ch, r, r, 'S');
+          }
+
+          // ── Summary stats (2 rows × 2 cols) ──
+          sectionLine('SUMMARY');
+          const cw = (W - M * 2 - 8) / 2, ch = 28;
+          statCard(M,        y, cw, ch, 'Total Calculations', d.totalCalcs.toLocaleString('en-AU'), null);
+          statCard(M + cw + 8, y, cw, ch, 'This Month',       d.thisMonthCalcs.toLocaleString('en-AU'), null);
+          y += ch + 6;
+          statCard(M,        y, cw, ch, 'Unique Clients',     d.uniqueClients.toLocaleString('en-AU'), null);
+          statCard(M + cw + 8, y, cw, ch, 'Most Active Staff', d.topStaff, `${d.topStaffCount} calculation${d.topStaffCount !== 1 ? 's' : ''}`);
+          y += ch + 10;
+
+          // ── Average cover ──
+          sectionLine('AVERAGE RECOMMENDED COVER');
+          const cw4 = (W - M * 2 - 12) / 4, ch4 = 28;
+          const covers = [
+            { label: 'Avg Life',   val: fmt(d.avgLife),   sub: `${d.lifeSamples} calcs` },
+            { label: 'Avg TPD',    val: fmt(d.avgTpd),    sub: `${d.tpdSamples} calcs` },
+            { label: 'Avg IP',     val: fmt(d.avgIp),     sub: `${d.ipSamples} calcs` },
+            { label: 'Avg Trauma', val: fmt(d.avgTrauma), sub: `${d.traumaSamples} calcs` },
+          ];
+          covers.forEach((c, i) => {
+            statCard(M + i * (cw4 + 4), y, cw4, ch4, c.label, c.val, c.sub);
+          });
+          y += ch4 + 10;
+
+          // ── Bar chart: last 6 months ──
+          sectionLine('CALCULATIONS — LAST 6 MONTHS');
+          const chartH = 50, chartW = W - M * 2;
+          const barW = Math.floor(chartW / d.monthBuckets.length) - 4;
+          const maxBar = chartH - 14; // leave room for label/count
+
+          // Chart background card
+          doc.setFillColor(250, 252, 255);
+          doc.roundedRect(M, y, chartW, chartH + 18, 3, 3, 'F');
+          doc.setDrawColor(210, 225, 240); doc.setLineWidth(0.4);
+          doc.roundedRect(M, y, chartW, chartH + 18, 3, 3, 'S');
+
+          const chartInnerY = y + 6;
+          d.monthBuckets.forEach((b, i) => {
+            const barH = d.maxMonthCount > 0 ? Math.max(Math.round((b.count / d.maxMonthCount) * maxBar), b.count > 0 ? 4 : 0) : 0;
+            const bx = M + 4 + i * (barW + 4);
+            const by = chartInnerY + maxBar - barH;
+
+            // Single colour bar
+            if (barH > 0) {
+              doc.setFillColor(28, 70, 102);
+              doc.roundedRect(bx, by, barW, barH, 2, 2, 'F');
+            } else {
+              // Empty bar placeholder
+              doc.setFillColor(230, 238, 245);
+              doc.roundedRect(bx, chartInnerY + maxBar - 3, barW, 3, 1, 1, 'F');
+            }
+
+            // Count above bar
+            doc.setTextColor(...navy); doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+            doc.text(String(b.count), bx + barW / 2, by - 1.5, { align: 'center' });
+
+            // Month label below
+            doc.setTextColor(120, 140, 160); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+            doc.text(b.label, bx + barW / 2, chartInnerY + maxBar + 9, { align: 'center' });
+          });
+          y += chartH + 28;
+
+          // ── Footer ──
+          doc.setFillColor(...navy);
+          doc.rect(0, H - 14, W, 14, 'F');
+          doc.setTextColor(...peach); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+          doc.text('COASTAL ADVISORY AUSTRALIA', M, H - 6);
+          doc.setTextColor(180, 200, 220); doc.setFont('helvetica', 'normal');
+          doc.text('Internal use only — not for distribution', W - M, H - 6, { align: 'right' });
+
+          const dateStr = new Date().toLocaleDateString('en-AU').replace(/\//g, '-');
+          doc.save(`CAA-Platform-Insights-${dateStr}.pdf`);
+        } catch (err) {
+          console.error('Insights PDF error:', err);
+          alert('Sorry, there was a problem generating the report. Please try again.');
+        } finally {
+          hidePdfOverlay();
+          if (btn) { btn.textContent = origText; btn.disabled = false; }
+        }
+      }, 50);
+    }
 
     // ══════════ RENAME CALCULATION ══════════
     function toggleRename(histId, userId) {
@@ -4802,6 +5576,82 @@
       return 0;
     }
 
+    // ══════════ INPUT VALIDATION ══════════
+    function validateInputs() {
+      const errors = [];
+
+      // Age: 18–75
+      const ageEl = document.getElementById('s-age');
+      const ageVal = ageEl ? parseFloat(ageEl.value) : NaN;
+      if (!ageEl || ageEl.value.trim() === '' || isNaN(ageVal) || ageVal < 18 || ageVal > 75) {
+        errors.push('Please enter a valid age between 18 and 75');
+      }
+
+      // Income: positive number
+      const incEl = document.getElementById('s-income');
+      const incRaw = incEl ? incEl.value.replace(/[^0-9.]/g, '') : '';
+      const incVal = parseFloat(incRaw);
+      if (!incEl || incRaw.trim() === '' || isNaN(incVal) || incVal <= 0) {
+        errors.push('Please enter a valid annual income');
+      }
+
+      // Years to retirement: positive > 0
+      const retEl = document.getElementById('s-retire');
+      const retVal = retEl ? parseFloat(retEl.value) : NaN;
+      if (!retEl || retEl.value.trim() === '' || isNaN(retVal) || retVal < 0) {
+        errors.push('Please enter years to retirement (0 if already retired)');
+      }
+
+      // Kids: 0 or positive integer
+      const kidsEl = document.getElementById('s-kids');
+      if (kidsEl) {
+        const kidsVal = parseFloat(kidsEl.value);
+        if (kidsEl.value.trim() !== '' && (isNaN(kidsVal) || kidsVal < 0 || !Number.isInteger(kidsVal))) {
+          errors.push('Please enter a valid number of dependants');
+        }
+
+        // Youngest: 0–17, only required when kids > 0
+        const youngEl = document.getElementById('s-youngest');
+        const kidsNum = isNaN(kidsVal) ? 0 : kidsVal;
+        if (youngEl && kidsNum > 0) {
+          const youngVal = parseFloat(youngEl.value);
+          if (youngEl.value.trim() === '' || isNaN(youngVal) || youngVal < 0 || youngVal > 17) {
+            errors.push('Please enter the age of the youngest dependant (0-17)');
+          }
+        }
+      }
+
+      // Show or hide error banner
+      const banner = document.getElementById('calc-error-banner');
+      const list = document.getElementById('calc-error-list');
+      if (errors.length > 0) {
+        list.innerHTML = errors.map(e => `<li>${e}</li>`).join('');
+        banner.classList.add('visible');
+        banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+      banner.classList.remove('visible');
+      return true;
+    }
+
+    function runCalcWithValidation() {
+      if (!validateInputs()) return;
+      runCalc();
+    }
+
+    // Clear error banner when user starts correcting inputs
+    (function attachValidationListeners() {
+      const watchIds = ['s-age', 's-income', 's-retire', 's-kids', 's-youngest'];
+      // Use event delegation on the staff-view rather than direct listeners
+      // (elements may not yet exist when this script parses)
+      document.addEventListener('input', function(e) {
+        if (watchIds.includes(e.target.id)) {
+          const banner = document.getElementById('calc-error-banner');
+          if (banner) banner.classList.remove('visible');
+        }
+      });
+    })();
+
     function runCalc() {
       // ── Common inputs ──
       const income = gv('s-income');
@@ -5149,11 +5999,52 @@
     }
 
     // ══════════ PDF EXPORT ══════════
+    function showPdfOverlay() {
+      if (document.getElementById('pdf-progress-overlay')) return;
+      const el = document.createElement('div');
+      el.id = 'pdf-progress-overlay';
+      el.style.cssText = 'position:fixed;inset:0;background:rgba(15,36,51,.55);z-index:9000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)';
+      el.innerHTML = `<div style="background:white;border-radius:18px;padding:36px 44px;box-shadow:0 24px 80px rgba(0,0,0,.3);display:flex;flex-direction:column;align-items:center;gap:18px;min-width:240px;">
+        <div style="width:44px;height:44px;border:4px solid var(--bg2);border-top-color:var(--peach);border-radius:50%;animation:pdf-spin .8s linear infinite"></div>
+        <div style="font-size:15px;font-weight:600;color:var(--navy)">Generating your PDF…</div>
+        <div style="font-size:12px;color:var(--light)">This will only take a moment.</div>
+      </div>`;
+      // Inject spin keyframes once
+      if (!document.getElementById('pdf-spin-style')) {
+        const s = document.createElement('style');
+        s.id = 'pdf-spin-style';
+        s.textContent = '@keyframes pdf-spin{to{transform:rotate(360deg)}}';
+        document.head.appendChild(s);
+      }
+      document.body.appendChild(el);
+    }
+
+    function hidePdfOverlay() {
+      const el = document.getElementById('pdf-progress-overlay');
+      if (el) el.remove();
+    }
+
     function exportPDF() {
       if (!lastResult) return;
-      const client = document.getElementById('s-client').value.trim() || 'Client';
-      const staffName = currentUser ? currentUser.name : '';
-      generatePDF(client, new Date().toLocaleString('en-AU'), lastResult.results, lastResult.breakdown, lastResult.tpdBreakdown, lastResult.ipBreakdown, lastResult.traumaBreakdown, lastResult.inputs, staffName);
+      const btn = document.querySelector('.pdf-btn');
+      const origText = btn ? btn.textContent : '';
+      if (btn) { btn.textContent = '⏳ Generating PDF…'; btn.disabled = true; }
+      showPdfOverlay();
+      // setTimeout yields to the browser so the overlay paints before the
+      // synchronous PDF generation blocks the main thread
+      setTimeout(() => {
+        try {
+          const client = document.getElementById('s-client').value.trim() || 'Client';
+          const staffName = currentUser ? currentUser.name : '';
+          generatePDF(client, new Date().toLocaleString('en-AU'), lastResult.results, lastResult.breakdown, lastResult.tpdBreakdown, lastResult.ipBreakdown, lastResult.traumaBreakdown, lastResult.inputs, staffName);
+        } catch (err) {
+          console.error('PDF generation error:', err);
+          alert('Sorry, there was a problem generating the PDF. Please try again.');
+        } finally {
+          hidePdfOverlay();
+          if (btn) { btn.textContent = origText; btn.disabled = false; }
+        }
+      }, 50);
     }
 
     function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown, traumaBreakdown, inputs, staffName) {
@@ -5618,17 +6509,19 @@
         }
       }
 
-      // Format 2: PKCE flow — code in query string (password reset only)
+      // Format 2: PKCE flow — code in query string (password reset or Microsoft SSO)
       // e.g. ?code=xxx  (newer Supabase default for pw reset)
       if (!accessToken) {
         const sp = new URLSearchParams(window.location.search);
         const code = sp.get('code');
         if (code) {
           try {
+            const storedVerifier = sessionStorage.getItem('pkce_code_verifier') || '';
+            sessionStorage.removeItem('pkce_code_verifier');
             const r = await fetch(SB_URL + '/auth/v1/token?grant_type=pkce', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
-              body: JSON.stringify({ auth_code: code, code_verifier: 'null' })
+              body: JSON.stringify({ auth_code: code, code_verifier: storedVerifier })
             });
             if (r.ok) {
               const d = await r.json();
