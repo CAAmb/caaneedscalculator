@@ -2312,6 +2312,20 @@
       border-top-color: rgba(235, 163, 128, .65)
     }
 
+    .cover-card.full-w {
+      grid-column: 1 / -1;
+      padding: 16px 26px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center
+    }
+
+    .cover-card.full-w .cc-amt {
+      font-size: 26px;
+      margin: 4px 0 2px
+    }
+
     .cc-lbl {
       font-size: 10px;
       font-weight: 700;
@@ -2741,9 +2755,8 @@
             <div class="acard">
               <div class="acard-title"><span class="dot"></span>Replacement Settings</div>
               <div class="mg">
-                <div class="mf"><label>Default Replacement % of Income</label><input type="number" id="m-ipct"
-                    value="75" min="50" max="100">
-                  <div class="note">What % of gross income to replace. Staff can override unless locked.</div>
+                <div class="mf"><label>Default Replacement % of Income</label><input type="number" id="m-ipct" value="75" min="1" max="100">
+                  <div class="note">What % of gross income to replace for Life Cover. Staff can adjust unless locked.</div>
                 </div>
                 <div class="mf"><label>Default Replacement Period (years)</label><input type="number" id="m-ryrs"
                     value="10" min="1" max="40"></div>
@@ -3268,7 +3281,7 @@
                 placeholder="e.g. John Smith (for your records)"></div>
             <div class="f"><label>Age</label><input type="number" id="s-age" placeholder="e.g. 38" min="18" max="75">
             </div>
-            <div class="f"><label>Gender</label>
+            <div class="f"><label>Sex</label>
               <div class="tbg"><button class="tb active" onclick="setTb(this,'s-gender','male')">Male</button><button
                   class="tb" onclick="setTb(this,'s-gender','female')">Female</button></div>
             </div>
@@ -3277,7 +3290,7 @@
                   onclick="setTb(this,'s-smoker','no')">Non-Smoker</button><button class="tb"
                   onclick="setTb(this,'s-smoker','yes')">Smoker</button></div>
             </div>
-            <div class="f"><label>Marital Status</label><select id="s-marital">
+            <div class="f"><label>Marital Status</label><select id="s-marital" onchange="togglePartnerSection()">
                 <option value="single">Single</option>
                 <option value="partnered" selected>Partnered/Married</option>
                 <option value="separated">Separated/Divorced</option>
@@ -3302,11 +3315,8 @@
                 min="1" max="50"></div>
             <div class="f" id="f-repyrs"><label>Income Replacement Period <span
                   class="hint">(years)</span></label><input type="number" id="s-repyrs" min="1" max="40"></div>
-            <div class="f" id="f-incpct"><label>% of Income to Replace</label>
-              <div class="tbg" id="tbg-incpct"><button class="tb"
-                  onclick="setTb(this,'s-incpct','60')">60%</button><button class="tb active"
-                  onclick="setTb(this,'s-incpct','75')">75%</button><button class="tb"
-                  onclick="setTb(this,'s-incpct','100')">100%</button></div>
+            <div class="f" id="f-incpct"><label>% of Income to Replace <span class="hint">(Life Cover)</span></label>
+              <div class="pfx"><span class="p">%</span><input type="number" id="s-incpct" min="1" max="100" step="1" style="padding-left:28px" placeholder="e.g. 75"></div>
             </div>
           </div>
           <div class="divline"></div>
@@ -3323,12 +3333,14 @@
                 benefit.</div>
             </div>
           </div>
-          <div class="divline"></div>
-          <div class="sublabel">Partner & Existing Cover</div>
-          <div class="fg">
-            <div class="f"><label>Partner's Annual Income</label>
-              <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-partner"
-                  placeholder="e.g. 70000"></div>
+          <div id="partner-section">
+            <div class="divline"></div>
+            <div class="sublabel">Partner & Existing Cover</div>
+            <div class="fg">
+              <div class="f"><label>Partner's Annual Income</label>
+                <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-partner"
+                    placeholder="e.g. 70000"></div>
+              </div>
             </div>
           </div>
           <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(1)">← Back</button><button
@@ -3662,6 +3674,11 @@
               <div class="cc-lbl">● Trauma Cover</div>
               <div class="cc-amt" id="r-trauma">$0</div>
               <div class="cc-desc">Lump sum on diagnosis of cancer, heart attack, stroke or other trauma events.</div>
+            </div>
+            <div class="cover-card full-w hidden" id="card-child-trauma">
+              <div class="cc-lbl">● Child Trauma Cover</div>
+              <div class="cc-amt" id="r-child-trauma">$50,000 <span style="font-size:14px;font-weight:500;opacity:0.7">per child</span></div>
+              <div class="cc-desc" style="margin-top:4px;margin-bottom:0">Final sum subject to client discussion.</div>
             </div>
           </div>
           <div class="bk-grid">
@@ -4030,6 +4047,13 @@
         + '&code_challenge_method=S256';
     }
 
+    // ══════════ PARTNER SECTION VISIBILITY ══════════
+    function togglePartnerSection() {
+      const marital = document.getElementById('s-marital').value;
+      const show = marital === 'partnered';
+      document.getElementById('partner-section').style.display = show ? '' : 'none';
+    }
+
     // ══════════ STAFF EMAIL FALLBACK TOGGLE ══════════
     function toggleStaffEmail() {
       const section = document.getElementById('staff-email-section');
@@ -4182,6 +4206,15 @@
             if (v.trim() === '' || v.trim() === '0') return null;
             const n = Number(v);
             if (!Number.isInteger(n) || n < 0) return 'Please enter a whole number (0 or more)';
+            return null;
+          }
+        },
+        {
+          id: 's-incpct',
+          validate(v) {
+            const n = parseFloat(v);
+            if (v.trim() === '' || isNaN(n)) return 'Please enter a % of income to replace (Life Cover)';
+            if (n < 1 || n > 100) return '% of income must be between 1 and 100';
             return null;
           }
         },
@@ -5277,7 +5310,7 @@
       sf('s-age', inp.age);
       sf('s-retire', inp.retire);
       const maritalEl = document.getElementById('s-marital');
-      if (maritalEl && inp.marital) maritalEl.value = inp.marital;
+      if (maritalEl && inp.marital) { maritalEl.value = inp.marital; togglePartnerSection(); }
 
       // Toggle buttons (gender, smoker)
       ['s-gender', 's-smoker'].forEach(function (key) {
@@ -5295,15 +5328,8 @@
       sf('s-partner', inp.partner);
       sf('s-supercontrib', inp.superContribPct);
 
-      // Income % toggle
-      if (inp.incPct) {
-        var pctStr = String(inp.incPct);
-        tbState['s-incpct'] = pctStr;
-        document.querySelectorAll('#tbg-incpct .tb').forEach(function (btn) {
-          var m = (btn.getAttribute('onclick') || '').match(/'(\d+)'/);
-          btn.classList.toggle('active', !!(m && m[1] === pctStr));
-        });
-      }
+      // Income % input
+      if (inp.incPct) sf('s-incpct', inp.incPct);
 
       // Step 3 – Debts
       sf('s-mortgage', inp.mortgage);
@@ -5514,12 +5540,10 @@
       document.getElementById('card-ip').style.display = CFG.swIp ? '' : 'none';
       document.getElementById('card-trauma').style.display = CFG.swTrauma ? '' : 'none';
       document.getElementById('staff-disc').textContent = CFG.disc;
-      // Set default income pct toggle
-      tbState['s-incpct'] = String(CFG.ipct);
-      document.querySelectorAll('#tbg-incpct .tb').forEach(b => {
-        const v = b.getAttribute('onclick').match(/'(\d+)'/)?.[1];
-        b.classList.toggle('active', v === String(CFG.ipct));
-      });
+      togglePartnerSection();
+      // Income % input — set default and lock if needed
+      const incPctEl = document.getElementById('s-incpct');
+      if (incPctEl) { incPctEl.value = CFG.ipct; incPctEl.readOnly = CFG.lockpct === 'yes'; }
       updateAssetPreview();
     }
 
@@ -5715,7 +5739,7 @@
       // ①  LIFE COVER
       // ─────────────────────────────────────────────
       const repYrs = gv('s-repyrs', CFG.ryrs);
-      const incPct = parseFloat(CFG.lockpct === 'yes' ? CFG.ipct : (tbState['s-incpct'] || CFG.ipct)) / 100;
+      const incPct = parseFloat(gv('s-incpct', CFG.ipct)) / 100;
       const annNeed = income * incPct;
       const incomePV = pvAnn(annNeed, dr, repYrs);
 
@@ -5880,12 +5904,18 @@
         { label: 'NET TRAUMA COVER NEEDED', note: '', amt: traumaCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
 
+      // Child trauma: $50,000 minimum per child aged 2–15
+      const childTraumaEligible = kids > 0 && youngest >= 2 && youngest <= 15;
+      const childTraumaCover = childTraumaEligible ? kids * 50000 : 0;
+
       const results = {
         life: fmt(lifeCover),
         tpd: fmt(tpdCover),
         ip: fmt(ipMonthly) + '/mo',
         ipSuper: ipSuperMonthly > 0 ? fmt(ipSuperMonthly) + '/mo' : '',
         trauma: fmt(traumaCover),
+        childTrauma: fmt(childTraumaCover),
+        childTraumaRaw: childTraumaCover,
         ipHighIncomeWarn
       };
 
@@ -5916,6 +5946,7 @@
       document.getElementById('r-tpd').textContent = results.tpd;
       document.getElementById('r-ip').textContent = results.ip;
       document.getElementById('r-trauma').textContent = results.trauma;
+      document.getElementById('card-child-trauma').classList.toggle('hidden', !childTraumaEligible);
 
       // Super contribution benefit
       const superBenefitEl = document.getElementById('r-ip-super');
@@ -6008,11 +6039,9 @@
       document.querySelectorAll('#sc-1 .tbg').forEach(g => {
         g.querySelectorAll('.tb').forEach((b, i) => b.classList.toggle('active', i === 0));
       });
-      // Income pct toggle — match CFG default
-      document.querySelectorAll('#tbg-incpct .tb').forEach(b => {
-        const v = b.getAttribute('onclick').match(/'(\d+)'/)?.[1];
-        b.classList.toggle('active', v === String(CFG.ipct));
-      });
+      // Income % input — reset to CFG default
+      const incPctREl = document.getElementById('s-incpct');
+      if (incPctREl) incPctREl.value = CFG.ipct;
       // Re-apply methodology defaults
       applyMethodology();
       updateAssetPreview();
@@ -6259,7 +6288,29 @@
       doc.roundedRect(ipCx, ipCy, cardW, ipCardH, ipR, ipR, 'S');
 
       drawCard(M + cardW + 6, y, cardW, ipCardH, 'Trauma Cover', results.trauma);
-      y += ipCardH + 7;
+      y += ipCardH + 4;
+
+      // Row 3: Child Trauma — full-width slim card (only if applicable)
+      if (results.childTraumaRaw > 0) {
+        const ctW = W - M * 2;
+        const ctH = 26;
+        const ctMid = M + ctW / 2;
+        // Use standard drawCard for matching look, then overlay centred text
+        drawCard(M, y, ctW, ctH, 'Child Trauma Cover', '');
+        // Amount — centred, navy
+        doc.setTextColor(15, 36, 51);
+        doc.setFontSize(18);
+        doc.setFont('helvetica', 'bold');
+        doc.text('$50,000 per child', ctMid, y + 10 + 7, { align: 'center' });
+        // Disclaimer — centred, grey italic
+        doc.setTextColor(120, 145, 165);
+        doc.setFontSize(7);
+        doc.setFont('helvetica', 'italic');
+        doc.text('Final sum subject to client discussion.', ctMid, y + 10 + 13, { align: 'center' });
+        y += ctH + 7;
+      } else {
+        y += 3;
+      }
 
       // ── Cover Breakdowns (2-column layout) ──
       drawHeading('COVER BREAKDOWNS');
