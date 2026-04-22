@@ -763,29 +763,81 @@
       transform: translateX(20px)
     }
 
-    /* Compact debt-include toggles */
+    /* Premium debt-include toggle pills */
     .debt-toggles {
       display: flex;
-      gap: 14px;
-      margin-top: 6px;
-      font-size: 12px;
-      color: var(--mid)
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
     }
-    .debt-toggles label {
+    .debt-toggles .dt-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mid);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-right: 2px;
+    }
+    .debt-toggles label.dt-pill {
+      position: relative;
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      padding: 5px 12px 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
-      user-select: none
+      user-select: none;
+      background: rgba(255, 255, 255, 0.45);
+      border: 1px solid var(--border);
+      color: var(--mid);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      transition: all 0.25s cubic-bezier(.4,0,.2,1);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 2px rgba(0,0,0,0.03);
     }
-    .debt-toggles input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      accent-color: var(--peach);
-      cursor: pointer
+    .debt-toggles label.dt-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 2px 6px rgba(0,0,0,0.06);
     }
-    .debt-toggles .tag-life { color: #5b7cfa; font-weight: 600 }
-    .debt-toggles .tag-tpd  { color: #e08c5e; font-weight: 600 }
+    .debt-toggles label.dt-pill input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .debt-toggles label.dt-pill .dt-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #cfcfcf;
+      transition: all 0.25s cubic-bezier(.4,0,.2,1);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+    }
+    /* Life pill — brand ocean/sky gradient when active */
+    .debt-toggles label.dt-life input:checked ~ .dt-dot {
+      background: linear-gradient(135deg, #3aa0c4, #1a6e8e);
+      box-shadow: 0 0 0 3px rgba(58,160,196,0.22), inset 0 1px 1px rgba(255,255,255,0.35);
+    }
+    .debt-toggles label.dt-life:has(input:checked) {
+      background: linear-gradient(135deg, rgba(58,160,196,0.14), rgba(184,232,250,0.18));
+      border-color: rgba(58,160,196,0.42);
+      color: #1a6e8e;
+    }
+    /* TPD pill — peach gradient when active (matches brand) */
+    .debt-toggles label.dt-tpd input:checked ~ .dt-dot {
+      background: var(--peach, #eba380);
+      box-shadow: 0 0 0 3px rgba(235,163,128,0.22), inset 0 1px 1px rgba(255,255,255,0.3);
+    }
+    .debt-toggles label.dt-tpd:has(input:checked) {
+      background: linear-gradient(135deg, rgba(235,163,128,0.18), rgba(235,163,128,0.06));
+      border-color: rgba(235,163,128,0.4);
+      color: #b8704a;
+    }
+    .debt-toggles label.dt-pill:active {
+      transform: translateY(0);
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+    }
 
     .save-btn {
       background: linear-gradient(135deg, #eba380, #d4825a);
@@ -2055,8 +2107,10 @@
       pointer-events: none
     }
 
-    .pfx input {
-      padding-left: 24px
+    .pfx input,
+    .f .pfx input,
+    .mf .pfx input {
+      padding-left: 32px !important;
     }
 
     .tbg {
@@ -4073,6 +4127,45 @@
                     id="sw-biz" checked><span class="slider"></span></label>
               </div>
             </div>
+            <div class="acard">
+              <div class="acard-title"><span class="dot"></span>Debt Clearance — Default Include/Exclude</div>
+              <div class="info-tip" style="margin-bottom:12px">Set the default state of each debt's Life and TPD toggles for new calculations. Our default position: clear all non-deductible debt for Life; clear non-deductible for TPD and leave deductible debt as case-by-case.</div>
+              <div class="trow">
+                <div class="ti"><strong>Mortgage / Home Loan</strong> <span class="hint">(non-deductible)</span></div>
+                <div style="display:flex;gap:16px;align-items:center">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#5b7cfa;font-weight:700">Life</span><label class="switch"><input type="checkbox" id="m-defd-mortgageLife" checked><span class="slider"></span></label></label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#e08c5e;font-weight:700">TPD</span><label class="switch"><input type="checkbox" id="m-defd-mortgageTpd" checked><span class="slider"></span></label></label>
+                </div>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Other Property Loans</strong> <span class="hint">(deductible)</span></div>
+                <div style="display:flex;gap:16px;align-items:center">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#5b7cfa;font-weight:700">Life</span><label class="switch"><input type="checkbox" id="m-defd-otherloanLife" checked><span class="slider"></span></label></label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#e08c5e;font-weight:700">TPD</span><label class="switch"><input type="checkbox" id="m-defd-otherloanTpd"><span class="slider"></span></label></label>
+                </div>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Personal / Car Loans</strong> <span class="hint">(non-deductible)</span></div>
+                <div style="display:flex;gap:16px;align-items:center">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#5b7cfa;font-weight:700">Life</span><label class="switch"><input type="checkbox" id="m-defd-personalLife" checked><span class="slider"></span></label></label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#e08c5e;font-weight:700">TPD</span><label class="switch"><input type="checkbox" id="m-defd-personalTpd" checked><span class="slider"></span></label></label>
+                </div>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Credit Card Debt</strong> <span class="hint">(non-deductible)</span></div>
+                <div style="display:flex;gap:16px;align-items:center">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#5b7cfa;font-weight:700">Life</span><label class="switch"><input type="checkbox" id="m-defd-ccLife" checked><span class="slider"></span></label></label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#e08c5e;font-weight:700">TPD</span><label class="switch"><input type="checkbox" id="m-defd-ccTpd" checked><span class="slider"></span></label></label>
+                </div>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Business Debts</strong> <span class="hint">(deductible)</span></div>
+                <div style="display:flex;gap:16px;align-items:center">
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#5b7cfa;font-weight:700">Life</span><label class="switch"><input type="checkbox" id="m-defd-bizLife" checked><span class="slider"></span></label></label>
+                  <label style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="color:#e08c5e;font-weight:700">TPD</span><label class="switch"><input type="checkbox" id="m-defd-bizTpd"><span class="slider"></span></label></label>
+                </div>
+              </div>
+            </div>
             <button class="save-btn" onclick="saveAll(this)">💾 Save Changes</button><span class="save-ok"
               id="sk-debt">✓ Saved</span>
           </div>
@@ -4369,6 +4462,10 @@
                 <div class="mf"><label>% of Annual Income</label><input type="number" id="m-traumaincomepct" value="30" min="0" max="100">
                   <div class="note">Default: 30% of gross income.</div>
                 </div>
+                <div class="mf"><label>Allow Staff to Adjust Income %</label><select id="m-locktraumaincomepct">
+                    <option value="no">No — lock to default</option>
+                    <option value="yes">Yes</option>
+                  </select></div>
                 <div class="mf"><label>Number of Years</label><input type="number" id="m-traumaincomeyrs" value="2" min="1" max="10">
                   <div class="note">Default: 2 years.</div>
                 </div>
@@ -4631,16 +4728,18 @@
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-mortgage"
                   placeholder="e.g. 450000"></div>
               <div class="debt-toggles">
-                <label><input type="checkbox" id="s-mortgage-life" checked><span class="tag-life">Life</span></label>
-                <label><input type="checkbox" id="s-mortgage-tpd" checked><span class="tag-tpd">TPD</span></label>
+                <span class="dt-label">Include in</span>
+                <label class="dt-pill dt-life"><input type="checkbox" id="s-mortgage-life" checked><span class="dt-dot"></span>Life</label>
+                <label class="dt-pill dt-tpd"><input type="checkbox" id="s-mortgage-tpd" checked><span class="dt-dot"></span>TPD</label>
               </div>
             </div>
             <div class="f" id="df-otherloan"><label>Other Property Loans <span class="hint">(deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-otherloan"
                   placeholder="e.g. 0"></div>
               <div class="debt-toggles">
-                <label><input type="checkbox" id="s-otherloan-life" checked><span class="tag-life">Life</span></label>
-                <label><input type="checkbox" id="s-otherloan-tpd" checked><span class="tag-tpd">TPD</span></label>
+                <span class="dt-label">Include in</span>
+                <label class="dt-pill dt-life"><input type="checkbox" id="s-otherloan-life" checked><span class="dt-dot"></span>Life</label>
+                <label class="dt-pill dt-tpd"><input type="checkbox" id="s-otherloan-tpd"><span class="dt-dot"></span>TPD</label>
               </div>
             </div>
             <div class="f" id="df-personal"><label>Personal / Car Loans <span
@@ -4648,24 +4747,27 @@
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-personal"
                   placeholder="e.g. 15000"></div>
               <div class="debt-toggles">
-                <label><input type="checkbox" id="s-personal-life" checked><span class="tag-life">Life</span></label>
-                <label><input type="checkbox" id="s-personal-tpd" checked><span class="tag-tpd">TPD</span></label>
+                <span class="dt-label">Include in</span>
+                <label class="dt-pill dt-life"><input type="checkbox" id="s-personal-life" checked><span class="dt-dot"></span>Life</label>
+                <label class="dt-pill dt-tpd"><input type="checkbox" id="s-personal-tpd" checked><span class="dt-dot"></span>TPD</label>
               </div>
             </div>
             <div class="f" id="df-cc"><label>Credit Card Debt <span class="hint">(non-deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cc"
                   placeholder="e.g. 8000"></div>
               <div class="debt-toggles">
-                <label><input type="checkbox" id="s-cc-life" checked><span class="tag-life">Life</span></label>
-                <label><input type="checkbox" id="s-cc-tpd" checked><span class="tag-tpd">TPD</span></label>
+                <span class="dt-label">Include in</span>
+                <label class="dt-pill dt-life"><input type="checkbox" id="s-cc-life" checked><span class="dt-dot"></span>Life</label>
+                <label class="dt-pill dt-tpd"><input type="checkbox" id="s-cc-tpd" checked><span class="dt-dot"></span>TPD</label>
               </div>
             </div>
             <div class="f" id="df-biz"><label>Business Debts <span class="hint">(deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-biz"
                   placeholder="e.g. 0"></div>
               <div class="debt-toggles">
-                <label><input type="checkbox" id="s-biz-life" checked><span class="tag-life">Life</span></label>
-                <label><input type="checkbox" id="s-biz-tpd" checked><span class="tag-tpd">TPD</span></label>
+                <span class="dt-label">Include in</span>
+                <label class="dt-pill dt-life"><input type="checkbox" id="s-biz-life" checked><span class="dt-dot"></span>Life</label>
+                <label class="dt-pill dt-tpd"><input type="checkbox" id="s-biz-tpd"><span class="dt-dot"></span>TPD</label>
               </div>
             </div>
           </div>
@@ -4732,11 +4834,27 @@
           <div id="df-tpdincomepct-section">
             <div class="divline"></div>
             <div class="sublabel">TPD — Income Replacement %</div>
-            <div class="info-tip" style="margin-bottom:10px;font-size:12px">The default is 30% where clients hold Income Protection cover. Adjust if the client does not hold IP or the recommendation differs. The default is managed by your administrator.</div>
             <div class="fg">
               <div class="f"><label>% of Income for TPD Income Replacement</label>
                 <div class="pfx"><span class="p">%</span><input type="number" id="s-tpdincomepct" min="0" max="100"
                     style="padding-left:28px" placeholder="30"></div>
+              </div>
+              <div class="f" style="align-self:flex-end">
+                <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% where clients hold Income Protection cover. Adjust if the client does not hold IP or the recommendation differs. The default is managed by your administrator.</div>
+              </div>
+            </div>
+          </div>
+          <!-- Trauma income % — shown if admin unlocks -->
+          <div id="df-traumaincomepct-section" style="display:none">
+            <div class="divline"></div>
+            <div class="sublabel">Trauma — Income Provision %</div>
+            <div class="fg">
+              <div class="f"><label>% of Income for Trauma Income Provision</label>
+                <div class="pfx"><span class="p">%</span><input type="number" id="s-traumaincomepct" min="0" max="100"
+                    style="padding-left:28px" placeholder="30"></div>
+              </div>
+              <div class="f" style="align-self:flex-end">
+                <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% of the client's annual income as a lump-sum income provision during recovery. Adjust if the recommendation differs. The default is managed by your administrator.</div>
               </div>
             </div>
           </div>
@@ -5135,7 +5253,16 @@
       // ── Trauma methodology ──
       traumaMedCost: 160000, lockTraumaMedCost: 'no',
       traumaDebtYears: 1,
-      traumaIncomePct: 30, traumaIncomeYrs: 2,
+      traumaIncomePct: 30, lockTraumaIncomePct: 'no', traumaIncomeYrs: 2,
+      // ── Debt-clearance include defaults (per-debt Life/TPD toggle defaults) ──
+      // Default philosophy: clear all debts for Life; clear non-deductible only for TPD (deductible case-by-case)
+      debtDefaults: {
+        mortgageLife: true,  mortgageTpd: true,
+        otherloanLife: true, otherloanTpd: false,
+        personalLife: true,  personalTpd: true,
+        ccLife: true,        ccTpd: true,
+        bizLife: true,       bizTpd: false
+      },
       // ── Income Protection ──
       ipReplacePct: 70, lockIpReplacePct: 'yes',
       ipSuperPct: 12, lockIpSuperPct: 'no', ipSuperCap: 15,
@@ -5598,6 +5725,25 @@
       }
     }
 
+    // Apply admin-configured debt defaults to the staff Life/TPD include toggles
+    function applyDebtDefaultsToStaffForm() {
+      const dd = CFG.debtDefaults || {};
+      const fallback = { mortgageLife:true,mortgageTpd:true,otherloanLife:true,otherloanTpd:false,
+        personalLife:true,personalTpd:true,ccLife:true,ccTpd:true,bizLife:true,bizTpd:false };
+      const map = {
+        mortgageLife:'s-mortgage-life', mortgageTpd:'s-mortgage-tpd',
+        otherloanLife:'s-otherloan-life', otherloanTpd:'s-otherloan-tpd',
+        personalLife:'s-personal-life', personalTpd:'s-personal-tpd',
+        ccLife:'s-cc-life', ccTpd:'s-cc-tpd',
+        bizLife:'s-biz-life', bizTpd:'s-biz-tpd'
+      };
+      Object.keys(map).forEach(k => {
+        const el = document.getElementById(map[k]);
+        if (!el) return;
+        el.checked = (dd[k] === undefined) ? fallback[k] : dd[k];
+      });
+    }
+
     // Render individual child age inputs when 2+ children
     function renderChildAgeInputs() {
       const kidsEl = document.getElementById('s-kids');
@@ -5745,12 +5891,20 @@
       // Trauma
       si('m-traumamedcost', CFG.traumaMedCost); sv('m-locktraumamedcost', CFG.lockTraumaMedCost);
       si('m-traumadebtyears', CFG.traumaDebtYears || 1);
-      si('m-traumaincomepct', CFG.traumaIncomePct || 30);
+      si('m-traumaincomepct', CFG.traumaIncomePct || 30); sv('m-locktraumaincomepct', CFG.lockTraumaIncomePct || 'no');
       si('m-traumaincomeyrs', CFG.traumaIncomeYrs || 2);
       // IP
       si('m-ipreplacepct', CFG.ipReplacePct); sv('m-lockipreplace', CFG.lockIpReplacePct);
       si('m-ipsuperpct', CFG.ipSuperPct); sv('m-lockipsuperpct', CFG.lockIpSuperPct);
       si('m-ipwarnthreshold', CFG.ipWarnThreshold);
+      // Debt clearance defaults — per-debt Life/TPD include toggles
+      const dd = CFG.debtDefaults || {};
+      const initialDefaults = { mortgageLife:true,mortgageTpd:true,otherloanLife:true,otherloanTpd:false,
+        personalLife:true,personalTpd:true,ccLife:true,ccTpd:true,bizLife:true,bizTpd:false };
+      Object.keys(initialDefaults).forEach(k => {
+        const val = dd[k] === undefined ? initialDefaults[k] : dd[k];
+        sc('m-defd-' + k, val);
+      });
     }
 
     function saveAll(btn) {
@@ -5790,11 +5944,18 @@
       CFG.tpdBuyResidence = gc('sw-tpdbuyres') ? 'yes' : 'no';
       CFG.traumaMedCost = gni('m-traumamedcost', CFG.traumaMedCost); CFG.lockTraumaMedCost = gsv('m-locktraumamedcost');
       CFG.traumaDebtYears = gni('m-traumadebtyears', CFG.traumaDebtYears || 1);
-      CFG.traumaIncomePct = gni('m-traumaincomepct', CFG.traumaIncomePct || 30);
+      CFG.traumaIncomePct = gni('m-traumaincomepct', CFG.traumaIncomePct || 30); CFG.lockTraumaIncomePct = gsv('m-locktraumaincomepct');
       CFG.traumaIncomeYrs = gni('m-traumaincomeyrs', CFG.traumaIncomeYrs || 2);
       CFG.ipReplacePct = gni('m-ipreplacepct', CFG.ipReplacePct); CFG.lockIpReplacePct = gsv('m-lockipreplace');
       CFG.ipSuperPct = Math.min(gni('m-ipsuperpct', CFG.ipSuperPct), 15); CFG.lockIpSuperPct = gsv('m-lockipsuperpct');
       CFG.ipWarnThreshold = gni('m-ipwarnthreshold', CFG.ipWarnThreshold);
+      // Debt defaults — save per-debt Life/TPD include defaults
+      CFG.debtDefaults = CFG.debtDefaults || {};
+      ['mortgageLife','mortgageTpd','otherloanLife','otherloanTpd',
+       'personalLife','personalTpd','ccLife','ccTpd',
+       'bizLife','bizTpd'].forEach(k => { CFG.debtDefaults[k] = gc('m-defd-' + k); });
+      // Apply the updated defaults to the current staff debt toggles (live update)
+      applyDebtDefaultsToStaffForm();
       persistSave();
       // flash all save-ok elements
       document.querySelectorAll('.save-ok').forEach(el => {
@@ -6863,6 +7024,10 @@
       toggleEl('df-tpdincomepct-section', true);
       { const e = document.getElementById('s-tpdincomepct'); if (e && !e.value) e.value = CFG.tpdIncomePct || 30; }
 
+      // Trauma income % — show if admin unlocks
+      toggleEl('df-traumaincomepct-section', CFG.lockTraumaIncomePct === 'yes');
+      if (CFG.lockTraumaIncomePct === 'yes') { const e = document.getElementById('s-traumaincomepct'); if (e && !e.value) e.value = CFG.traumaIncomePct || 30; }
+
       // Life debt clear % — only show if admin unlocked
       toggleEl('df-debtclear-section', CFG.lockDebtClearPct === 'yes');
       if (CFG.lockDebtClearPct === 'no') { const e = document.getElementById('s-debtclearpct'); if (e) e.value = CFG.debtClearPct; }
@@ -7090,33 +7255,30 @@
     }
 
     // Clear error banner when user starts correcting inputs
-    // Also: auto-fill Years to Retirement based on age (65 − age) if not manually set
+    // Also: auto-fill Years to Retirement based on age (65 − age) unless user explicitly edits retire field.
+    // Uses data-user-edited attribute on the retire element (set only by real user keystrokes; programmatic .value
+    // writes do not fire 'input' events, so the auto-fill itself won't flip the flag).
     (function attachValidationListeners() {
       const watchIds = ['s-age', 's-income', 's-retire', 's-kids', 's-youngest'];
-      let retireManuallySet = false;
 
       document.addEventListener('input', function(e) {
         if (watchIds.includes(e.target.id)) {
           const banner = document.getElementById('calc-error-banner');
           if (banner) banner.classList.remove('visible');
         }
-        // Track if user manually edits the retirement field
+        // Mark retirement as user-edited when user types into it directly
         if (e.target.id === 's-retire') {
-          retireManuallySet = true;
+          e.target.dataset.userEdited = 'true';
         }
-        // Auto-fill Years to Retirement when age is entered
+        // Auto-fill Years to Retirement whenever age changes — respects user override
         if (e.target.id === 's-age') {
           const age = parseInt(e.target.value, 10);
           const retireEl = document.getElementById('s-retire');
-          if (retireEl && !retireManuallySet && !isNaN(age) && age > 0) {
-            const yrs = Math.max(65 - age, 1);
-            retireEl.value = yrs;
+          if (retireEl && !isNaN(age) && age > 0 && age < 65 && retireEl.dataset.userEdited !== 'true') {
+            retireEl.value = Math.max(65 - age, 1);
           }
         }
       });
-
-      // Reset the manual flag when the calculator is cleared/reset
-      document.addEventListener('calcReset', function() { retireManuallySet = false; });
     })();
 
     function runCalc() {
@@ -7320,7 +7482,7 @@
       // ─────────────────────────────────────────────
       const traumaMedCost = (CFG.lockTraumaMedCost === 'yes') ? gv('s-traumamedcost', CFG.traumaMedCost) : CFG.traumaMedCost;
       // Income provision: % of income × number of years (replaces carer cost for trauma)
-      const traumaIncomePct = CFG.traumaIncomePct || 30;
+      const traumaIncomePct = (CFG.lockTraumaIncomePct === 'yes') ? gv('s-traumaincomepct', CFG.traumaIncomePct || 30) : (CFG.traumaIncomePct || 30);
       const traumaIncomeYrs = CFG.traumaIncomeYrs || 2;
       const traumaIncomeAmt = income * (traumaIncomePct / 100) * traumaIncomeYrs;
       // Non-deductible debt repayments × configurable years
@@ -7510,13 +7672,13 @@
         's-legalcost', 's-debtclearpct', 's-tpdded', 's-tpdnonded', 's-traumalivingpct',
         's-kids', 's-youngest', 's-childcare', 's-odep', 's-odepyrs',
         's-super', 's-superpct', 's-cash', 's-resprop', 's-comprop', 's-invprop', 's-shares', 's-managed',
-        's-tpdmedcost', 's-tpdbuyresamt', 's-traumamedcost', 's-tpdincomepct',
+        's-tpdmedcost', 's-tpdbuyresamt', 's-traumamedcost', 's-tpdincomepct', 's-traumaincomepct',
         's-earn', 's-infl'];
       textFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-      // Reset per-debt include toggles — all ON by default
-      ['s-mortgage-life','s-mortgage-tpd','s-otherloan-life','s-otherloan-tpd',
-       's-personal-life','s-personal-tpd','s-cc-life','s-cc-tpd',
-       's-biz-life','s-biz-tpd'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = true; });
+      // Clear the manual-edit flag on retirement so auto-fill resumes on next age entry
+      { const r = document.getElementById('s-retire'); if (r) delete r.dataset.userEdited; }
+      // Reset per-debt include toggles — apply admin-configured defaults
+      applyDebtDefaultsToStaffForm();
       // Clear dynamic child age inputs
       const childAgeGrid = document.getElementById('child-ages-grid');
       if (childAgeGrid) childAgeGrid.innerHTML = '';
