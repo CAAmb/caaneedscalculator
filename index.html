@@ -4628,11 +4628,17 @@
           </div>
           <div class="divline"></div>
           <div class="sublabel">Rent Expenses <span class="hint">(if no mortgage)</span></div>
-          <div class="info-tip" style="margin-bottom:10px;font-size:12px">If the client rents rather than owning, enter their annual rent below. A present-value provision will be added to Life Cover so the family can continue paying rent over the income replacement period. Leave blank or enter 0 if the client has a mortgage.</div>
+          <div class="info-tip" style="margin-bottom:10px;font-size:12px">If the client rents rather than owning, enter their annual rent below. A present-value provision will be added to the Life &amp; TPD Cover so the client/family can continue paying rent over the income replacement period. Leave blank or enter 0 if the client has a mortgage. Note: for single clients, rent provision is only applied to TPD Cover (not Life).</div>
           <div class="fg">
             <div class="f" id="df-rent"><label>Annual Rent Expenses <span class="hint">($/year)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-rent"
                   placeholder="e.g. 26000"></div>
+            </div>
+            <div class="f" id="df-rentyrs-life"><label>Rent Years <span class="hint">(Life Cover)</span></label>
+              <input type="number" id="s-rentyrs-life" min="1" max="50" placeholder="e.g. 25">
+            </div>
+            <div class="f" id="df-rentyrs-tpd"><label>Rent Years <span class="hint">(TPD Cover)</span></label>
+              <input type="number" id="s-rentyrs-tpd" min="1" max="50" placeholder="e.g. 25">
             </div>
           </div>
           <div class="divline"></div>
@@ -6605,6 +6611,8 @@
       sf('s-cc', inp.cc);
       sf('s-biz', inp.biz);
       sf('s-rent', inp.rent);
+      sf('s-rentyrs-life', inp.rentYrsLife);
+      sf('s-rentyrs-tpd', inp.rentYrsTpd);
       sf('s-legalcost', inp.legalCost);
       sf('s-funeral', inp.funeral);
       sf('s-tpdded', inp.tpdDedPct);
@@ -7110,9 +7118,12 @@
       const lifeDebtClearPct = (CFG.lockDebtClearPct === 'yes') ? gv('s-debtclearpct', CFG.debtClearPct) : CFG.debtClearPct;
       const lifeDebtCleared = totalDebt * lifeDebtClearPct / 100;
 
-      // Rent provision (for clients with no mortgage) — PV of annual rent over income replacement years
+      // Rent provision (for clients with no mortgage) — PV of annual rent over dedicated rent years
+      // Only applied for partnered clients (skip if single/separated)
       const annualRent = gv('s-rent', 0);
-      const rentPV = annualRent > 0 ? pvAnn(annualRent, dr, repYrs) : 0;
+      const rentYrsLife = gv('s-rentyrs-life', 0);
+      const rentYrsTpd = gv('s-rentyrs-tpd', 0);
+      const rentPV = (annualRent > 0 && rentYrsLife > 0 && isPartnered) ? pvAnn(annualRent, dr, rentYrsLife) : 0;
 
       const lifeGross = fixedCosts + lifeDebtCleared + rentPV + incomePV + lifeChildPV + edPV + odepPV;
       const lifeCover = Math.max(lifeGross - totalDisposableAssets, 0);
@@ -7146,8 +7157,9 @@
       // Carer cost: 1 year of partner income if partnered, else singles default
       const tpdCarerTotal = carerCost;
 
-      // Rent provision (for clients with no mortgage) — PV of annual rent over years to retirement
-      const tpdRentPV = annualRent > 0 ? pvAnn(annualRent, dr, tpdIncomeYrs) : 0;
+      // Rent provision (for clients with no mortgage) — PV of annual rent over dedicated TPD rent years
+      // Applied for all marital statuses (TPD = client still alive and needs to pay rent)
+      const tpdRentPV = (annualRent > 0 && rentYrsTpd > 0) ? pvAnn(annualRent, dr, rentYrsTpd) : 0;
 
       const tpdOngoing = tpdEduTotal + tpdChildTotal + tpdIncomeTotal + tpdCarerTotal + tpdRentPV;
 
@@ -7190,7 +7202,7 @@
         { label: 'Legal / Estate Costs', note: 'Fixed cost', amt: legalCost },
         { label: 'Funeral & Final Expenses', note: 'Fixed cost', amt: funeralCost },
         { label: 'Debt Clearance', note: `${lifeDebtClearPct}% of total debt`, amt: lifeDebtCleared },
-        rentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${repYrs} yrs (PV)`, amt: rentPV },
+        rentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrsLife} yrs (PV)`, amt: rentPV },
         { label: 'Income Replacement', note: `${Math.round(incPct * 100)}% of income × ${repYrs} yrs`, amt: incomePV },
         lifeChildPV > 0 && { label: 'Child-Raising Costs', note: `${fmt(lifeChildAmt)}/child/yr × ${childRaisingYrs} yrs`, amt: lifeChildPV },
         edPV > 0 && { label: 'Education & Childcare', note: `${kids} child${kids !== 1 ? 'ren' : ''} × ${schYrs} yrs (${edGrowthPct}% growth)`, amt: edPV },
@@ -7210,7 +7222,7 @@
         tpdEduTotal > 0 && { label: 'Education Expenses', note: 'As per Life calculation', amt: tpdEduTotal },
         tpdChildTotal > 0 && { label: 'Child-Raising Costs', note: 'As per Life calculation', amt: tpdChildTotal },
         tpdCarerTotal > 0 && { label: 'Carer Cost', note: isPartnered ? '1 yr partner income' : 'Singles default', amt: tpdCarerTotal },
-        tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${tpdIncomeYrs} yrs (PV)`, amt: tpdRentPV },
+        tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrsTpd} yrs (PV)`, amt: tpdRentPV },
         totalDisposableAssets > 0 && { label: 'Less: Disposable Assets', note: 'Super + liquid assets', amt: -totalDisposableAssets },
         { label: 'NET TPD COVER NEEDED', note: '', amt: tpdCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
@@ -7251,7 +7263,7 @@
         marital: document.getElementById('s-marital').value,
         income, incPct: Math.round(incPct * 100), repYrs,
         partner: gv('s-partner', 0) || '', superContribPct,
-        mortgage, otherloan, personal, cc, biz, rent: annualRent,
+        mortgage, otherloan, personal, cc, biz, rent: annualRent, rentYrsLife, rentYrsTpd,
         legalCost, funeral: funeralCost,
         kids, youngest: gv('s-youngest', 0) || '',
         school: document.getElementById('s-school').value,
@@ -7350,7 +7362,7 @@
     function resetAllFields() {
       // Text / number inputs
       const textFields = ['s-client', 's-age', 's-income', 's-retire', 's-repyrs', 's-supercontrib',
-        's-mortgage', 's-otherloan', 's-personal', 's-cc', 's-biz', 's-rent',
+        's-mortgage', 's-otherloan', 's-personal', 's-cc', 's-biz', 's-rent', 's-rentyrs-life', 's-rentyrs-tpd',
         's-legalcost', 's-debtclearpct', 's-tpdded', 's-tpdnonded', 's-traumalivingpct',
         's-kids', 's-youngest', 's-childcare', 's-odep', 's-odepyrs',
         's-super', 's-superpct', 's-cash', 's-resprop', 's-comprop', 's-invprop', 's-shares', 's-managed',
