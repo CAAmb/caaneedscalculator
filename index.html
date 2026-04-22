@@ -763,6 +763,30 @@
       transform: translateX(20px)
     }
 
+    /* Compact debt-include toggles */
+    .debt-toggles {
+      display: flex;
+      gap: 14px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--mid)
+    }
+    .debt-toggles label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none
+    }
+    .debt-toggles input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--peach);
+      cursor: pointer
+    }
+    .debt-toggles .tag-life { color: #5b7cfa; font-weight: 600 }
+    .debt-toggles .tag-tpd  { color: #e08c5e; font-weight: 600 }
+
     .save-btn {
       background: linear-gradient(135deg, #eba380, #d4825a);
       color: white;
@@ -4600,30 +4624,49 @@
         <div class="step-card" id="sc-3">
           <div class="sct">Debts & Liabilities</div>
           <div class="scs">Outstanding debts that would need to be cleared.</div>
-          <div class="info-tip">Life insurance can clear these debts immediately, relieving financial pressure on your
-            family.</div>
+          <div class="info-tip">Our default position for Life Cover is to clear all non-deductible debt. For TPD, our position is to clear non-deductible debt, with deductible cleared on a case-by-case basis. Toggle each debt to include or exclude it from each cover.</div>
           <div class="fg">
             <div class="f" id="df-mortgage"><label>Outstanding Mortgage <span
                   class="hint">(non-deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-mortgage"
                   placeholder="e.g. 450000"></div>
+              <div class="debt-toggles">
+                <label><input type="checkbox" id="s-mortgage-life" checked><span class="tag-life">Life</span></label>
+                <label><input type="checkbox" id="s-mortgage-tpd" checked><span class="tag-tpd">TPD</span></label>
+              </div>
             </div>
             <div class="f" id="df-otherloan"><label>Other Property Loans <span class="hint">(deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-otherloan"
                   placeholder="e.g. 0"></div>
+              <div class="debt-toggles">
+                <label><input type="checkbox" id="s-otherloan-life" checked><span class="tag-life">Life</span></label>
+                <label><input type="checkbox" id="s-otherloan-tpd" checked><span class="tag-tpd">TPD</span></label>
+              </div>
             </div>
             <div class="f" id="df-personal"><label>Personal / Car Loans <span
                   class="hint">(non-deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-personal"
                   placeholder="e.g. 15000"></div>
+              <div class="debt-toggles">
+                <label><input type="checkbox" id="s-personal-life" checked><span class="tag-life">Life</span></label>
+                <label><input type="checkbox" id="s-personal-tpd" checked><span class="tag-tpd">TPD</span></label>
+              </div>
             </div>
             <div class="f" id="df-cc"><label>Credit Card Debt <span class="hint">(non-deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cc"
                   placeholder="e.g. 8000"></div>
+              <div class="debt-toggles">
+                <label><input type="checkbox" id="s-cc-life" checked><span class="tag-life">Life</span></label>
+                <label><input type="checkbox" id="s-cc-tpd" checked><span class="tag-tpd">TPD</span></label>
+              </div>
             </div>
             <div class="f" id="df-biz"><label>Business Debts <span class="hint">(deductible)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-biz"
                   placeholder="e.g. 0"></div>
+              <div class="debt-toggles">
+                <label><input type="checkbox" id="s-biz-life" checked><span class="tag-life">Life</span></label>
+                <label><input type="checkbox" id="s-biz-tpd" checked><span class="tag-tpd">TPD</span></label>
+              </div>
             </div>
           </div>
           <div class="divline"></div>
@@ -4685,10 +4728,11 @@
               <div class="info-tip" style="margin-bottom:0;font-size:12px">Trauma provides a provision for non-deductible debt repayments (e.g. mortgage repayments) while you recover. The number of years is configured by your administrator.</div>
             </div>
           </div>
-          <!-- TPD income % — shown if admin unlocks -->
-          <div id="df-tpdincomepct-section" style="display:none">
+          <!-- TPD income % — always visible, default from admin -->
+          <div id="df-tpdincomepct-section">
             <div class="divline"></div>
             <div class="sublabel">TPD — Income Replacement %</div>
+            <div class="info-tip" style="margin-bottom:10px;font-size:12px">The default is 30% where clients hold Income Protection cover. Adjust if the client does not hold IP or the recommendation differs. The default is managed by your administrator.</div>
             <div class="fg">
               <div class="f"><label>% of Income for TPD Income Replacement</label>
                 <div class="pfx"><span class="p">%</span><input type="number" id="s-tpdincomepct" min="0" max="100"
@@ -4707,8 +4751,13 @@
           <div class="fg">
             <div class="f"><label>Number of Dependent Children</label><input type="number" id="s-kids"
                 placeholder="e.g. 2" min="0" max="10" value="0"></div>
-            <div class="f"><label>Age of Youngest Child</label><input type="number" id="s-youngest" placeholder="e.g. 5"
+            <div class="f" id="f-youngest"><label>Age of Youngest Child</label><input type="number" id="s-youngest" placeholder="e.g. 5"
                 min="0" max="17"></div>
+          </div>
+          <!-- Dynamic individual child ages (shown when 2+ children) -->
+          <div id="child-ages-section" style="display:none;margin-top:10px">
+            <div class="info-tip" style="margin-bottom:10px;font-size:12px">Enter the age of each dependent child — each child's remaining years until age 18 are used to calculate child-raising and education costs individually.</div>
+            <div class="fg" id="child-ages-grid"></div>
           </div>
           <!-- Child-raising cost — shown if admin unlocks -->
           <div id="df-lifechildamt-section" style="display:none">
@@ -5526,22 +5575,55 @@
         });
       });
 
-      // When kids count changes, re-validate youngest immediately
+      // When kids count changes, re-validate youngest immediately & render individual child age inputs
       const kidsEl = document.getElementById('s-kids');
       if (kidsEl) {
         kidsEl.addEventListener('change', () => {
           const youngEl = document.getElementById('s-youngest');
           const errEl   = document.getElementById('err-s-youngest');
-          if (!youngEl || !errEl) return;
-          const kids = parseInt(kidsEl.value, 10);
-          if (!kids || kids <= 0) {
-            // No kids — clear youngest error
-            errEl.classList.remove('visible');
-            youngEl.classList.remove('field-invalid');
-          } else if (youngEl.value.trim() !== '') {
-            youngEl.dispatchEvent(new Event('blur'));
+          if (youngEl && errEl) {
+            const kids = parseInt(kidsEl.value, 10);
+            if (!kids || kids <= 0) {
+              // No kids — clear youngest error
+              errEl.classList.remove('visible');
+              youngEl.classList.remove('field-invalid');
+            } else if (youngEl.value.trim() !== '') {
+              youngEl.dispatchEvent(new Event('blur'));
+            }
           }
+          renderChildAgeInputs();
         });
+        // Also listen to input for live updates
+        kidsEl.addEventListener('input', renderChildAgeInputs);
+      }
+    }
+
+    // Render individual child age inputs when 2+ children
+    function renderChildAgeInputs() {
+      const kidsEl = document.getElementById('s-kids');
+      const section = document.getElementById('child-ages-section');
+      const grid = document.getElementById('child-ages-grid');
+      const youngestField = document.getElementById('f-youngest');
+      if (!kidsEl || !section || !grid) return;
+      const kids = parseInt(kidsEl.value, 10) || 0;
+      if (kids >= 2) {
+        // Save existing values so typing kids count doesn't wipe inputs
+        const existing = {};
+        grid.querySelectorAll('input[id^="s-childage-"]').forEach(inp => { existing[inp.id] = inp.value; });
+        let html = '';
+        for (let i = 0; i < kids; i++) {
+          const id = 's-childage-' + i;
+          const val = existing[id] || '';
+          html += `<div class="f"><label>Child ${i + 1} — Age</label><input type="number" id="${id}" min="0" max="17" placeholder="e.g. ${Math.max(2, i * 3)}" value="${val}"></div>`;
+        }
+        grid.innerHTML = html;
+        section.style.display = 'block';
+        // Hide the single "Age of Youngest Child" field as it's derived from the individual ages
+        if (youngestField) youngestField.style.display = 'none';
+      } else {
+        section.style.display = 'none';
+        grid.innerHTML = '';
+        if (youngestField) youngestField.style.display = '';
       }
     }
 
@@ -6609,6 +6691,14 @@
       sf('s-biz', inp.biz);
       sf('s-rent', inp.rent);
       sf('s-rentyrs', inp.rentYrs);
+      // Restore per-debt include toggles (default ON when absent for legacy entries)
+      const di = inp.debtInc || {};
+      const setChk = (id, v) => { const e = document.getElementById(id); if (e) e.checked = v !== false; };
+      setChk('s-mortgage-life', di.mortgageLife); setChk('s-mortgage-tpd', di.mortgageTpd);
+      setChk('s-otherloan-life', di.otherloanLife); setChk('s-otherloan-tpd', di.otherloanTpd);
+      setChk('s-personal-life', di.personalLife); setChk('s-personal-tpd', di.personalTpd);
+      setChk('s-cc-life', di.ccLife); setChk('s-cc-tpd', di.ccTpd);
+      setChk('s-biz-life', di.bizLife); setChk('s-biz-tpd', di.bizTpd);
       sf('s-legalcost', inp.legalCost);
       sf('s-funeral', inp.funeral);
       sf('s-tpdded', inp.tpdDedPct);
@@ -6618,6 +6708,14 @@
       // Step 4 – Dependants
       sf('s-kids', inp.kids);
       sf('s-youngest', inp.youngest);
+      // Re-render child age inputs and restore values
+      renderChildAgeInputs();
+      if (Array.isArray(inp.childAges) && inp.childAges.length >= 2) {
+        inp.childAges.forEach((age, i) => {
+          const el = document.getElementById('s-childage-' + i);
+          if (el) el.value = age;
+        });
+      }
       const schoolEl = document.getElementById('s-school');
       if (schoolEl && inp.school) schoolEl.value = inp.school;
       sf('s-childcare', inp.childcare);
@@ -6761,9 +6859,9 @@
       toggleEl('df-edgrowth-section', CFG.lockEdGrowth === 'yes');
       if (CFG.lockEdGrowth === 'yes') { const e = document.getElementById('s-edgrowth'); if (e) { e.value = CFG.edGrowth || 5; } }
 
-      // TPD income % — show if admin unlocks
-      toggleEl('df-tpdincomepct-section', CFG.lockTpdIncomePct === 'yes');
-      if (CFG.lockTpdIncomePct === 'yes') { const e = document.getElementById('s-tpdincomepct'); if (e) { e.value = CFG.tpdIncomePct || 30; } }
+      // TPD income % — always visible, pre-populated with admin default
+      toggleEl('df-tpdincomepct-section', true);
+      { const e = document.getElementById('s-tpdincomepct'); if (e && !e.value) e.value = CFG.tpdIncomePct || 30; }
 
       // Life debt clear % — only show if admin unlocked
       toggleEl('df-debtclear-section', CFG.lockDebtClearPct === 'yes');
@@ -7034,10 +7132,26 @@
       const personal = CFG.swPersonal ? gv('s-personal') : 0;
       const cc = CFG.swCc ? gv('s-cc') : 0;
       const biz = CFG.swBiz ? gv('s-biz') : 0;
+      // Per-debt include toggles (default ON). Helper returns true if checkbox is checked or absent.
+      const debtInc = (id) => { const el = document.getElementById(id); return el ? el.checked : true; };
+      const incMortgageLife = debtInc('s-mortgage-life');
+      const incOtherloanLife = debtInc('s-otherloan-life');
+      const incPersonalLife = debtInc('s-personal-life');
+      const incCcLife = debtInc('s-cc-life');
+      const incBizLife = debtInc('s-biz-life');
+      const incMortgageTpd = debtInc('s-mortgage-tpd');
+      const incOtherloanTpd = debtInc('s-otherloan-tpd');
+      const incPersonalTpd = debtInc('s-personal-tpd');
+      const incCcTpd = debtInc('s-cc-tpd');
+      const incBizTpd = debtInc('s-biz-tpd');
       // Categorise: deductible = investment/business loans; non-deductible = mortgage/personal/cc
-      const dedDebt = otherloan + biz;
-      const nonDedDebt = mortgage + personal + cc;
-      const totalDebt = dedDebt + nonDedDebt;
+      // For Life: sum all included debts (no ded/non-ded split)
+      const lifeDebtIncluded = (incMortgageLife ? mortgage : 0) + (incOtherloanLife ? otherloan : 0)
+                             + (incPersonalLife ? personal : 0) + (incCcLife ? cc : 0) + (incBizLife ? biz : 0);
+      // For TPD: split into ded / non-ded buckets, filtered by TPD toggles
+      const dedDebt = (incOtherloanTpd ? otherloan : 0) + (incBizTpd ? biz : 0);
+      const nonDedDebt = (incMortgageTpd ? mortgage : 0) + (incPersonalTpd ? personal : 0) + (incCcTpd ? cc : 0);
+      const totalDebt = dedDebt + nonDedDebt; // kept for any legacy references
 
       // ── Assets ──
       const aCash    = gc('st-cash')    ? gv('s-cash', 0)    : 0;
@@ -7060,9 +7174,21 @@
       const annNeed = income * incPct;
       const incomePV = pvAnn(annNeed, dr, repYrs);
 
-      const kids = gv('s-kids', 0); const youngest = gv('s-youngest', 0);
+      const kids = gv('s-kids', 0);
+      // Gather individual child ages. When 2+ kids, each has own input; else use s-youngest.
+      const childAges = [];
+      if (kids >= 2) {
+        for (let i = 0; i < kids; i++) {
+          const v = gv('s-childage-' + i, 0);
+          if (v >= 0) childAges.push(v);
+        }
+      } else if (kids === 1) {
+        childAges.push(gv('s-youngest', 0));
+      }
+      const youngest = childAges.length > 0 ? Math.min(...childAges) : gv('s-youngest', 0);
       const schoolType = document.getElementById('s-school').value;
       const childcare = gv('s-childcare');
+      // schYrs for any remaining cost basis (used for childcare)
       let schYrs = kids > 0 ? Math.max(CFG.schfinish - youngest, 0) : 0;
       if (CFG.uni === 'yes') schYrs += 3;
 
@@ -7070,34 +7196,45 @@
       const edGrowthPct = CFG.lockEdGrowth === 'no' ? (CFG.edGrowth || 5) : gv('s-edgrowth', CFG.edGrowth || 5);
       const edGrowth = edGrowthPct / 100;
 
-      // Education PV — growing annuity; Catholic school uses two-phase split
+      // Education PV — per child (each child's own schooling years), then summed
       let edPV = 0;
       if (kids > 0 && schoolType !== '0') {
-        if (schoolType === 'cath') {
-          const prim = CFG.cathPrimary || 6000;
-          const sec = CFG.cathSecondary || 10500;
-          const primaryYrs = Math.max(Math.min(12 - youngest, schYrs), 0);
-          const secondaryYrs = Math.max(schYrs - primaryYrs, 0);
-          const primaryPV = pvGrow(prim * kids, edGrowth, dr, primaryYrs);
-          const secondaryPV = secondaryYrs > 0
-            ? pvGrow(sec * kids, edGrowth, dr, secondaryYrs) / Math.pow(1 + dr, primaryYrs)
-            : 0;
-          edPV = primaryPV + secondaryPV;
-        } else {
-          const schCost = getSchoolCost(schoolType);
-          edPV = pvGrow(schCost * kids, edGrowth, dr, schYrs);
-        }
-        // Childcare is not indexed — flat annuity
+        childAges.forEach(age => {
+          let childSchYrs = Math.max(CFG.schfinish - age, 0);
+          if (CFG.uni === 'yes') childSchYrs += 3;
+          if (schoolType === 'cath') {
+            const prim = CFG.cathPrimary || 6000;
+            const sec = CFG.cathSecondary || 10500;
+            const primaryYrs = Math.max(Math.min(12 - age, childSchYrs), 0);
+            const secondaryYrs = Math.max(childSchYrs - primaryYrs, 0);
+            const primaryPV = pvGrow(prim, edGrowth, dr, primaryYrs);
+            const secondaryPV = secondaryYrs > 0
+              ? pvGrow(sec, edGrowth, dr, secondaryYrs) / Math.pow(1 + dr, primaryYrs)
+              : 0;
+            edPV += primaryPV + secondaryPV;
+          } else {
+            const schCost = getSchoolCost(schoolType);
+            edPV += pvGrow(schCost, edGrowth, dr, childSchYrs);
+          }
+        });
+        // Childcare is not indexed — flat annuity (uses schYrs based on youngest)
         if (childcare > 0) edPV += pvAnn(childcare, dr, schYrs);
       }
 
       const odep = gv('s-odep'); const odepYrs = gv('s-odepyrs');
       const odepPV = odep > 0 ? pvAnn(odep, dr, odepYrs) : 0;
 
-      // Child-raising cost ($20k/child/year until age 18 — flat annuity)
+      // Child-raising cost — per child ($X/year until age 18), PV'd individually then summed
       const lifeChildAmt = CFG.lockLifeChildAmt === 'no' ? (CFG.lifeChildAmt || 20000) : gv('s-lifechildamt', CFG.lifeChildAmt || 20000);
-      const childRaisingYrs = kids > 0 ? Math.max(18 - youngest, 0) : 0;
-      const lifeChildPV = kids > 0 ? pvAnn(lifeChildAmt * kids, dr, childRaisingYrs) : 0;
+      let lifeChildPV = 0;
+      let childRaisingYrs = 0;
+      if (kids > 0) {
+        childAges.forEach(age => {
+          const yrs = Math.max(18 - age, 0);
+          lifeChildPV += pvAnn(lifeChildAmt, dr, yrs);
+          if (yrs > childRaisingYrs) childRaisingYrs = yrs;
+        });
+      }
 
       // Marital status & partner income (used by TPD and Trauma carer cost)
       const marital = document.getElementById('s-marital').value;
@@ -7110,9 +7247,9 @@
       const funeralCost = gv('s-funeral', CFG.funeral);
       const fixedCosts = legalCost + funeralCost;
 
-      // Life debt clearance
+      // Life debt clearance — uses per-debt Life toggles
       const lifeDebtClearPct = (CFG.lockDebtClearPct === 'yes') ? gv('s-debtclearpct', CFG.debtClearPct) : CFG.debtClearPct;
-      const lifeDebtCleared = totalDebt * lifeDebtClearPct / 100;
+      const lifeDebtCleared = lifeDebtIncluded * lifeDebtClearPct / 100;
 
       // Rent provision (for clients with no mortgage) — PV of annual rent over dedicated rent years
       // Life Cover: only applied for partnered clients (skip if single/separated)
@@ -7141,8 +7278,9 @@
         tpdBuyRes = gv('s-tpdbuyresamt', 0);
       }
 
-      // Dynamic income replacement: 30% of income × PV to retirement
-      const tpdIncomePct = CFG.lockTpdIncomePct === 'no' ? (CFG.tpdIncomePct || 30) : gv('s-tpdincomepct', CFG.tpdIncomePct || 30);
+      // Dynamic income replacement: % of income × PV to retirement
+      // Staff-editable in all cases — defaults to admin-configured value when field is blank
+      const tpdIncomePct = gv('s-tpdincomepct', CFG.tpdIncomePct || 30);
       const tpdIncomeYrs = gv('s-retire', 0);
       const tpdIncomeTotal = pvAnn(income * tpdIncomePct / 100, dr, tpdIncomeYrs);
 
@@ -7200,13 +7338,14 @@
         { label: 'Debt Clearance', note: `${lifeDebtClearPct}% of total debt`, amt: lifeDebtCleared },
         rentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrs} yrs (PV)`, amt: rentPV },
         { label: 'Income Replacement', note: `${Math.round(incPct * 100)}% of income × ${repYrs} yrs`, amt: incomePV },
-        lifeChildPV > 0 && { label: 'Child-Raising Costs', note: `${fmt(lifeChildAmt)}/child/yr × ${childRaisingYrs} yrs`, amt: lifeChildPV },
-        edPV > 0 && { label: 'Education & Childcare', note: `${kids} child${kids !== 1 ? 'ren' : ''} × ${schYrs} yrs (${edGrowthPct}% growth)`, amt: edPV },
+        lifeChildPV > 0 && { label: 'Child-Raising Costs', note: kids >= 2 ? `${fmt(lifeChildAmt)}/child/yr — per child until age 18` : `${fmt(lifeChildAmt)}/child/yr × ${childRaisingYrs} yrs`, amt: lifeChildPV },
+        edPV > 0 && { label: 'Education & Childcare', note: kids >= 2 ? `${kids} children — per-child schooling (${edGrowthPct}% growth)` : `${kids} child × ${schYrs} yrs (${edGrowthPct}% growth)`, amt: edPV },
         odepPV > 0 && { label: 'Other Dependant Support', note: `${odepYrs} years`, amt: odepPV },
         { label: 'Gross Insurance Need', note: '', amt: lifeGross },
         superOffset > 0 && { label: 'Less: Superannuation', note: `${sPct}% of balance`, amt: -superOffset },
         otherAssets > 0 && { label: 'Less: Other Disposable Assets', note: '', amt: -(otherAssets) },
         { label: 'NET LIFE COVER NEEDED', note: '', amt: lifeCover, total: true },
+        tpdCover > lifeCover && { label: 'TOTAL LIFE COVER NEEDED', note: 'Matched to TPD — Life cannot be lower than TPD (cover structure)', amt: tpdCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
 
       // TPD breakdown
@@ -7241,8 +7380,10 @@
       const childTraumaEligible = kids > 0 && youngest >= 2 && youngest <= 15;
       const childTraumaCover = childTraumaEligible ? kids * 50000 : 0;
 
+      // Life cover must not be lower than TPD cover (cover structure requirement)
+      const lifeCoverFinal = Math.max(lifeCover, tpdCover);
       const results = {
-        life: fmt(lifeCover),
+        life: fmt(lifeCoverFinal),
         tpd: fmt(tpdCover),
         ip: fmt(ipMonthly) + '/mo',
         ipSuper: ipSuperMonthly > 0 ? fmt(ipSuperMonthly) + '/mo' : '',
@@ -7260,8 +7401,15 @@
         income, incPct: Math.round(incPct * 100), repYrs,
         partner: gv('s-partner', 0) || '', superContribPct,
         mortgage, otherloan, personal, cc, biz, rent: annualRent, rentYrs,
+        debtInc: {
+          mortgageLife: incMortgageLife, mortgageTpd: incMortgageTpd,
+          otherloanLife: incOtherloanLife, otherloanTpd: incOtherloanTpd,
+          personalLife: incPersonalLife, personalTpd: incPersonalTpd,
+          ccLife: incCcLife, ccTpd: incCcTpd,
+          bizLife: incBizLife, bizTpd: incBizTpd
+        },
         legalCost, funeral: funeralCost,
-        kids, youngest: gv('s-youngest', 0) || '',
+        kids, youngest: gv('s-youngest', 0) || '', childAges,
         school: document.getElementById('s-school').value,
         childcare: gv('s-childcare', 0) || '', odep: gv('s-odep', 0) || '', odepyrs: gv('s-odepyrs', 0) || '',
         superBal, superpct: sPct,
@@ -7362,9 +7510,20 @@
         's-legalcost', 's-debtclearpct', 's-tpdded', 's-tpdnonded', 's-traumalivingpct',
         's-kids', 's-youngest', 's-childcare', 's-odep', 's-odepyrs',
         's-super', 's-superpct', 's-cash', 's-resprop', 's-comprop', 's-invprop', 's-shares', 's-managed',
-        's-tpdmedcost', 's-tpdbuyresamt', 's-traumamedcost',
+        's-tpdmedcost', 's-tpdbuyresamt', 's-traumamedcost', 's-tpdincomepct',
         's-earn', 's-infl'];
       textFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      // Reset per-debt include toggles — all ON by default
+      ['s-mortgage-life','s-mortgage-tpd','s-otherloan-life','s-otherloan-tpd',
+       's-personal-life','s-personal-tpd','s-cc-life','s-cc-tpd',
+       's-biz-life','s-biz-tpd'].forEach(id => { const el = document.getElementById(id); if (el) el.checked = true; });
+      // Clear dynamic child age inputs
+      const childAgeGrid = document.getElementById('child-ages-grid');
+      if (childAgeGrid) childAgeGrid.innerHTML = '';
+      const childAgeSection = document.getElementById('child-ages-section');
+      if (childAgeSection) childAgeSection.style.display = 'none';
+      const youngF = document.getElementById('f-youngest');
+      if (youngF) youngF.style.display = '';
       // Selects — reset to first option
       ['s-marital', 's-school'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
       // Toggle buttons
