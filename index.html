@@ -5650,6 +5650,10 @@
       const verifier = generatePkceVerifier();
       const challenge = await generatePkceChallenge(verifier);
       sessionStorage.setItem('pkce_code_verifier', verifier);
+      // Tag the PKCE flow so the callback handler knows this is SSO, not a
+      // password reset — without this, Supabase's shared ?code= callback
+      // defaults to the recovery / "set a new password" flow.
+      sessionStorage.setItem('pkce_flow', 'sso');
       // Explicitly request the email + profile scopes so Azure AD returns the
       // user's email claim in the ID token. Without this, Supabase responds
       // with "Error getting user email from external provider".
@@ -9051,14 +9055,19 @@
       }
 
       // Format 2: PKCE flow — code in query string (password reset or Microsoft SSO)
-      // e.g. ?code=xxx  (newer Supabase default for pw reset)
+      // e.g. ?code=xxx  (newer Supabase default for pw reset; also used by Azure SSO)
       if (!accessToken) {
         const sp = new URLSearchParams(window.location.search);
         const code = sp.get('code');
         if (code) {
           try {
+            // The Microsoft login flow tags the verifier so we can tell SSO
+            // callbacks apart from password-reset callbacks (which both use
+            // the ?code= PKCE return format).
             const storedVerifier = sessionStorage.getItem('pkce_code_verifier') || '';
+            const flowTag = sessionStorage.getItem('pkce_flow') || '';
             sessionStorage.removeItem('pkce_code_verifier');
+            sessionStorage.removeItem('pkce_flow');
             const r = await fetch(SB_URL + '/auth/v1/token?grant_type=pkce', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'apikey': SB_KEY },
@@ -9066,7 +9075,13 @@
             });
             if (r.ok) {
               const d = await r.json();
-              if (d.access_token) { accessToken = d.access_token; refreshToken = d.refresh_token; callbackType = 'recovery'; }
+              if (d.access_token) {
+                accessToken = d.access_token;
+                refreshToken = d.refresh_token;
+                // SSO flow → treat as signup/login. Only treat as recovery when
+                // the flow was explicitly kicked off by the password-reset path.
+                callbackType = (flowTag === 'sso') ? 'signup' : 'recovery';
+              }
             }
           } catch(e) {}
         }
