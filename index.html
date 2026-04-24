@@ -4011,22 +4011,10 @@
       <div class="login-tagline">Plan everything. Regret nothing.</div>
       <div class="login-divider"></div>
       <div class="login-sub">Staff & Admin Portal — Secure Sign In</div>
-      <div class="role-tabs">
-        <button class="role-tab staff-tab active" onclick="selRole('staff',this)">Staff</button>
-        <button class="role-tab admin-tab" onclick="selRole('admin',this)">Admin</button>
-      </div>
-      <!-- Admin: email + password (hidden by default, shown on Admin tab) -->
-      <div id="admin-login-section" style="display:none">
-        <div class="lf"><label>Email Address</label><input type="email" id="li-user" placeholder="you@example.com"
-            autocomplete="off"></div>
-        <div class="lf"><label>Password</label><input type="password" id="li-pass" placeholder="Password"></div>
-        <button class="login-btn ab" id="li-btn" onclick="doLogin()">Sign In as Admin</button>
-        <div class="login-err hidden" id="li-err">Incorrect email or password.</div>
-        <button class="forgot-link" onclick="toggleForgotPw(true)">Forgot your password?</button>
-      </div>
-
-      <!-- Staff: Microsoft SSO primary, email/password collapsible fallback -->
-      <div id="staff-login-section">
+      <!-- SSO-only login. Everyone lands in staff view; admin access is an
+           in-app view-swap button for users whose caa_users.role === 'admin'.
+           Legacy email/password + role-tab markup kept hidden as dead code. -->
+      <div id="sso-login-section">
         <button class="login-btn" id="ms-btn" onclick="doMicrosoftLogin()" style="background:#2f2f2f;display:flex;align-items:center;justify-content:center;gap:10px">
           <svg width="18" height="18" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
@@ -4037,20 +4025,26 @@
           Sign in with Microsoft
         </button>
         <div style="font-size:12px;color:var(--light);text-align:center;margin-top:12px">Use your Coastal Advisory Microsoft account</div>
+        <div id="sso-err" class="login-err hidden" style="margin-top:14px"></div>
+      </div>
 
-        <!-- Email fallback toggle — subtle, secondary -->
-        <div style="text-align:center;margin-top:22px">
-          <button class="forgot-link" id="staff-email-toggle" onclick="toggleStaffEmail()">🔑 Sign in with email instead</button>
-        </div>
-
-        <!-- Collapsible email + password section -->
-        <div id="staff-email-section" class="hidden" style="margin-top:4px">
-          <div class="login-divider" style="margin:14px 0"></div>
-          <div class="lf"><label>Email Address</label><input type="email" id="staff-li-user" placeholder="you@example.com" autocomplete="off"></div>
-          <div class="lf"><label>Password</label><input type="password" id="staff-li-pass" placeholder="Password"></div>
+      <!-- Legacy email/password login + role tabs kept as dead code for revival -->
+      <div class="role-tabs hidden" style="display:none">
+        <button class="role-tab staff-tab active" onclick="selRole('staff',this)">Staff</button>
+        <button class="role-tab admin-tab" onclick="selRole('admin',this)">Admin</button>
+      </div>
+      <div id="admin-login-section" class="hidden" style="display:none">
+        <div class="lf"><label>Email Address</label><input type="email" id="li-user" autocomplete="off"></div>
+        <div class="lf"><label>Password</label><input type="password" id="li-pass"></div>
+        <button class="login-btn ab" id="li-btn" onclick="doLogin()">Sign In as Admin</button>
+        <div class="login-err hidden" id="li-err">Incorrect email or password.</div>
+      </div>
+      <div id="staff-login-section" class="hidden" style="display:none">
+        <div id="staff-email-section" class="hidden">
+          <div class="lf"><label>Email Address</label><input type="email" id="staff-li-user" autocomplete="off"></div>
+          <div class="lf"><label>Password</label><input type="password" id="staff-li-pass"></div>
           <button class="login-btn" id="staff-li-btn" onclick="doStaffLogin()">Sign In</button>
           <div class="login-err hidden" id="staff-li-err">Incorrect email or password.</div>
-          <button class="forgot-link" onclick="toggleForgotPw(true)">Forgot your password?</button>
         </div>
       </div>
 
@@ -4084,6 +4078,9 @@
       <div class="topbar-r">
         <span class="mbadge" id="mbadge"></span>
         <span class="topbar-user" id="tbar-user"></span>
+        <!-- View-switch button: only shown when currentUser.dbRole === 'admin'.
+             Label flips between "Switch to Admin" / "Switch to Staff". -->
+        <button class="logout-btn" id="view-switch-btn" onclick="switchView()" style="display:none;margin-right:8px">Switch to Admin</button>
         <button class="logout-btn" onclick="doLogout()">Sign Out</button>
       </div>
     </div>
@@ -6295,8 +6292,14 @@
       } else {
         badge.textContent = '✦ Staff'; badge.className = 'mbadge staff';
         uEl.textContent = userObj.name;
-        // Auto-register profile in caa_users on first login (creates row if not exists)
-        persistSaveUser({ id: userObj.id, name: userObj.name, email: userObj.email, role: userObj.role || 'staff', mustResetPassword: false });
+        // Auto-register profile in caa_users on FIRST login only — don't
+        // overwrite existing rows or we'd demote dual-access users (whose
+        // caa_users role is 'admin') back to staff every time they enter the
+        // staff view.
+        const existingUser = USERS.find(x => x.id === userObj.id);
+        if (!existingUser) {
+          persistSaveUser({ id: userObj.id, name: userObj.name, email: userObj.email, role: userObj.role || 'staff', mustResetPassword: false });
+        }
         document.getElementById('staff-view').style.display = 'block';
         document.getElementById('admin-view').style.display = 'none';
         applyMethodology();
@@ -6304,6 +6307,43 @@
         goStep(1);
         document.getElementById('results-view').style.display = 'none';
         updateHistCount();
+      }
+      // Show the view-switch button only if this user is flagged admin in
+      // caa_users. Label reflects the view they'd swap TO.
+      const switchBtn = document.getElementById('view-switch-btn');
+      if (switchBtn) {
+        const isDbAdmin = userObj && userObj.dbRole === 'admin';
+        switchBtn.style.display = isDbAdmin ? '' : 'none';
+        switchBtn.textContent = (role === 'admin') ? 'Switch to Staff' : 'Switch to Admin';
+      }
+    }
+
+    // In-app view swap for users flagged admin in caa_users. Pure DOM swap
+    // — no re-auth, no form reset, Supabase session unchanged. Preserves any
+    // in-progress calculation when flipping back and forth. Ignores callers
+    // that aren't admin in the DB (defensive; button is hidden for them).
+    function switchView() {
+      if (!currentUser || currentUser.dbRole !== 'admin') return;
+      const target = (currentRole === 'admin') ? 'staff' : 'admin';
+      currentRole = target;
+      const badge = document.getElementById('mbadge');
+      const uEl = document.getElementById('tbar-user');
+      const switchBtn = document.getElementById('view-switch-btn');
+      if (target === 'admin') {
+        if (badge) { badge.textContent = '⚙ Admin'; badge.className = 'mbadge admin'; }
+        if (uEl) uEl.textContent = 'Admin';
+        document.getElementById('admin-view').style.display = 'block';
+        document.getElementById('staff-view').style.display = 'none';
+        const resV = document.getElementById('results-view');
+        if (resV) resV.style.display = 'none';
+        loadAdminUI(); renderAllHist();
+        if (switchBtn) switchBtn.textContent = 'Switch to Staff';
+      } else {
+        if (badge) { badge.textContent = '✦ Staff'; badge.className = 'mbadge staff'; }
+        if (uEl) uEl.textContent = currentUser.name;
+        document.getElementById('staff-view').style.display = 'block';
+        document.getElementById('admin-view').style.display = 'none';
+        if (switchBtn) switchBtn.textContent = 'Switch to Admin';
       }
     }
 
@@ -6323,12 +6363,36 @@
       document.getElementById('li-pass').value = '';
       document.getElementById('li-err').classList.add('hidden');
       document.getElementById('results-view').style.display = 'none';
-      // Reset to Staff tab (SSO view) on logout
-      document.querySelectorAll('.role-tab').forEach(t => t.classList.remove('active'));
-      document.querySelector('.staff-tab').classList.add('active');
+      // Login UI reset on logout. Role tabs + email sections are dead code
+      // (hidden), only #sso-login-section is visible — guard every lookup
+      // so a future markup trim doesn't crash logout.
       selectedRole = 'staff';
-      document.getElementById('admin-login-section').style.display = 'none';
-      document.getElementById('staff-login-section').style.display = '';
+      const ssoSec   = document.getElementById('sso-login-section');
+      const adminSec = document.getElementById('admin-login-section');
+      const staffSec = document.getElementById('staff-login-section');
+      if (ssoSec)   ssoSec.style.display   = '';
+      if (adminSec) adminSec.style.display = 'none';
+      if (staffSec) staffSec.style.display = 'none';
+      const ssoErr = document.getElementById('sso-err');
+      if (ssoErr) { ssoErr.classList.add('hidden'); ssoErr.textContent = ''; }
+      // Re-enable the SSO button and restore the label if a prior redirect stalled
+      const msBtn = document.getElementById('ms-btn');
+      if (msBtn) {
+        msBtn.disabled = false;
+        // If the label was swapped to "Redirecting…" without a navigation
+        // (rare — network failure), put the Microsoft text back.
+        if (msBtn.textContent.trim() === 'Redirecting…') {
+          msBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">'
+            + '<rect x="1" y="1" width="9" height="9" fill="#f25022"/>'
+            + '<rect x="11" y="1" width="9" height="9" fill="#7fba00"/>'
+            + '<rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>'
+            + '<rect x="11" y="11" width="9" height="9" fill="#ffb900"/>'
+            + '</svg> Sign in with Microsoft';
+        }
+      }
+      // Hide the view-switch button (in case an admin is signing out mid-switch)
+      const switchBtn = document.getElementById('view-switch-btn');
+      if (switchBtn) switchBtn.style.display = 'none';
     }
 
     // ══════════ ADMIN PANELS ══════════
@@ -9139,11 +9203,21 @@
         } catch(_) {}
       }
 
-      const role = (profile && profile.role) ? profile.role : 'staff';
-      const userObj = { id: authUser.id, name: (profile && profile.name) || authUser.name, email: authUser.email, role };
+      // Microsoft SSO always lands the user in STAFF view on initial login
+      // (even if they're flagged as admin in caa_users). Admins get an
+      // in-app "Switch to Admin" button in the topbar — this keeps the
+      // session role stable and the admin surface behind an explicit click.
+      const role = 'staff';
+      const dbRole = (profile && profile.role) || 'staff';
+      const userObj = { id: authUser.id, name: (profile && profile.name) || authUser.name, email: authUser.email, role, dbRole };
 
-      // Auto-create their profile in caa_users on first SSO login
-      await persistSaveUser({ id: userObj.id, name: userObj.name, email: userObj.email, role, mustResetPassword: false });
+      // Only create the caa_users row on FIRST SSO login. Never overwrite an
+      // existing row — otherwise a dual-access user (admin in caa_users, SSO
+      // for staff work) would be silently demoted to staff in the DB every
+      // time they sign in via Microsoft.
+      if (!profile) {
+        await persistSaveUser({ id: userObj.id, name: userObj.name, email: userObj.email, role: 'staff', mustResetPassword: false });
+      }
 
       launchApp(role, userObj);
       return true;
