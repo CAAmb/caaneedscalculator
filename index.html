@@ -2712,14 +2712,16 @@
       flex: 1
     }
 
-    .asset-pair {
+    /* Each pair is its own flex row: [label] [input] [toggle] [Inc] */
+    .asset-pair, .partner-asset-pair {
       flex: 1;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .asset-pair > .pfx { flex: 1; }
+    .asset-pair > .pfx,
+    .partner-asset-pair > .pfx { flex: 1; }
 
     .asset-pair-lbl {
       font-size: 10px;
@@ -2727,35 +2729,25 @@
       letter-spacing: .5px;
       text-transform: uppercase;
       color: var(--mid);
-      min-width: 50px;
+      min-width: 48px;
       display: none;
     }
 
+    /* Partner pair hidden by default (only shown when partner-calc is on) */
     .asset-input-row .partner-asset-pair { display: none; }
 
-    /* When partner-calc is on, switch to a grid layout: client + partner stacked, toggle on right */
+    /* When partner-calc is on: stack client and partner vertically, full width each */
     .asset-input-row.has-partner {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      grid-template-rows: auto auto;
-      column-gap: 10px;
-      row-gap: 6px;
-      align-items: center;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .asset-input-row.has-partner .asset-pair,
+    .asset-input-row.has-partner .partner-asset-pair {
+      display: flex;
+      width: 100%;
     }
     .asset-input-row.has-partner .asset-pair-lbl { display: block; }
-    .asset-input-row.has-partner .asset-pair {
-      grid-column: 1; grid-row: 1; flex: unset; width: 100%;
-    }
-    .asset-input-row.has-partner .partner-asset-pair {
-      grid-column: 1; grid-row: 2; display: flex; align-items: center; gap: 8px; width: 100%;
-    }
-    .asset-input-row.has-partner .partner-asset-pair > .pfx { flex: 1; }
-    .asset-input-row.has-partner > label.switch {
-      grid-column: 2; grid-row: 1 / span 2; align-self: center;
-    }
-    .asset-input-row.has-partner > .asset-inc-lbl {
-      grid-column: 3; grid-row: 1 / span 2; align-self: center;
-    }
 
     .asset-inc-lbl {
       font-size: 11px;
@@ -5061,9 +5053,6 @@
             <div class="f"><label>Annual Non-Deductible Debt Repayments <span class="hint">($/year)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-traumarepayment" placeholder="e.g. 24000"></div>
             </div>
-            <div class="f" id="df-traumadebtyears-section"><label>Provision Period <span class="hint">(years — 0.5 = 6 months)</span></label>
-              <input type="number" id="s-traumadebtyears" min="0" max="5" step="0.25" placeholder="0.5">
-            </div>
             <div class="f" style="align-self:flex-end">
               <div class="info-tip" style="margin-bottom:0;font-size:12px">Trauma provides a provision for non-deductible debt repayments (e.g. mortgage repayments) while you recover.</div>
             </div>
@@ -5085,11 +5074,14 @@
           <!-- Trauma income % — shown if admin unlocks -->
           <div id="df-traumaincomepct-section" style="display:none">
             <div class="divline"></div>
-            <div class="sublabel">Trauma — Income Provision %</div>
+            <div class="sublabel">Trauma — Income Provision</div>
             <div class="fg">
               <div class="f"><label>% of Income for Trauma Income Provision</label>
                 <div class="pfx"><span class="p">%</span><input type="number" id="s-traumaincomepct" min="0" max="100"
                     style="padding-left:28px" placeholder="30"></div>
+              </div>
+              <div class="f" id="df-traumadebtyears-section"><label>Provision Period <span class="hint">(years — 0.5 = 6 months)</span></label>
+                <input type="number" id="s-traumadebtyears" min="0" max="5" step="0.25" placeholder="0.5">
               </div>
               <div class="f" style="align-self:flex-end">
                 <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% of the client's annual income as a lump-sum income provision during recovery. Adjust if the recommendation differs. The default is managed by your administrator.</div>
@@ -5115,24 +5107,22 @@
             <div class="info-tip" style="margin-bottom:10px;font-size:12px">Enter the age of each dependent child — each child's remaining years until age 18 are used to calculate child-raising and education costs individually.</div>
             <div class="fg" id="child-ages-grid"></div>
           </div>
-          <!-- Child-raising cost — shown if admin unlocks -->
-          <div id="df-lifechildamt-section" style="display:none">
+          <!-- Child-raising cost + IP toggle — side by side. Wrapper always visible; the cost
+               field within it is hidden until admin unlocks via lockLifeChildAmt. -->
+          <div id="df-childcost-wrap" style="margin-top:14px">
             <div class="divline"></div>
             <div class="sublabel">Child-Raising Cost</div>
             <div class="fg">
-              <div class="f"><label>Annual Child-Raising Cost <span class="hint">($/child)</span></label>
+              <div class="f" id="df-lifechildamt-section" style="display:none"><label>Annual Child-Raising Cost <span class="hint">($/child)</span></label>
                 <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-lifechildamt" placeholder="e.g. 20000"></div>
               </div>
-            </div>
-          </div>
-          <!-- Child-raising IP toggle — always shown when there are dependents -->
-          <div id="df-childip-section" class="fg" style="margin-top:14px">
-            <div class="f"><label>Will Income Protection Be Included?</label>
-              <select id="s-childip">
-                <option value="yes" selected>Yes — IP covers child-raising income</option>
-                <option value="no">No — include child-raising in TPD lump sum</option>
-              </select>
-              <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">When IP is in place, ongoing child-raising costs are funded by IP and removed from the TPD calculation. Toggle to "No" if the client won't have IP cover.</div>
+              <div class="f" id="df-childip-section"><label>Will Income Protection Be Included?</label>
+                <select id="s-childip">
+                  <option value="yes" selected>Yes — IP covers child-raising income</option>
+                  <option value="no">No — include child-raising in TPD lump sum</option>
+                </select>
+                <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">When IP is in place, ongoing child-raising costs are funded by IP and removed from the TPD calculation. Toggle to "No" if the client won't have IP cover.</div>
+              </div>
             </div>
           </div>
           <div class="divline"></div>
@@ -5213,14 +5203,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cash"
                           placeholder="e.g. 40000" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-cash" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-cash">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-cash"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-cash" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-cash">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-cash" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-cash">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-resprop"><label>Residential Property <span class="hint">(net equity)</span></label>
@@ -5229,14 +5221,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-resprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-resprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-resprop">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-resprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-resprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-resprop">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-resprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-resprop">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-comprop"><label>Commercial Property <span class="hint">(net equity)</span></label>
@@ -5245,14 +5239,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-comprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-comprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-comprop">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-comprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-comprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-comprop">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-comprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-comprop">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-invprop"><label>Investment Property <span class="hint">(net equity)</span></label>
@@ -5261,14 +5257,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-invprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-invprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-invprop">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-invprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-invprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-invprop">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-invprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-invprop">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-shares"><label>Shares / Equities</label>
@@ -5277,14 +5275,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-shares"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-shares" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-shares">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-shares"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-shares" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-shares">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-shares" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-shares">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-managed"><label>Managed Funds</label>
@@ -5293,14 +5293,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-managed"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-managed" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-managed">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-managed"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-managed" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-managed">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-managed" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-managed">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-super-asset"><label>Superannuation</label>
@@ -5309,14 +5311,16 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-super"
                           placeholder="e.g. 180000" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="st-super" onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="stl-super">Inc.</span>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-super"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                      <label class="switch"><input type="checkbox" id="pt-super" onchange="updateAssetPreview()"><span class="slider"></span></label>
+                      <span class="asset-inc-lbl" id="ptl-super">Inc.</span>
                     </div>
-                    <label class="switch"><input type="checkbox" id="st-super" onchange="updateAssetPreview()"><span class="slider"></span></label>
-                    <span class="asset-inc-lbl" id="stl-super">Include</span>
                   </div>
                 </div>
               </div>
@@ -5901,6 +5905,8 @@
       document.querySelectorAll('#assets-fields .asset-input-row').forEach(row => {
         row.classList.toggle('has-partner', on);
       });
+      // Refresh asset total preview now that partner side is in/out
+      if (typeof updateAssetPreview === 'function') updateAssetPreview();
       if (on) {
         // Carry forward partner income from Step 1 if p-income is empty
         const src = document.getElementById('s-partner');
@@ -5951,11 +5957,23 @@
       ['s-gender', 'p-gender'],
       ['s-smoker', 'p-smoker']
     ];
+    // Asset include/exclude toggles — st-* (client) ↔ pt-* (partner). Swapped during partner calc
+    // so the partner's own include/exclude states drive the partner calculation.
+    const PARTNER_CHECKBOX_PAIRS = [
+      ['st-cash',    'pt-cash'],
+      ['st-resprop', 'pt-resprop'],
+      ['st-comprop', 'pt-comprop'],
+      ['st-invprop', 'pt-invprop'],
+      ['st-shares',  'pt-shares'],
+      ['st-managed', 'pt-managed'],
+      ['st-super',   'pt-super']
+    ];
 
     function snapshotClientPersonal() {
-      const snap = { values: {}, tb: {}, existingChecked: false };
+      const snap = { values: {}, tb: {}, checkboxes: {}, existingChecked: false };
       PARTNER_FIELD_PAIRS.forEach(([s]) => { const el = document.getElementById(s); snap.values[s] = el ? el.value : ''; });
       PARTNER_TB_PAIRS.forEach(([s]) => { snap.tb[s] = tbState[s]; });
+      PARTNER_CHECKBOX_PAIRS.forEach(([s]) => { const el = document.getElementById(s); snap.checkboxes[s] = el ? !!el.checked : true; });
       const exCb = document.getElementById('sw-existing-cover');
       snap.existingChecked = !!(exCb && exCb.checked);
       return snap;
@@ -5967,6 +5985,11 @@
         if (sEl && pEl) sEl.value = pEl.value;
       });
       PARTNER_TB_PAIRS.forEach(([s, p]) => { if (tbState[p]) tbState[s] = tbState[p]; });
+      PARTNER_CHECKBOX_PAIRS.forEach(([s, p]) => {
+        const sEl = document.getElementById(s);
+        const pEl = document.getElementById(p);
+        if (sEl && pEl) sEl.checked = !!pEl.checked;
+      });
       // Flip the existing-cover toggle state to match the partner's own toggle
       const exCb = document.getElementById('sw-existing-cover');
       const pExCb = document.getElementById('sw-partner-existing-cover');
@@ -5976,6 +5999,7 @@
       if (!snap) return;
       PARTNER_FIELD_PAIRS.forEach(([s]) => { const el = document.getElementById(s); if (el) el.value = snap.values[s] || ''; });
       PARTNER_TB_PAIRS.forEach(([s]) => { tbState[s] = snap.tb[s]; });
+      PARTNER_CHECKBOX_PAIRS.forEach(([s]) => { const el = document.getElementById(s); if (el && snap.checkboxes) el.checked = !!snap.checkboxes[s]; });
       const exCb = document.getElementById('sw-existing-cover');
       if (exCb) exCb.checked = !!snap.existingChecked;
     }
@@ -6070,7 +6094,7 @@
         { product: 'Trauma Cover', calc: stripN(r.results.trauma), existing: ex.trauma || 0, unit: '' }
       ];
       const ipRows = isPre2021 ? [
-        { product: `IP @ ${ipReplacePctVal}% (current gen.)`, calc: stripN(r.results.ip), existing: 0, unit: '/mo' },
+        { product: `IP @ ${ipReplacePctVal}% (current gen.)`, calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' },
         { product: 'IP @ 75% (Pre-2021 IP)', calc: calcIp75, existing: ex.ip || 0, unit: '/mo' }
       ] : [
         { product: 'IP Monthly Benefit', calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' }
@@ -8038,15 +8062,23 @@
       const traumaYrsEl = document.getElementById('s-traumadebtyears');
       if (traumaYrsEl) traumaYrsEl.value = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
 
-      // Asset default include states (super defaults to excluded by default)
+      // Asset default include states (super defaults to excluded by default).
+      // Apply to BOTH client (st-*) and partner (pt-*) toggles so they match defaults at start.
       const setAssetDefault = (id, def) => { const e = document.getElementById(id); if (e) e.checked = def; };
-      setAssetDefault('st-cash',    CFG.defCash !== false);
-      setAssetDefault('st-resprop', CFG.defResProp !== false);
-      setAssetDefault('st-comprop', CFG.defComProp !== false);
-      setAssetDefault('st-invprop', CFG.defInvProp !== false);
-      setAssetDefault('st-shares',  CFG.defShares !== false);
-      setAssetDefault('st-managed', CFG.defManaged !== false);
-      setAssetDefault('st-super',   CFG.defSuper === true);
+      const dcash    = CFG.defCash !== false;
+      const dresprop = CFG.defResProp !== false;
+      const dcomprop = CFG.defComProp !== false;
+      const dinvprop = CFG.defInvProp !== false;
+      const dshares  = CFG.defShares !== false;
+      const dmanaged = CFG.defManaged !== false;
+      const dsuper   = CFG.defSuper === true;
+      setAssetDefault('st-cash', dcash);    setAssetDefault('pt-cash', dcash);
+      setAssetDefault('st-resprop', dresprop); setAssetDefault('pt-resprop', dresprop);
+      setAssetDefault('st-comprop', dcomprop); setAssetDefault('pt-comprop', dcomprop);
+      setAssetDefault('st-invprop', dinvprop); setAssetDefault('pt-invprop', dinvprop);
+      setAssetDefault('st-shares', dshares); setAssetDefault('pt-shares', dshares);
+      setAssetDefault('st-managed', dmanaged); setAssetDefault('pt-managed', dmanaged);
+      setAssetDefault('st-super', dsuper);   setAssetDefault('pt-super', dsuper);
       if (typeof updateAssetPreview === 'function') updateAssetPreview();
 
       // TPD medical cost
@@ -8102,12 +8134,19 @@
 
     function updateAssetPreview() {
       const keys = ['cash','resprop','comprop','invprop','shares','managed','super'];
+      const partnerOn = !!(document.getElementById('sw-partner-calc') && document.getElementById('sw-partner-calc').checked);
       let total = 0;
       keys.forEach(k => {
-        const included = gc('st-'+k);
-        const l = document.getElementById('stl-'+k);
-        if (l) { l.textContent = included ? 'Include' : 'Exclude'; l.className = 'asset-inc-lbl' + (included ? '' : ' excluded'); }
-        if (included) { const v = parseFloat(document.getElementById('s-'+k)?.value || 0); total += isNaN(v) ? 0 : v; }
+        // Client toggle + label
+        const incC = gc('st-'+k);
+        const lC = document.getElementById('stl-'+k);
+        if (lC) { lC.textContent = incC ? 'Inc.' : 'Exc.'; lC.className = 'asset-inc-lbl' + (incC ? '' : ' excluded'); }
+        if (incC) { const v = parseFloat(document.getElementById('s-'+k)?.value.replace(/,/g,'') || 0); total += isNaN(v) ? 0 : v; }
+        // Partner toggle + label (only counts when partner-calc is on)
+        const incP = gc('pt-'+k);
+        const lP = document.getElementById('ptl-'+k);
+        if (lP) { lP.textContent = incP ? 'Inc.' : 'Exc.'; lP.className = 'asset-inc-lbl' + (incP ? '' : ' excluded'); }
+        if (partnerOn && incP) { const v = parseFloat(document.getElementById('p-'+k)?.value.replace(/,/g,'') || 0); total += isNaN(v) ? 0 : v; }
       });
       const el = document.getElementById('assets-total-preview');
       if (el) el.textContent = total > 0 ? fmt(total) : '$0';
@@ -8781,7 +8820,7 @@
         { product: 'TPD Cover',       calc: tpdCover,          existing: existing.tpd,    unit: '' },
         { product: 'Trauma Cover',    calc: traumaCover,       existing: existing.trauma, unit: '' },
         { product: ipPre2021 ? `IP @ ${ipReplacePct}% (current gen.)` : 'IP Monthly Benefit',
-          calc: ipMonthly,      existing: ipPre2021 ? 0 : existing.ip,     unit: '/mo' },
+          calc: ipMonthly,      existing: existing.ip,                     unit: '/mo' },
         ipPre2021 ? { product: 'IP @ 75% (Pre-2021 IP)',
           calc: ip75Monthly,    existing: existing.ip,                     unit: '/mo' } : null
       ].filter(Boolean) : [];
@@ -9460,7 +9499,7 @@
           ['Trauma Cover', fmt(calcTrauma), ex.trauma ? fmt(ex.trauma) : '—', calcTrauma - (ex.trauma || 0), false]
         ];
         const ipRows = isPre2021 ? [
-          [`IP @ ${ipReplacePctVal}% (current gen.)`, fmt(calcIp) + '/mo', '—', calcIp, true],
+          [`IP @ ${ipReplacePctVal}% (current gen.)`, fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp - (ex.ip || 0), true],
           ['IP @ 75% (Pre-2021 IP)', fmt(calcIp75) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp75 - (ex.ip || 0), true]
         ] : [
           ['IP Monthly Benefit', fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp - (ex.ip || 0), true]
