@@ -2715,9 +2715,11 @@
     .asset-pair {
       flex: 1;
       display: flex;
-      flex-direction: column;
-      gap: 3px;
+      align-items: center;
+      gap: 8px;
     }
+
+    .asset-pair > .pfx { flex: 1; }
 
     .asset-pair-lbl {
       font-size: 10px;
@@ -2725,12 +2727,35 @@
       letter-spacing: .5px;
       text-transform: uppercase;
       color: var(--mid);
+      min-width: 50px;
       display: none;
     }
 
-    .asset-input-row.has-partner .asset-pair-lbl { display: block; }
     .asset-input-row .partner-asset-pair { display: none; }
-    .asset-input-row.has-partner .partner-asset-pair { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
+    /* When partner-calc is on, switch to a grid layout: client + partner stacked, toggle on right */
+    .asset-input-row.has-partner {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      grid-template-rows: auto auto;
+      column-gap: 10px;
+      row-gap: 6px;
+      align-items: center;
+    }
+    .asset-input-row.has-partner .asset-pair-lbl { display: block; }
+    .asset-input-row.has-partner .asset-pair {
+      grid-column: 1; grid-row: 1; flex: unset; width: 100%;
+    }
+    .asset-input-row.has-partner .partner-asset-pair {
+      grid-column: 1; grid-row: 2; display: flex; align-items: center; gap: 8px; width: 100%;
+    }
+    .asset-input-row.has-partner .partner-asset-pair > .pfx { flex: 1; }
+    .asset-input-row.has-partner > label.switch {
+      grid-column: 2; grid-row: 1 / span 2; align-self: center;
+    }
+    .asset-input-row.has-partner > .asset-inc-lbl {
+      grid-column: 3; grid-row: 1 / span 2; align-self: center;
+    }
 
     .asset-inc-lbl {
       font-size: 11px;
@@ -5963,18 +5988,20 @@
       document.querySelectorAll('.cp-tab').forEach(t => t.classList.toggle('active', t.dataset.which === which));
       const r = dualResult[which];
       if (!r) return;
-      // Re-populate cover cards + breakdown tables from cached result
+      // Re-populate cover cards + breakdown tables from cached result.
+      // Use countUpCurrency (which now cancels in-flight animations on the same element)
+      // so any animation left over from the dual-calc run is overridden by the active tab's value.
       const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
-      setTxt('r-life', r.results.life);
-      setTxt('r-tpd', r.results.tpd);
-      setTxt('r-ip', r.results.ip);
-      setTxt('r-trauma', r.results.trauma);
+      countUpCurrency('r-life', r.results.life);
+      countUpCurrency('r-tpd', r.results.tpd);
+      countUpCurrency('r-ip', r.results.ip);
+      countUpCurrency('r-trauma', r.results.trauma);
       // Super contribution benefit card — show/hide and update amount
       const superBenefitEl = document.getElementById('r-ip-super');
       const hasIpSuper = r.results.ipSuper && r.results.ipSuper !== '';
       if (superBenefitEl) {
         superBenefitEl.style.display = hasIpSuper ? 'block' : 'none';
-        if (hasIpSuper) setTxt('r-ip-super-amt', r.results.ipSuper);
+        if (hasIpSuper) countUpCurrency('r-ip-super-amt', r.results.ipSuper);
       }
       // Child trauma card visibility
       const ctCard = document.getElementById('card-child-trauma');
@@ -8007,7 +8034,7 @@
       if (CFG.lockTraumaLivingPct === 'yes') { const e = document.getElementById('s-traumalivingpct'); if (e) e.value = CFG.traumaLivingPct; }
 
       // Trauma debt years — hide field when locked, show when unlocked
-      toggleEl('df-traumadebtyears-section', CFG.lockTraumaDebtYears === 'yes');
+      toggleEl('df-traumadebtyears-section', CFG.lockTraumaDebtYears !== 'yes');
       const traumaYrsEl = document.getElementById('s-traumadebtyears');
       if (traumaYrsEl) traumaYrsEl.value = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
 
@@ -8140,6 +8167,10 @@
     function countUpCurrency(id, formatted) {
       const el = document.getElementById(id);
       if (!el) return;
+      // Bump per-element animation token — invalidates any in-flight animation on this element.
+      // Prevents overlapping animations (e.g. dual partner calc) from fighting each other.
+      const token = (el._animToken || 0) + 1;
+      el._animToken = token;
       const raw = String(formatted || '');
       const prefers = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (prefers) { el.textContent = raw; return; }
@@ -8152,6 +8183,7 @@
       const duration = 900;
       const start = performance.now();
       function tick(now) {
+        if (el._animToken !== token) return; // cancelled by a newer animation
         const t = Math.min(1, (now - start) / duration);
         const eased = 1 - Math.pow(1 - t, 3);
         const v = Math.round(target * eased);
