@@ -2712,6 +2712,26 @@
       flex: 1
     }
 
+    .asset-pair {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .asset-pair-lbl {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--mid);
+      display: none;
+    }
+
+    .asset-input-row.has-partner .asset-pair-lbl { display: block; }
+    .asset-input-row .partner-asset-pair { display: none; }
+    .asset-input-row.has-partner .partner-asset-pair { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
     .asset-inc-lbl {
       font-size: 11px;
       font-weight: 700;
@@ -4316,6 +4336,38 @@
                     type="checkbox" id="sw-existing" checked><span class="slider"></span></label>
               </div>
             </div>
+            <div class="acard">
+              <div class="acard-title"><span class="dot"></span>Default Inclusion State</div>
+              <p style="font-size:12px;color:var(--mid);margin:0 0 12px">Sets the default state of each asset's Include / Exclude toggle on the staff calculator. Staff can still override per client.</p>
+              <div class="trow">
+                <div class="ti"><strong>Cash / Bank Accounts</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-defcash" checked><span class="slider"></span></label>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Residential Property</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-defresprop" checked><span class="slider"></span></label>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Commercial Property</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-defcomprop" checked><span class="slider"></span></label>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Investment Property</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-definvprop" checked><span class="slider"></span></label>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Shares / Equities</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-defshares" checked><span class="slider"></span></label>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Managed Funds</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-defmanaged" checked><span class="slider"></span></label>
+              </div>
+              <div class="trow">
+                <div class="ti"><strong>Superannuation</strong><span>Default include in offset</span></div><label class="switch"><input
+                    type="checkbox" id="m-defsuper"><span class="slider"></span></label>
+              </div>
+            </div>
             <button class="save-btn" onclick="saveAll(this)">💾 Save Changes</button><span class="save-ok"
               id="sk-assets">✓ Saved</span>
           </div>
@@ -4540,8 +4592,14 @@
             <div class="acard">
               <div class="acard-title"><span class="dot"></span>Debt Repayment Provision</div>
               <div class="mg">
-                <div class="mf"><label>Number of Years</label><input type="number" id="m-traumadebtyears" value="1" min="1" max="5">
-                  <div class="note">Staff enter the client's annual non-deductible debt repayment amount. Trauma provision = this many years × that annual amount. Default: 1 year.</div>
+                <div class="mf"><label>Default Provision (years)</label><input type="number" id="m-traumadebtyears" value="0.5" min="0" max="5" step="0.25">
+                  <div class="note">Trauma provision = this many years × the client's annual non-deductible debt repayments. Default: 0.5 years (6 months). Use 0.25 = 3 months, 1 = 12 months.</div>
+                </div>
+                <div class="mf"><label>Lock from Staff</label><select id="m-locktraumadebtyears">
+                    <option value="no">No — Staff can override per client</option>
+                    <option value="yes">Yes — Staff cannot adjust</option>
+                  </select>
+                  <div class="note">When locked, staff use the default above. When unlocked, staff see an editable field on the calculator.</div>
                 </div>
               </div>
             </div>
@@ -4753,6 +4811,13 @@
               <div class="f"><label>Existing IP Monthly Benefit</label>
                 <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-exist-ip" placeholder="e.g. 6000"></div>
               </div>
+              <div class="f"><label>Is the existing IP a Pre-2021 policy?</label>
+                <select id="s-exist-ip-pre2021">
+                  <option value="no" selected>No — current generation IP</option>
+                  <option value="yes">Yes — Pre-2021 IP</option>
+                </select>
+                <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">Pre-2021 IP policies typically allow up to 75% replacement. The comparison will show both the calculated rate and a 75% scenario.</div>
+              </div>
             </div>
           </div>
           <div class="nav-row">
@@ -4770,7 +4835,7 @@
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-income"
                   placeholder="e.g. 95000"></div>
             </div>
-            <div class="f"><label>Years Until Retirement</label><input type="number" id="s-retire" placeholder="Auto (age 65)"
+            <div class="f"><label>Years Until Retirement (Default To Age 65)</label><input type="number" id="s-retire" placeholder="Auto (age 65)"
                 min="1" max="50"></div>
             <div class="f" id="f-repyrs"><label>Income Replacement Period <span
                   class="hint">(years)</span></label><input type="number" id="s-repyrs" min="1" max="40"></div>
@@ -4847,6 +4912,12 @@
                   </div>
                   <div class="f"><label>Partner's Existing IP Monthly Benefit</label>
                     <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-exist-ip" placeholder="e.g. 6000"></div>
+                  </div>
+                  <div class="f"><label>Is the partner's existing IP a Pre-2021 policy?</label>
+                    <select id="p-exist-ip-pre2021">
+                      <option value="no" selected>No — current generation IP</option>
+                      <option value="yes">Yes — Pre-2021 IP</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -4965,8 +5036,11 @@
             <div class="f"><label>Annual Non-Deductible Debt Repayments <span class="hint">($/year)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-traumarepayment" placeholder="e.g. 24000"></div>
             </div>
+            <div class="f" id="df-traumadebtyears-section"><label>Provision Period <span class="hint">(years — 0.5 = 6 months)</span></label>
+              <input type="number" id="s-traumadebtyears" min="0" max="5" step="0.25" placeholder="0.5">
+            </div>
             <div class="f" style="align-self:flex-end">
-              <div class="info-tip" style="margin-bottom:0;font-size:12px">Trauma provides a provision for non-deductible debt repayments (e.g. mortgage repayments) while you recover. The number of years is configured by your administrator.</div>
+              <div class="info-tip" style="margin-bottom:0;font-size:12px">Trauma provides a provision for non-deductible debt repayments (e.g. mortgage repayments) while you recover.</div>
             </div>
           </div>
           <!-- TPD income % — always visible, default from admin -->
@@ -5024,6 +5098,16 @@
               <div class="f"><label>Annual Child-Raising Cost <span class="hint">($/child)</span></label>
                 <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-lifechildamt" placeholder="e.g. 20000"></div>
               </div>
+            </div>
+          </div>
+          <!-- Child-raising IP toggle — always shown when there are dependents -->
+          <div id="df-childip-section" class="fg" style="margin-top:14px">
+            <div class="f"><label>Will Income Protection Be Included?</label>
+              <select id="s-childip">
+                <option value="yes" selected>Yes — IP covers child-raising income</option>
+                <option value="no">No — include child-raising in TPD lump sum</option>
+              </select>
+              <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">When IP is in place, ongoing child-raising costs are funded by IP and removed from the TPD calculation. Toggle to "No" if the client won't have IP cover.</div>
             </div>
           </div>
           <div class="divline"></div>
@@ -5100,57 +5184,113 @@
               <div class="fg" style="margin-top:14px">
                 <div class="f" id="af-cash"><label>Cash / Bank Accounts</label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cash"
-                        placeholder="e.g. 40000" oninput="updateAssetPreview()"></div>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cash"
+                          placeholder="e.g. 40000" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-cash"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
                     <label class="switch"><input type="checkbox" id="st-cash" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-cash">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-resprop"><label>Residential Property <span class="hint">(net equity)</span></label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-resprop"
-                        placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-resprop"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-resprop"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
                     <label class="switch"><input type="checkbox" id="st-resprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-resprop">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-comprop"><label>Commercial Property <span class="hint">(net equity)</span></label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-comprop"
-                        placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-comprop"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-comprop"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
                     <label class="switch"><input type="checkbox" id="st-comprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-comprop">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-invprop"><label>Investment Property <span class="hint">(net equity)</span></label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-invprop"
-                        placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-invprop"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-invprop"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
                     <label class="switch"><input type="checkbox" id="st-invprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-invprop">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-shares"><label>Shares / Equities</label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-shares"
-                        placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-shares"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-shares"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
                     <label class="switch"><input type="checkbox" id="st-shares" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-shares">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-managed"><label>Managed Funds</label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-managed"
-                        placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-managed"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-managed"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
                     <label class="switch"><input type="checkbox" id="st-managed" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-managed">Include</span>
                   </div>
                 </div>
                 <div class="f" id="af-super-asset"><label>Superannuation</label>
                   <div class="asset-input-row">
-                    <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-super"
-                        placeholder="e.g. 180000" oninput="updateAssetPreview()"></div>
-                    <label class="switch"><input type="checkbox" id="st-super" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
+                    <div class="asset-pair">
+                      <span class="asset-pair-lbl">Client</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-super"
+                          placeholder="e.g. 180000" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <div class="partner-asset-pair">
+                      <span class="asset-pair-lbl">Partner</span>
+                      <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-super"
+                          placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
+                    </div>
+                    <label class="switch"><input type="checkbox" id="st-super" onchange="updateAssetPreview()"><span class="slider"></span></label>
                     <span class="asset-inc-lbl" id="stl-super">Include</span>
                   </div>
                 </div>
@@ -5205,7 +5345,7 @@
                   step="0.1" min="0" max="10"></div>
               <div class="f"><label>Earnings Rate <span class="hint">(%)</span></label><input type="number" id="s-earn"
                   step="0.1" min="0" max="15"></div>
-              <div class="f"><label>Super Offset %</label><input type="number" id="s-superpct" min="0" max="100"></div>
+              <div class="f"><label>Superannuation Offset % (as above)</label><input type="number" id="s-superpct" min="0" max="100"></div>
             </div>
           </div>
           <div class="calc-error-banner" id="calc-error-banner">
@@ -5415,6 +5555,7 @@
       edGrowth: 5, lockEdGrowth: 'no',
       superpct: 80, editsuper: 'no',
       swSavings: true, swInvprop: true, swShares: true, swExisting: true,
+      defCash: true, defResProp: true, defComProp: true, defInvProp: true, defShares: true, defManaged: true, defSuper: false,
       swTpd: true, swIp: true, swTrauma: true,
       tpdextra: 2, traumamult: 1.5,
       showassump: true,
@@ -5435,7 +5576,7 @@
       carerSingleAmt: 52000,
       // ── Trauma methodology ──
       traumaMedCost: 160000, lockTraumaMedCost: 'no',
-      traumaDebtYears: 1,
+      traumaDebtYears: 0.5, lockTraumaDebtYears: 'no',
       traumaIncomePct: 30, lockTraumaIncomePct: 'no', traumaIncomeYrs: 2,
       // ── Debt-clearance include defaults (per-debt Life/TPD toggle defaults) ──
       // Default philosophy: clear all debts for Life; clear non-deductible only for TPD (deductible case-by-case)
@@ -5731,6 +5872,10 @@
       const sec = document.getElementById('partner-calc-section');
       const on = !!(cb && cb.checked);
       if (sec) sec.style.display = on ? '' : 'none';
+      // Show/hide partner asset boxes
+      document.querySelectorAll('#assets-fields .asset-input-row').forEach(row => {
+        row.classList.toggle('has-partner', on);
+      });
       if (on) {
         // Carry forward partner income from Step 1 if p-income is empty
         const src = document.getElementById('s-partner');
@@ -5766,7 +5911,16 @@
       ['s-exist-life', 'p-exist-life'],
       ['s-exist-tpd', 'p-exist-tpd'],
       ['s-exist-trauma', 'p-exist-trauma'],
-      ['s-exist-ip', 'p-exist-ip']
+      ['s-exist-ip', 'p-exist-ip'],
+      ['s-exist-ip-pre2021', 'p-exist-ip-pre2021'],
+      // Asset fields — swap so each calc uses that person's assets
+      ['s-cash', 'p-cash'],
+      ['s-resprop', 'p-resprop'],
+      ['s-comprop', 'p-comprop'],
+      ['s-invprop', 'p-invprop'],
+      ['s-shares', 'p-shares'],
+      ['s-managed', 'p-managed'],
+      ['s-super', 'p-super']
     ];
     const PARTNER_TB_PAIRS = [
       ['s-gender', 'p-gender'],
@@ -5815,6 +5969,27 @@
       setTxt('r-tpd', r.results.tpd);
       setTxt('r-ip', r.results.ip);
       setTxt('r-trauma', r.results.trauma);
+      // Super contribution benefit card — show/hide and update amount
+      const superBenefitEl = document.getElementById('r-ip-super');
+      const hasIpSuper = r.results.ipSuper && r.results.ipSuper !== '';
+      if (superBenefitEl) {
+        superBenefitEl.style.display = hasIpSuper ? 'block' : 'none';
+        if (hasIpSuper) setTxt('r-ip-super-amt', r.results.ipSuper);
+      }
+      // Child trauma card visibility
+      const ctCard = document.getElementById('card-child-trauma');
+      if (ctCard) ctCard.classList.toggle('hidden', !r.results.childTraumaEligible);
+      // IP high income warning
+      const ipWarnEl = document.getElementById('r-ip-highwarn');
+      if (ipWarnEl) {
+        if (r.results.ipHighIncomeWarn) {
+          ipWarnEl.style.display = 'block';
+          const thr = r.results.ipWarnThreshold || 250000;
+          ipWarnEl.textContent = `⚠ Income exceeds $${(thr / 1000).toFixed(0)}k — insurer replacement ratios may differ. Please note this on the client report.`;
+        } else {
+          ipWarnEl.style.display = 'none';
+        }
+      }
       // Breakdown tables
       renderBkTableCached('bk-body', r.breakdown, false);
       renderBkTableCached('bk-tpd-body', r.tpdBreakdown, false);
@@ -5858,12 +6033,22 @@
       const ex = r.inputs.existingCover;
       const fmtLocal = n => '$' + Math.round(n).toLocaleString('en-AU');
       const stripN = s => parseFloat(String(s || '0').replace(/[^0-9.-]/g, '')) || 0;
-      const rows = [
+      const isPre2021 = !!ex.ipPre2021;
+      const incomeForIp = r.inputs && r.inputs.income ? r.inputs.income : 0;
+      const calcIp75 = (incomeForIp * 0.75) / 12;
+      const ipReplacePctVal = r.inputs && r.inputs.ipReplacePct !== undefined ? r.inputs.ipReplacePct : (CFG.ipReplacePct || 70);
+      const baseRows = [
         { product: 'Life Cover', calc: stripN(r.results.life), existing: ex.life || 0, unit: '' },
         { product: 'TPD Cover', calc: stripN(r.results.tpd), existing: ex.tpd || 0, unit: '' },
-        { product: 'Trauma Cover', calc: stripN(r.results.trauma), existing: ex.trauma || 0, unit: '' },
+        { product: 'Trauma Cover', calc: stripN(r.results.trauma), existing: ex.trauma || 0, unit: '' }
+      ];
+      const ipRows = isPre2021 ? [
+        { product: `IP @ ${ipReplacePctVal}% (current gen.)`, calc: stripN(r.results.ip), existing: 0, unit: '/mo' },
+        { product: 'IP @ 75% (Pre-2021 IP)', calc: calcIp75, existing: ex.ip || 0, unit: '/mo' }
+      ] : [
         { product: 'IP Monthly Benefit', calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' }
       ];
+      const rows = [...baseRows, ...ipRows];
       wrap.classList.remove('hidden');
       body.innerHTML = '';
       rows.forEach(rw => {
@@ -6284,7 +6469,8 @@
         's-managed', 's-super', 's-childcare', 's-odep', 's-tpdmedcost', 's-tpdbuyresamt',
         's-traumamedcost', 's-traumarepayment', 's-lifechildamt', 's-edcost-primary', 's-edcost-secondary',
         's-exist-life', 's-exist-tpd', 's-exist-trauma', 's-exist-ip', 'p-income',
-        'p-exist-life', 'p-exist-tpd', 'p-exist-trauma', 'p-exist-ip'];
+        'p-exist-life', 'p-exist-tpd', 'p-exist-trauma', 'p-exist-ip',
+        'p-cash', 'p-resprop', 'p-comprop', 'p-invprop', 'p-shares', 'p-managed', 'p-super'];
       ids.forEach(id => {
         const el = document.getElementById(id);
         if (!el || el.dataset.commaBound) return;
@@ -6576,6 +6762,10 @@
       si('m-superpct', CFG.superpct); sv('m-editsuper', CFG.editsuper);
       sc('sw-savings', CFG.swSavings); sc('sw-invprop', CFG.swInvprop);
       sc('sw-shares', CFG.swShares); sc('sw-existing', CFG.swExisting);
+      sc('m-defcash', CFG.defCash !== false); sc('m-defresprop', CFG.defResProp !== false);
+      sc('m-defcomprop', CFG.defComProp !== false); sc('m-definvprop', CFG.defInvProp !== false);
+      sc('m-defshares', CFG.defShares !== false); sc('m-defmanaged', CFG.defManaged !== false);
+      sc('m-defsuper', CFG.defSuper === true);
       sc('sw-tpd', CFG.swTpd); sc('sw-ip', CFG.swIp); sc('sw-trauma', CFG.swTrauma);
       si('m-tpdextra', CFG.tpdextra); si('m-traumamult', CFG.traumamult);
       si('d-earn', CFG.earn); si('d-infl', CFG.infl); si('d-super', CFG.superpct);
@@ -6599,7 +6789,8 @@
       sc('sw-tpdbuyres', CFG.tpdBuyResidence === 'yes');
       // Trauma
       si('m-traumamedcost', CFG.traumaMedCost); sv('m-locktraumamedcost', CFG.lockTraumaMedCost);
-      si('m-traumadebtyears', CFG.traumaDebtYears || 1);
+      si('m-traumadebtyears', CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
+      sv('m-locktraumadebtyears', CFG.lockTraumaDebtYears || 'no');
       si('m-traumaincomepct', CFG.traumaIncomePct || 30); sv('m-locktraumaincomepct', CFG.lockTraumaIncomePct || 'no');
       si('m-traumaincomeyrs', CFG.traumaIncomeYrs || 2);
       // IP
@@ -6632,6 +6823,10 @@
       CFG.editsuper = gsv('m-editsuper');
       CFG.swSavings = gc('sw-savings'); CFG.swInvprop = gc('sw-invprop');
       CFG.swShares = gc('sw-shares'); CFG.swExisting = gc('sw-existing');
+      CFG.defCash = gc('m-defcash'); CFG.defResProp = gc('m-defresprop');
+      CFG.defComProp = gc('m-defcomprop'); CFG.defInvProp = gc('m-definvprop');
+      CFG.defShares = gc('m-defshares'); CFG.defManaged = gc('m-defmanaged');
+      CFG.defSuper = gc('m-defsuper');
       CFG.swTpd = gc('sw-tpd'); CFG.swIp = gc('sw-ip'); CFG.swTrauma = gc('sw-trauma');
       CFG.tpdextra = gni('m-tpdextra', CFG.tpdextra); CFG.traumamult = gni('m-traumamult', CFG.traumamult);
       CFG.showassump = gc('sw-showassump');
@@ -6652,7 +6847,8 @@
       CFG.carerSingleAmt = gni('m-carersinglamt', CFG.carerSingleAmt || 52000);
       CFG.tpdBuyResidence = gc('sw-tpdbuyres') ? 'yes' : 'no';
       CFG.traumaMedCost = gni('m-traumamedcost', CFG.traumaMedCost); CFG.lockTraumaMedCost = gsv('m-locktraumamedcost');
-      CFG.traumaDebtYears = gni('m-traumadebtyears', CFG.traumaDebtYears || 1);
+      CFG.traumaDebtYears = gni('m-traumadebtyears', CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
+      CFG.lockTraumaDebtYears = gsv('m-locktraumadebtyears');
       CFG.traumaIncomePct = gni('m-traumaincomepct', CFG.traumaIncomePct || 30); CFG.lockTraumaIncomePct = gsv('m-locktraumaincomepct');
       CFG.traumaIncomeYrs = gni('m-traumaincomeyrs', CFG.traumaIncomeYrs || 2);
       CFG.ipReplacePct = gni('m-ipreplacepct', CFG.ipReplacePct); CFG.lockIpReplacePct = gsv('m-lockipreplace');
@@ -7583,6 +7779,8 @@
         const setEx = (id, v) => { const e = document.getElementById(id); if (e && v) e.value = Number(v).toLocaleString('en-AU'); };
         setEx('s-exist-life', ex.life); setEx('s-exist-tpd', ex.tpd);
         setEx('s-exist-trauma', ex.trauma); setEx('s-exist-ip', ex.ip);
+        const preEl = document.getElementById('s-exist-ip-pre2021');
+        if (preEl) preEl.value = ex.ipPre2021 ? 'yes' : 'no';
       }
 
       // Toggle buttons (gender, smoker)
@@ -7658,6 +7856,8 @@
       sf('s-tpdbuyresamt', inp.tpdBuyRes);
       sf('s-traumamedcost', inp.traumaMedCost);
       if (inp.traumaRepayment !== undefined) { const e = document.getElementById('s-traumarepayment'); if (e) e.value = inp.traumaRepayment; }
+      if (inp.traumaDebtYears !== undefined) { const e = document.getElementById('s-traumadebtyears'); if (e) e.value = inp.traumaDebtYears; }
+      if (inp.childIpIncluded !== undefined) { const e = document.getElementById('s-childip'); if (e) e.value = inp.childIpIncluded; }
       sf('s-earn', inp.earn);
       sf('s-infl', inp.infl);
       updateAssetPreview();
@@ -7805,6 +8005,22 @@
       // Trauma living % — show if unlocked
       toggleEl('df-traumaliving-section', CFG.lockTraumaLivingPct === 'yes');
       if (CFG.lockTraumaLivingPct === 'yes') { const e = document.getElementById('s-traumalivingpct'); if (e) e.value = CFG.traumaLivingPct; }
+
+      // Trauma debt years — hide field when locked, show when unlocked
+      toggleEl('df-traumadebtyears-section', CFG.lockTraumaDebtYears === 'yes');
+      const traumaYrsEl = document.getElementById('s-traumadebtyears');
+      if (traumaYrsEl) traumaYrsEl.value = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
+
+      // Asset default include states (super defaults to excluded by default)
+      const setAssetDefault = (id, def) => { const e = document.getElementById(id); if (e) e.checked = def; };
+      setAssetDefault('st-cash',    CFG.defCash !== false);
+      setAssetDefault('st-resprop', CFG.defResProp !== false);
+      setAssetDefault('st-comprop', CFG.defComProp !== false);
+      setAssetDefault('st-invprop', CFG.defInvProp !== false);
+      setAssetDefault('st-shares',  CFG.defShares !== false);
+      setAssetDefault('st-managed', CFG.defManaged !== false);
+      setAssetDefault('st-super',   CFG.defSuper === true);
+      if (typeof updateAssetPreview === 'function') updateAssetPreview();
 
       // TPD medical cost
       toggleEl('af-tpdmedcost-section', CFG.lockTpdMedCost === 'yes');
@@ -8318,9 +8534,12 @@
       const tpdIncomeYrs = gv('s-retire', 0);
       const tpdIncomeTotal = pvAnn(income * tpdIncomePct / 100, dr, tpdIncomeYrs);
 
+      // Child-raising IP toggle: if IP is included, exclude child-raising from TPD.
+      // If IP is NOT included, fold child-raising into TPD (subject to admin's tpdSwChild master switch).
+      const childIpIncluded = (() => { const e = document.getElementById('s-childip'); return e ? e.value !== 'no' : true; })();
       // Education & child-raising — reuse Life calculations, toggled by admin
       const tpdEduTotal = CFG.tpdSwEdu !== false ? edPV : 0;
-      const tpdChildTotal = CFG.tpdSwChild !== false ? lifeChildPV : 0;
+      const tpdChildTotal = (CFG.tpdSwChild !== false && !childIpIncluded) ? lifeChildPV : 0;
 
       // Carer cost: 1 year of partner income if partnered, else singles default
       const tpdCarerTotal = carerCost;
@@ -8330,8 +8549,9 @@
       const tpdRentPV = (annualRent > 0 && rentYrs > 0) ? pvAnn(annualRent, dr, rentYrs) : 0;
 
       const tpdOngoing = tpdEduTotal + tpdChildTotal + tpdIncomeTotal + tpdCarerTotal + tpdRentPV;
+      const tpdGrossNeed = tpdDebtCleared + tpdMedCost + tpdBuyRes + tpdOngoing;
 
-      let tpdGross = tpdDebtCleared + tpdMedCost + tpdBuyRes + tpdOngoing - totalDisposableAssets;
+      let tpdGross = tpdGrossNeed - totalDisposableAssets;
       // Tax top-up (applied on the pre-asset gross before deduction)
       if (CFG.tpdTaxTopUp === 'yes') tpdGross *= (1 + CFG.tpdTaxRate / 100);
       const tpdCover = Math.max(tpdGross, 0);
@@ -8358,7 +8578,8 @@
       const traumaIncomeYrs = CFG.traumaIncomeYrs || 2;
       const traumaIncomeAmt = income * (traumaIncomePct / 100) * traumaIncomeYrs;
       // Non-deductible debt repayments × configurable years
-      const traumaDebtYears = CFG.traumaDebtYears || 1;
+      const adminTraumaDebtYears = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
+      const traumaDebtYears = CFG.lockTraumaDebtYears === 'yes' ? adminTraumaDebtYears : (gv('s-traumadebtyears', adminTraumaDebtYears) || adminTraumaDebtYears);
       const traumaRepayment = gv('s-traumarepayment', 0);
       const traumaLiving = traumaRepayment * traumaDebtYears;
       const traumaCover = Math.max(traumaMedCost + traumaIncomeAmt + traumaLiving, 0);
@@ -8392,6 +8613,7 @@
         tpdChildTotal > 0 && { label: 'Child-Raising Costs', note: 'As per Life calculation', amt: tpdChildTotal },
         tpdCarerTotal > 0 && { label: 'Carer Cost', note: isPartnered ? '1 yr partner income' : 'Singles default', amt: tpdCarerTotal },
         tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrs} yrs (PV)`, amt: tpdRentPV },
+        { label: 'Gross Insurance Need', note: '', amt: tpdGrossNeed },
         totalDisposableAssets > 0 && { label: 'Less: Disposable Assets', note: 'Super + liquid assets', amt: -totalDisposableAssets },
         { label: 'NET TPD COVER NEEDED', note: '', amt: tpdCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
@@ -8406,7 +8628,7 @@
       const traumaBreakdown = [
         traumaMedCost > 0 && { label: 'Medical & Rehab Costs', note: 'Lump sum provision', amt: traumaMedCost },
         traumaIncomeAmt > 0 && { label: 'Income Provision', note: `${traumaIncomePct}% of income × ${traumaIncomeYrs} yrs`, amt: traumaIncomeAmt },
-        traumaLiving > 0 && { label: 'Debt Repayment Provision', note: `${traumaDebtYears} yr${traumaDebtYears !== 1 ? 's' : ''} non-deductible repayments`, amt: traumaLiving },
+        traumaLiving > 0 && { label: 'Debt Repayment Provision', note: `${traumaDebtYears < 1 ? Math.round(traumaDebtYears * 12) + ' months' : traumaDebtYears + ' yr' + (traumaDebtYears !== 1 ? 's' : '')} non-deductible repayments`, amt: traumaLiving },
         { label: 'NET TRAUMA COVER NEEDED', note: '', amt: traumaCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
 
@@ -8424,7 +8646,9 @@
         trauma: fmt(traumaCover),
         childTrauma: fmt(childTraumaCover),
         childTraumaRaw: childTraumaCover,
-        ipHighIncomeWarn
+        childTraumaEligible,
+        ipHighIncomeWarn,
+        ipWarnThreshold
       };
 
       const inputs = {
@@ -8432,7 +8656,7 @@
         age: gv('s-age', 0) || '', retire: gv('s-retire', 0) || '',
         gender: tbState['s-gender'] || 'male', smoker: tbState['s-smoker'] || 'no',
         marital: document.getElementById('s-marital').value,
-        income, incPct: Math.round(incPct * 100), repYrs,
+        income, incPct: Math.round(incPct * 100), repYrs, ipReplacePct,
         partner: gv('s-partner', 0) || '', superContribPct,
         mortgage, otherloan, personal, cc, biz, rent: annualRent, rentYrs,
         debtInc: {
@@ -8452,7 +8676,8 @@
         shares: aShares, managed: aManaged,
         earn, infl,
         tpdDedPct, tpdNonDedPct, tpdMedCost, tpdBuyRes,
-        traumaMedCost, traumaIncomeAmt, traumaRepayment, tpdIncomePct, lifeChildAmt, edGrowthPct
+        traumaMedCost, traumaIncomeAmt, traumaRepayment, traumaDebtYears, tpdIncomePct, lifeChildAmt, edGrowthPct,
+        childIpIncluded: childIpIncluded ? 'yes' : 'no'
       };
 
       lastResult = { results, breakdown, tpdBreakdown, ipBreakdown, traumaBreakdown, inputs };
@@ -8509,18 +8734,25 @@
 
       // ── Existing Cover Variance ──
       const existingToggle = !!(document.getElementById('sw-existing-cover') && document.getElementById('sw-existing-cover').checked);
+      const ipPre2021El = document.getElementById('s-exist-ip-pre2021');
+      const ipPre2021 = ipPre2021El ? ipPre2021El.value === 'yes' : false;
+      const ip75Monthly = (income * 0.75) / 12;
       const existing = {
         life: gv('s-exist-life', 0),
         tpd: gv('s-exist-tpd', 0),
         trauma: gv('s-exist-trauma', 0),
-        ip: gv('s-exist-ip', 0)
+        ip: gv('s-exist-ip', 0),
+        ipPre2021: ipPre2021
       };
       const varianceRows = existingToggle ? [
         { product: 'Life Cover',      calc: lifeCoverFinal,    existing: existing.life,   unit: '' },
         { product: 'TPD Cover',       calc: tpdCover,          existing: existing.tpd,    unit: '' },
         { product: 'Trauma Cover',    calc: traumaCover,       existing: existing.trauma, unit: '' },
-        { product: 'IP Monthly Benefit', calc: ipMonthly,      existing: existing.ip,     unit: '/mo' }
-      ] : [];
+        { product: ipPre2021 ? `IP @ ${ipReplacePct}% (current gen.)` : 'IP Monthly Benefit',
+          calc: ipMonthly,      existing: ipPre2021 ? 0 : existing.ip,     unit: '/mo' },
+        ipPre2021 ? { product: 'IP @ 75% (Pre-2021 IP)',
+          calc: ip75Monthly,    existing: existing.ip,                     unit: '/mo' } : null
+      ].filter(Boolean) : [];
       inputs.existingCover = existingToggle ? existing : null;
       inputs.existingCoverShown = existingToggle;
       // Render variance card
@@ -9186,17 +9418,28 @@
         const calcTpd = stripN(results.tpd);
         const calcTrauma = stripN(results.trauma);
         const calcIp = stripN(results.ip);
-        const varRows = [
-          ['Life Cover', fmt(calcLife), ex.life ? fmt(ex.life) : '—', calcLife - (ex.life || 0)],
-          ['TPD Cover', fmt(calcTpd), ex.tpd ? fmt(ex.tpd) : '—', calcTpd - (ex.tpd || 0)],
-          ['Trauma Cover', fmt(calcTrauma), ex.trauma ? fmt(ex.trauma) : '—', calcTrauma - (ex.trauma || 0)],
-          ['IP Monthly Benefit', fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp - (ex.ip || 0)]
-        ].map((r, i) => {
+        const isPre2021 = !!ex.ipPre2021;
+        const incomeForIp = inputs && inputs.income ? inputs.income : 0;
+        const calcIp75 = (incomeForIp * 0.75) / 12;
+        const ipReplacePctVal = inputs && inputs.ipReplacePct !== undefined ? inputs.ipReplacePct : (CFG.ipReplacePct || 70);
+        const baseRows = [
+          ['Life Cover', fmt(calcLife), ex.life ? fmt(ex.life) : '—', calcLife - (ex.life || 0), false],
+          ['TPD Cover', fmt(calcTpd), ex.tpd ? fmt(ex.tpd) : '—', calcTpd - (ex.tpd || 0), false],
+          ['Trauma Cover', fmt(calcTrauma), ex.trauma ? fmt(ex.trauma) : '—', calcTrauma - (ex.trauma || 0), false]
+        ];
+        const ipRows = isPre2021 ? [
+          [`IP @ ${ipReplacePctVal}% (current gen.)`, fmt(calcIp) + '/mo', '—', calcIp, true],
+          ['IP @ 75% (Pre-2021 IP)', fmt(calcIp75) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp75 - (ex.ip || 0), true]
+        ] : [
+          ['IP Monthly Benefit', fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp - (ex.ip || 0), true]
+        ];
+        const varRows = [...baseRows, ...ipRows].map(r => {
           const diff = r[3];
-          const isMonthly = i === 3;
+          const isMonthly = r[4];
           const suffix = isMonthly ? '/mo' : '';
           let varLabel = 'Aligned';
-          if (diff > 0.5) varLabel = 'Shortfall ' + fmt(diff) + suffix;
+          if (r[2] === '—') varLabel = '—';
+          else if (diff > 0.5) varLabel = 'Shortfall ' + fmt(diff) + suffix;
           else if (diff < -0.5) varLabel = 'Surplus ' + fmt(Math.abs(diff)) + suffix;
           return [r[0], r[1], r[2], varLabel];
         });
@@ -9229,9 +9472,21 @@
         doc.roundedRect(M, varStartY, varBodyW, varFinalY - varStartY, 2, 2, 'S');
       }
 
+      // Assumptions line (earnings + inflation rates) just above disclaimer
+      const earnVal = inputs && inputs.earn !== undefined ? inputs.earn : (CFG.earn !== undefined ? CFG.earn : '—');
+      const inflVal = inputs && inputs.infl !== undefined ? inputs.infl : (CFG.infl !== undefined ? CFG.infl : '—');
+      const assumpText = `Assumptions: Earnings Rate ${earnVal}% p.a. | Inflation Rate ${inflVal}% p.a. | Real Discount Rate ${(typeof earnVal === 'number' && typeof inflVal === 'number') ? (earnVal - inflVal).toFixed(1) : '—'}% p.a.`;
+
       // Disclaimer + footer
       const discLines2 = doc.splitTextToSize(CFG.disc, W - M * 2 - 6);
       const discH2 = Math.max(15, discLines2.length * 3.4 + 5);
+      const assumpY = H_PAGE - FOOTER_H - discH2 - 7;
+      doc.setFontSize(8);
+      doc.setTextColor(120, 130, 145);
+      doc.setFont('helvetica', 'italic');
+      doc.text(assumpText, M, assumpY);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(0, 0, 0);
       drawDisclaimer(H_PAGE - FOOTER_H - discH2 - 2);
       drawFooter(2, 2);
 
