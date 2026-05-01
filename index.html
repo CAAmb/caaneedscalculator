@@ -2749,6 +2749,64 @@
     }
     .asset-input-row.has-partner .asset-pair-lbl { display: block; }
 
+    /* ── Asset mode bar (Client / Joint / Partner) — only when partner-calc on ── */
+    .asset-mode-bar {
+      display: none;
+      gap: 0;
+      margin-bottom: 8px;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 3px;
+      width: fit-content;
+    }
+    .f.asset-row-wrap.has-partner .asset-mode-bar { display: inline-flex; }
+    .amb-opt {
+      border: none;
+      background: transparent;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+      color: var(--mid);
+      cursor: pointer;
+      border-radius: 6px;
+      font-family: inherit;
+      transition: all 0.12s;
+    }
+    .amb-opt:hover { color: var(--navy); }
+    .amb-opt.active {
+      background: var(--white);
+      color: var(--navy);
+      box-shadow: 0 1px 4px rgba(15,36,51,0.12);
+    }
+
+    /* Mode-specific visibility — only applies when partner-calc is on (has-partner) */
+    .f.asset-row-wrap.has-partner[data-mode="joint"] .asset-pair-lbl { display: none !important; }
+    .f.asset-row-wrap.has-partner[data-mode="joint"] .partner-asset-pair { display: none !important; }
+    .f.asset-row-wrap.has-partner[data-mode="joint"] .asset-input-row { flex-direction: row; }
+    .f.asset-row-wrap.has-partner[data-mode="joint"] .asset-input-row .asset-pair { width: auto; }
+    .f.asset-row-wrap.has-partner[data-mode="client"] .partner-asset-pair { display: none !important; }
+    .f.asset-row-wrap.has-partner[data-mode="client"] .asset-input-row { flex-direction: row; }
+    .f.asset-row-wrap.has-partner[data-mode="client"] .asset-input-row .asset-pair { width: auto; }
+    .f.asset-row-wrap.has-partner[data-mode="partner"] .asset-pair { display: none !important; }
+    .f.asset-row-wrap.has-partner[data-mode="partner"] .asset-input-row { flex-direction: row; }
+    .f.asset-row-wrap.has-partner[data-mode="partner"] .asset-input-row .partner-asset-pair { width: auto; display: flex !important; }
+
+    .asset-disclaimer {
+      display: none;
+      background: var(--peach3);
+      border-left: 3px solid var(--peach);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--mid);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .asset-disclaimer.visible { display: block; }
+    .asset-disclaimer strong { color: var(--navy); }
+
     .asset-inc-lbl {
       font-size: 11px;
       font-weight: 700;
@@ -4601,8 +4659,14 @@
                     <option value="no">No — lock to default</option>
                     <option value="yes">Yes</option>
                   </select></div>
-                <div class="mf"><label>Number of Years</label><input type="number" id="m-traumaincomeyrs" value="2" min="1" max="10">
-                  <div class="note">Default: 2 years.</div>
+                <div class="mf"><label>Default Number of Years</label><input type="number" id="m-traumaincomeyrs" value="1" min="0" max="10" step="0.25">
+                  <div class="note">Default: 1 year. Decimal allowed (e.g. 0.5 = 6 months, 2 = 2 years).</div>
+                </div>
+                <div class="mf"><label>Lock Years from Staff</label><select id="m-locktraumaincomeyrs">
+                    <option value="no">No — Staff can override per client</option>
+                    <option value="yes">Yes — Staff cannot adjust</option>
+                  </select>
+                  <div class="note">When locked, staff use the default above. When unlocked, staff see an editable field on the calculator.</div>
                 </div>
               </div>
             </div>
@@ -4610,13 +4674,7 @@
               <div class="acard-title"><span class="dot"></span>Debt Repayment Provision</div>
               <div class="mg">
                 <div class="mf"><label>Default Provision (years)</label><input type="number" id="m-traumadebtyears" value="0.5" min="0" max="5" step="0.25">
-                  <div class="note">Trauma provision = this many years × the client's annual non-deductible debt repayments. Default: 0.5 years (6 months). Use 0.25 = 3 months, 1 = 12 months.</div>
-                </div>
-                <div class="mf"><label>Lock from Staff</label><select id="m-locktraumadebtyears">
-                    <option value="no">No — Staff can override per client</option>
-                    <option value="yes">Yes — Staff cannot adjust</option>
-                  </select>
-                  <div class="note">When locked, staff use the default above. When unlocked, staff see an editable field on the calculator.</div>
+                  <div class="note">Trauma provision = this many years × the client's annual non-deductible debt repayments. Default: 0.5 years (6 months). Admin-only setting — staff don't see or edit this.</div>
                 </div>
               </div>
             </div>
@@ -5080,8 +5138,8 @@
                 <div class="pfx"><span class="p">%</span><input type="number" id="s-traumaincomepct" min="0" max="100"
                     style="padding-left:28px" placeholder="30"></div>
               </div>
-              <div class="f" id="df-traumadebtyears-section"><label>Provision Period <span class="hint">(years — 0.5 = 6 months)</span></label>
-                <input type="number" id="s-traumadebtyears" min="0" max="5" step="0.25" placeholder="0.5">
+              <div class="f" id="df-traumaincomeyrs-section"><label>Number of Years <span class="hint">(income provision)</span></label>
+                <input type="number" id="s-traumaincomeyrs" min="0" max="10" step="0.25" placeholder="1">
               </div>
               <div class="f" style="align-self:flex-end">
                 <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% of the client's annual income as a lump-sum income provision during recovery. Adjust if the recommendation differs. The default is managed by your administrator.</div>
@@ -5192,12 +5250,18 @@
           <div class="sct">Assets & Resources</div>
           <div class="scs">Assets available to your family reduce the insurance need.</div>
           <div class="info-tip">These amounts will be offset against your gross insurance requirement.</div>
+          <div class="asset-disclaimer" id="asset-disclaimer"><strong>How asset offsets work when partnered:</strong> values entered as <strong>Client only</strong> reduce the client's recommended cover only. <strong>Partner only</strong> reduces the partner's only. <strong>Joint</strong> assets (e.g. household savings, the family home) count toward both calculations.</div>
 
           <!-- Assets group (always open) -->
           <div class="assets-group">
             <div class="assets-fields" id="assets-fields">
               <div class="fg" style="margin-top:14px">
-                <div class="f" id="af-cash"><label>Cash / Bank Accounts</label>
+                <div class="f asset-row-wrap" id="af-cash" data-asset="cash" data-mode="joint"><label>Cash / Bank Accounts</label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('cash','client')">Client only</button>
+                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('cash','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('cash','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5215,7 +5279,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="f" id="af-resprop"><label>Residential Property <span class="hint">(net equity)</span></label>
+                <div class="f asset-row-wrap" id="af-resprop" data-asset="resprop" data-mode="joint"><label>Residential Property <span class="hint">(net equity)</span></label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('resprop','client')">Client only</button>
+                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('resprop','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('resprop','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5233,7 +5302,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="f" id="af-comprop"><label>Commercial Property <span class="hint">(net equity)</span></label>
+                <div class="f asset-row-wrap" id="af-comprop" data-asset="comprop" data-mode="joint"><label>Commercial Property <span class="hint">(net equity)</span></label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('comprop','client')">Client only</button>
+                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('comprop','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('comprop','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5251,7 +5325,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="f" id="af-invprop"><label>Investment Property <span class="hint">(net equity)</span></label>
+                <div class="f asset-row-wrap" id="af-invprop" data-asset="invprop" data-mode="joint"><label>Investment Property <span class="hint">(net equity)</span></label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('invprop','client')">Client only</button>
+                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('invprop','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('invprop','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5269,7 +5348,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="f" id="af-shares"><label>Shares / Equities</label>
+                <div class="f asset-row-wrap" id="af-shares" data-asset="shares" data-mode="joint"><label>Shares / Equities</label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('shares','client')">Client only</button>
+                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('shares','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('shares','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5287,7 +5371,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="f" id="af-managed"><label>Managed Funds</label>
+                <div class="f asset-row-wrap" id="af-managed" data-asset="managed" data-mode="joint"><label>Managed Funds</label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('managed','client')">Client only</button>
+                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('managed','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('managed','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5305,7 +5394,12 @@
                     </div>
                   </div>
                 </div>
-                <div class="f" id="af-super-asset"><label>Superannuation</label>
+                <div class="f asset-row-wrap" id="af-super-asset" data-asset="super" data-mode="client"><label>Superannuation</label>
+                  <div class="asset-mode-bar">
+                    <button type="button" class="amb-opt active" data-mode="client" onclick="setAssetMode('super','client')">Client only</button>
+                    <button type="button" class="amb-opt" data-mode="joint" onclick="setAssetMode('super','joint')">Joint</button>
+                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('super','partner')">Partner only</button>
+                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5600,13 +5694,13 @@
       tpdTaxTopUp: 'no', tpdTaxRate: 15,
       tpdBuyResidence: 'no',
       // TPD dynamic needs
-      tpdSwEdu: true, tpdSwChild: true,
+      tpdSwEdu: false, tpdSwChild: true,
       tpdIncomePct: 30, lockTpdIncomePct: 'no',
       carerSingleAmt: 52000,
       // ── Trauma methodology ──
       traumaMedCost: 160000, lockTraumaMedCost: 'no',
-      traumaDebtYears: 0.5, lockTraumaDebtYears: 'no',
-      traumaIncomePct: 30, lockTraumaIncomePct: 'no', traumaIncomeYrs: 2,
+      traumaDebtYears: 0.5,
+      traumaIncomePct: 30, lockTraumaIncomePct: 'no', traumaIncomeYrs: 1, lockTraumaIncomeYrs: 'no',
       // ── Debt-clearance include defaults (per-debt Life/TPD toggle defaults) ──
       // Default philosophy: clear all debts for Life; clear non-deductible only for TPD (deductible case-by-case)
       debtDefaults: {
@@ -5901,10 +5995,16 @@
       const sec = document.getElementById('partner-calc-section');
       const on = !!(cb && cb.checked);
       if (sec) sec.style.display = on ? '' : 'none';
-      // Show/hide partner asset boxes
+      // Show/hide partner asset boxes (apply has-partner to row + wrapper)
       document.querySelectorAll('#assets-fields .asset-input-row').forEach(row => {
         row.classList.toggle('has-partner', on);
       });
+      document.querySelectorAll('#assets-fields .asset-row-wrap').forEach(wrap => {
+        wrap.classList.toggle('has-partner', on);
+      });
+      // Show/hide the asset offset disclaimer
+      const dis = document.getElementById('asset-disclaimer');
+      if (dis) dis.classList.toggle('visible', on);
       // Refresh asset total preview now that partner side is in/out
       if (typeof updateAssetPreview === 'function') updateAssetPreview();
       if (on) {
@@ -5978,14 +6078,31 @@
       snap.existingChecked = !!(exCb && exCb.checked);
       return snap;
     }
+    // Helper: returns the asset key (cash, super, etc.) for an `s-*` id, or null if not an asset field.
+    function _assetKeyFromField(id) {
+      const m = id.match(/^s-(cash|resprop|comprop|invprop|shares|managed|super)$/);
+      return m ? m[1] : null;
+    }
+    function _assetKeyFromCheckbox(id) {
+      const m = id.match(/^st-(cash|resprop|comprop|invprop|shares|managed|super)$/);
+      return m ? m[1] : null;
+    }
+
     function applyPartnerToClientFields() {
       PARTNER_FIELD_PAIRS.forEach(([s, p]) => {
+        // Joint-mode assets: don't swap. The client-side input holds the joint value
+        // and both passes need to read it from s-*, so leave it untouched.
+        const ak = _assetKeyFromField(s);
+        if (ak && (document.querySelector(`.asset-row-wrap[data-asset="${ak}"]`)?.dataset.mode || 'joint') === 'joint') return;
         const sEl = document.getElementById(s);
         const pEl = document.getElementById(p);
         if (sEl && pEl) sEl.value = pEl.value;
       });
       PARTNER_TB_PAIRS.forEach(([s, p]) => { if (tbState[p]) tbState[s] = tbState[p]; });
       PARTNER_CHECKBOX_PAIRS.forEach(([s, p]) => {
+        // Same joint-mode skip for include/exclude toggles
+        const ak = _assetKeyFromCheckbox(s);
+        if (ak && (document.querySelector(`.asset-row-wrap[data-asset="${ak}"]`)?.dataset.mode || 'joint') === 'joint') return;
         const sEl = document.getElementById(s);
         const pEl = document.getElementById(p);
         if (sEl && pEl) sEl.checked = !!pEl.checked;
@@ -6841,9 +6958,9 @@
       // Trauma
       si('m-traumamedcost', CFG.traumaMedCost); sv('m-locktraumamedcost', CFG.lockTraumaMedCost);
       si('m-traumadebtyears', CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
-      sv('m-locktraumadebtyears', CFG.lockTraumaDebtYears || 'no');
       si('m-traumaincomepct', CFG.traumaIncomePct || 30); sv('m-locktraumaincomepct', CFG.lockTraumaIncomePct || 'no');
-      si('m-traumaincomeyrs', CFG.traumaIncomeYrs || 2);
+      si('m-traumaincomeyrs', CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
+      sv('m-locktraumaincomeyrs', CFG.lockTraumaIncomeYrs || 'no');
       // IP
       si('m-ipreplacepct', CFG.ipReplacePct); sv('m-lockipreplace', CFG.lockIpReplacePct);
       si('m-ipsuperpct', CFG.ipSuperPct); sv('m-lockipsuperpct', CFG.lockIpSuperPct);
@@ -6899,9 +7016,9 @@
       CFG.tpdBuyResidence = gc('sw-tpdbuyres') ? 'yes' : 'no';
       CFG.traumaMedCost = gni('m-traumamedcost', CFG.traumaMedCost); CFG.lockTraumaMedCost = gsv('m-locktraumamedcost');
       CFG.traumaDebtYears = gni('m-traumadebtyears', CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
-      CFG.lockTraumaDebtYears = gsv('m-locktraumadebtyears');
       CFG.traumaIncomePct = gni('m-traumaincomepct', CFG.traumaIncomePct || 30); CFG.lockTraumaIncomePct = gsv('m-locktraumaincomepct');
-      CFG.traumaIncomeYrs = gni('m-traumaincomeyrs', CFG.traumaIncomeYrs || 2);
+      CFG.traumaIncomeYrs = gni('m-traumaincomeyrs', CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
+      CFG.lockTraumaIncomeYrs = gsv('m-locktraumaincomeyrs');
       CFG.ipReplacePct = gni('m-ipreplacepct', CFG.ipReplacePct); CFG.lockIpReplacePct = gsv('m-lockipreplace');
       CFG.ipSuperPct = Math.min(gni('m-ipsuperpct', CFG.ipSuperPct), 15); CFG.lockIpSuperPct = gsv('m-lockipsuperpct');
       CFG.ipWarnThreshold = gni('m-ipwarnthreshold', CFG.ipWarnThreshold);
@@ -7907,8 +8024,12 @@
       sf('s-tpdbuyresamt', inp.tpdBuyRes);
       sf('s-traumamedcost', inp.traumaMedCost);
       if (inp.traumaRepayment !== undefined) { const e = document.getElementById('s-traumarepayment'); if (e) e.value = inp.traumaRepayment; }
-      if (inp.traumaDebtYears !== undefined) { const e = document.getElementById('s-traumadebtyears'); if (e) e.value = inp.traumaDebtYears; }
+      if (inp.traumaIncomeYrs !== undefined) { const e = document.getElementById('s-traumaincomeyrs'); if (e) e.value = inp.traumaIncomeYrs; }
       if (inp.childIpIncluded !== undefined) { const e = document.getElementById('s-childip'); if (e) e.value = inp.childIpIncluded; }
+      // Restore asset modes (Client / Joint / Partner per row)
+      if (inp.assetModes && typeof setAssetMode === 'function') {
+        Object.keys(inp.assetModes).forEach(k => setAssetMode(k, inp.assetModes[k]));
+      }
       sf('s-earn', inp.earn);
       sf('s-infl', inp.infl);
       updateAssetPreview();
@@ -8057,10 +8178,10 @@
       toggleEl('df-traumaliving-section', CFG.lockTraumaLivingPct === 'yes');
       if (CFG.lockTraumaLivingPct === 'yes') { const e = document.getElementById('s-traumalivingpct'); if (e) e.value = CFG.traumaLivingPct; }
 
-      // Trauma debt years — hide field when locked, show when unlocked
-      toggleEl('df-traumadebtyears-section', CFG.lockTraumaDebtYears !== 'yes');
-      const traumaYrsEl = document.getElementById('s-traumadebtyears');
-      if (traumaYrsEl) traumaYrsEl.value = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
+      // Trauma income years — hide field when locked, show when unlocked
+      toggleEl('df-traumaincomeyrs-section', CFG.lockTraumaIncomeYrs !== 'yes');
+      const traumaYrsEl = document.getElementById('s-traumaincomeyrs');
+      if (traumaYrsEl) traumaYrsEl.value = (CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
 
       // Asset default include states (super defaults to excluded by default).
       // Apply to BOTH client (st-*) and partner (pt-*) toggles so they match defaults at start.
@@ -8132,21 +8253,47 @@
       fields.style.display = open ? 'none' : 'block';
     }
 
+    /* Asset ownership mode per row: 'client' | 'joint' | 'partner'.
+     * Joint = single client input, value counts in both client and partner calcs.
+     * Client = only client input; partner calc gets 0 for this asset.
+     * Partner = only partner input; client calc gets 0 for this asset.
+     */
+    function getAssetMode(asset) {
+      const el = document.querySelector(`.asset-row-wrap[data-asset="${asset}"]`);
+      return el ? (el.dataset.mode || 'joint') : 'joint';
+    }
+    function setAssetMode(asset, mode) {
+      const el = document.querySelector(`.asset-row-wrap[data-asset="${asset}"]`);
+      if (!el) return;
+      el.dataset.mode = mode;
+      el.querySelectorAll('.amb-opt').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      if (typeof updateAssetPreview === 'function') updateAssetPreview();
+    }
+
     function updateAssetPreview() {
       const keys = ['cash','resprop','comprop','invprop','shares','managed','super'];
       const partnerOn = !!(document.getElementById('sw-partner-calc') && document.getElementById('sw-partner-calc').checked);
       let total = 0;
       keys.forEach(k => {
+        const mode = partnerOn ? getAssetMode(k) : 'client'; // ignore mode when partner-calc off
         // Client toggle + label
         const incC = gc('st-'+k);
         const lC = document.getElementById('stl-'+k);
         if (lC) { lC.textContent = incC ? 'Inc.' : 'Exc.'; lC.className = 'asset-inc-lbl' + (incC ? '' : ' excluded'); }
-        if (incC) { const v = parseFloat(document.getElementById('s-'+k)?.value.replace(/,/g,'') || 0); total += isNaN(v) ? 0 : v; }
-        // Partner toggle + label (only counts when partner-calc is on)
+        const clientV = parseFloat(document.getElementById('s-'+k)?.value.replace(/,/g,'') || 0);
+        const partnerV = parseFloat(document.getElementById('p-'+k)?.value.replace(/,/g,'') || 0);
+        // Partner toggle + label
         const incP = gc('pt-'+k);
         const lP = document.getElementById('ptl-'+k);
         if (lP) { lP.textContent = incP ? 'Inc.' : 'Exc.'; lP.className = 'asset-inc-lbl' + (incP ? '' : ' excluded'); }
-        if (partnerOn && incP) { const v = parseFloat(document.getElementById('p-'+k)?.value.replace(/,/g,'') || 0); total += isNaN(v) ? 0 : v; }
+        if (mode === 'joint') {
+          // Joint: one input (client), counts once in shared total
+          if (incC) total += isNaN(clientV) ? 0 : clientV;
+        } else if (mode === 'client') {
+          if (incC) total += isNaN(clientV) ? 0 : clientV;
+        } else if (mode === 'partner') {
+          if (partnerOn && incP) total += isNaN(partnerV) ? 0 : partnerV;
+        }
       });
       const el = document.getElementById('assets-total-preview');
       if (el) el.textContent = total > 0 ? fmt(total) : '$0';
@@ -8346,18 +8493,26 @@
       return true;
     }
 
+    // Tracks which calculation pass is running so asset-mode logic knows
+    // whether to count Client-only / Partner-only / Joint assets for the current pass.
+    // 'single' = no partner calc; 'client' = client pass of dual; 'partner' = partner pass of dual.
+    let _currentCalcPass = 'single';
+
     function runCalcWithValidation() {
       if (!validateInputs()) return;
       const partnerOn = !!(document.getElementById('sw-partner-calc') && document.getElementById('sw-partner-calc').checked);
       if (partnerOn) {
         // Dual calculation — run client first, then swap fields, run partner, restore, show tabs
+        _currentCalcPass = 'client';
         runCalc();
         const clientResult = lastResult ? JSON.parse(JSON.stringify(lastResult)) : null;
         const snap = snapshotClientPersonal();
         applyPartnerToClientFields();
+        _currentCalcPass = 'partner';
         runCalc();
         const partnerResult = lastResult ? JSON.parse(JSON.stringify(lastResult)) : null;
         restoreClientPersonal(snap);
+        _currentCalcPass = 'single';
         dualResult = { client: clientResult, partner: partnerResult };
         // Reveal tab bar + populate names
         const tabBar = document.getElementById('cp-tab-bar');
@@ -8370,6 +8525,7 @@
         switchResultTab('client');
       } else {
         dualResult = null;
+        _currentCalcPass = 'single';
         const tabBar = document.getElementById('cp-tab-bar');
         if (tabBar) tabBar.classList.add('hidden');
         runCalc();
@@ -8458,13 +8614,28 @@
       const totalDebt = dedDebt + nonDedDebt; // kept for any legacy references
 
       // ── Assets ──
-      const aCash    = gc('st-cash')    ? gv('s-cash', 0)    : 0;
-      const aResProp = gc('st-resprop') ? gv('s-resprop', 0) : 0;
-      const aComProp = gc('st-comprop') ? gv('s-comprop', 0) : 0;
-      const aInvProp = gc('st-invprop') ? gv('s-invprop', 0) : 0;
-      const aShares  = gc('st-shares')  ? gv('s-shares', 0)  : 0;
-      const aManaged = gc('st-managed') ? gv('s-managed', 0) : 0;
-      const superBal = gc('st-super')   ? gv('s-super', 0)   : 0;
+      // Mode-aware lookup: respects per-row Client / Joint / Partner setting and current calc pass.
+      // When partner-calc is off, mode is ignored and we always use the client value.
+      function _assetForCalc(key) {
+        const include = gc('st-' + key);
+        if (!include) return 0;
+        if (_currentCalcPass === 'single') return gv('s-' + key, 0);
+        const mode = (document.querySelector(`.asset-row-wrap[data-asset="${key}"]`) || {}).dataset?.mode || 'joint';
+        // Joint values stay in s-* across passes (swap is skipped for joint), so both passes use them.
+        if (mode === 'joint') return gv('s-' + key, 0);
+        // Client-only: only contributes during the client pass (s-* during client pass holds client value).
+        if (mode === 'client') return _currentCalcPass === 'client' ? gv('s-' + key, 0) : 0;
+        // Partner-only: only contributes during the partner pass (s-* post-swap holds partner value).
+        if (mode === 'partner') return _currentCalcPass === 'partner' ? gv('s-' + key, 0) : 0;
+        return 0;
+      }
+      const aCash    = _assetForCalc('cash');
+      const aResProp = _assetForCalc('resprop');
+      const aComProp = _assetForCalc('comprop');
+      const aInvProp = _assetForCalc('invprop');
+      const aShares  = _assetForCalc('shares');
+      const aManaged = _assetForCalc('managed');
+      const superBal = _assetForCalc('super');
       const sPct = CFG.editsuper === 'no' ? CFG.superpct : gv('s-superpct', CFG.superpct);
       const superOffset = superBal * sPct / 100;
       const otherAssets = aCash + aResProp + aComProp + aInvProp + aShares + aManaged;
@@ -8646,11 +8817,11 @@
       const traumaMedCost = (CFG.lockTraumaMedCost === 'yes') ? gv('s-traumamedcost', CFG.traumaMedCost) : CFG.traumaMedCost;
       // Income provision: % of income × number of years (replaces carer cost for trauma)
       const traumaIncomePct = (CFG.lockTraumaIncomePct === 'yes') ? gv('s-traumaincomepct', CFG.traumaIncomePct || 30) : (CFG.traumaIncomePct || 30);
-      const traumaIncomeYrs = CFG.traumaIncomeYrs || 2;
+      const adminTraumaIncomeYrs = (CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
+      const traumaIncomeYrs = CFG.lockTraumaIncomeYrs === 'yes' ? adminTraumaIncomeYrs : (gv('s-traumaincomeyrs', adminTraumaIncomeYrs) || adminTraumaIncomeYrs);
       const traumaIncomeAmt = income * (traumaIncomePct / 100) * traumaIncomeYrs;
-      // Non-deductible debt repayments × configurable years
-      const adminTraumaDebtYears = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
-      const traumaDebtYears = CFG.lockTraumaDebtYears === 'yes' ? adminTraumaDebtYears : (gv('s-traumadebtyears', adminTraumaDebtYears) || adminTraumaDebtYears);
+      // Non-deductible debt repayments × configurable years (admin-only setting)
+      const traumaDebtYears = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
       const traumaRepayment = gv('s-traumarepayment', 0);
       const traumaLiving = traumaRepayment * traumaDebtYears;
       const traumaCover = Math.max(traumaMedCost + traumaIncomeAmt + traumaLiving, 0);
@@ -8698,7 +8869,7 @@
       // Trauma breakdown
       const traumaBreakdown = [
         traumaMedCost > 0 && { label: 'Medical & Rehab Costs', note: 'Lump sum provision', amt: traumaMedCost },
-        traumaIncomeAmt > 0 && { label: 'Income Provision', note: `${traumaIncomePct}% of income × ${traumaIncomeYrs} yrs`, amt: traumaIncomeAmt },
+        traumaIncomeAmt > 0 && { label: 'Income Provision', note: `${traumaIncomePct}% of income × ${traumaIncomeYrs < 1 ? Math.round(traumaIncomeYrs * 12) + ' months' : traumaIncomeYrs + ' yr' + (traumaIncomeYrs !== 1 ? 's' : '')}`, amt: traumaIncomeAmt },
         traumaLiving > 0 && { label: 'Debt Repayment Provision', note: `${traumaDebtYears < 1 ? Math.round(traumaDebtYears * 12) + ' months' : traumaDebtYears + ' yr' + (traumaDebtYears !== 1 ? 's' : '')} non-deductible repayments`, amt: traumaLiving },
         { label: 'NET TRAUMA COVER NEEDED', note: '', amt: traumaCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
@@ -8747,8 +8918,12 @@
         shares: aShares, managed: aManaged,
         earn, infl,
         tpdDedPct, tpdNonDedPct, tpdMedCost, tpdBuyRes,
-        traumaMedCost, traumaIncomeAmt, traumaRepayment, traumaDebtYears, tpdIncomePct, lifeChildAmt, edGrowthPct,
-        childIpIncluded: childIpIncluded ? 'yes' : 'no'
+        traumaMedCost, traumaIncomeAmt, traumaRepayment, traumaIncomeYrs, traumaDebtYears, tpdIncomePct, lifeChildAmt, edGrowthPct,
+        childIpIncluded: childIpIncluded ? 'yes' : 'no',
+        assetModes: ['cash','resprop','comprop','invprop','shares','managed','super'].reduce((o, k) => {
+          o[k] = (document.querySelector(`.asset-row-wrap[data-asset="${k}"]`) || {}).dataset?.mode || (k === 'super' ? 'client' : 'joint');
+          return o;
+        }, {})
       };
 
       lastResult = { results, breakdown, tpdBreakdown, ipBreakdown, traumaBreakdown, inputs };
