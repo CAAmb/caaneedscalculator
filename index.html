@@ -2749,49 +2749,28 @@
     }
     .asset-input-row.has-partner .asset-pair-lbl { display: block; }
 
-    /* ── Asset mode bar (Client / Joint / Partner) — only when partner-calc on ── */
-    .asset-mode-bar {
+    /* ── Joint toggle bar (visible only when partner-calc on) ── */
+    .joint-bar {
       display: none;
-      gap: 0;
-      margin-bottom: 8px;
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 3px;
-      width: fit-content;
-    }
-    .f.asset-row-wrap.has-partner .asset-mode-bar { display: inline-flex; }
-    .amb-opt {
-      border: none;
-      background: transparent;
-      padding: 6px 14px;
+      align-items: center;
+      gap: 8px;
+      margin: 6px 0 8px;
       font-size: 11px;
       font-weight: 700;
       letter-spacing: .5px;
       text-transform: uppercase;
       color: var(--mid);
-      cursor: pointer;
-      border-radius: 6px;
-      font-family: inherit;
-      transition: all 0.12s;
     }
-    .amb-opt:hover { color: var(--navy); }
-    .amb-opt.active {
-      background: var(--white);
-      color: var(--navy);
-      box-shadow: 0 1px 4px rgba(15,36,51,0.12);
-    }
+    .f.asset-row-wrap.has-partner .joint-bar { display: inline-flex; }
+    .joint-bar-label { color: var(--mid); }
+    .f.asset-row-wrap[data-joint="yes"] .joint-bar-label { color: var(--peach2); }
 
-    /* Mode-specific visibility — only applies when partner-calc is on (has-partner) */
-    .f.asset-row-wrap.has-partner[data-mode="joint"] .asset-pair-lbl { display: none !important; }
-    .f.asset-row-wrap.has-partner[data-mode="joint"] .partner-asset-pair { display: none !important; }
-    .f.asset-row-wrap.has-partner[data-mode="joint"] .asset-input-row { flex-direction: row; }
-    .f.asset-row-wrap.has-partner[data-mode="joint"] .asset-input-row .asset-pair { width: auto; }
-    .f.asset-row-wrap.has-partner[data-mode="client"] .partner-asset-pair { display: none !important; }
-    .f.asset-row-wrap.has-partner[data-mode="client"] .asset-input-row { flex-direction: row; }
-    .f.asset-row-wrap.has-partner[data-mode="client"] .asset-input-row .asset-pair { width: auto; }
-    .f.asset-row-wrap.has-partner[data-mode="partner"] .asset-pair { display: none !important; }
-    .f.asset-row-wrap.has-partner[data-mode="partner"] .asset-input-row { flex-direction: row; }
-    .f.asset-row-wrap.has-partner[data-mode="partner"] .asset-input-row .partner-asset-pair { width: auto; display: flex !important; }
+    /* Joint mode collapses to a single client box (used for both calcs).
+     * Only relevant when partner-calc is on. */
+    .f.asset-row-wrap.has-partner[data-joint="yes"] .asset-pair-lbl { display: none !important; }
+    .f.asset-row-wrap.has-partner[data-joint="yes"] .partner-asset-pair { display: none !important; }
+    .f.asset-row-wrap.has-partner[data-joint="yes"] .asset-input-row { flex-direction: row; }
+    .f.asset-row-wrap.has-partner[data-joint="yes"] .asset-input-row .asset-pair { width: auto; }
 
     .asset-disclaimer {
       display: none;
@@ -4393,25 +4372,6 @@
               </div>
             </div>
             <div class="acard">
-              <div class="acard-title"><span class="dot"></span>Other Assets</div>
-              <div class="trow">
-                <div class="ti"><strong>Include Savings as Offset</strong></div><label class="switch"><input
-                    type="checkbox" id="sw-savings" checked><span class="slider"></span></label>
-              </div>
-              <div class="trow">
-                <div class="ti"><strong>Include Investment Property Equity</strong></div><label class="switch"><input
-                    type="checkbox" id="sw-invprop" checked><span class="slider"></span></label>
-              </div>
-              <div class="trow">
-                <div class="ti"><strong>Include Share Portfolio</strong></div><label class="switch"><input
-                    type="checkbox" id="sw-shares" checked><span class="slider"></span></label>
-              </div>
-              <div class="trow">
-                <div class="ti"><strong>Offset Existing Life Cover</strong></div><label class="switch"><input
-                    type="checkbox" id="sw-existing" checked><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="acard">
               <div class="acard-title"><span class="dot"></span>Default Inclusion State</div>
               <p style="font-size:12px;color:var(--mid);margin:0 0 12px">Sets the default state of each asset's Include / Exclude toggle on the staff calculator. Staff can still override per client.</p>
               <div class="trow">
@@ -4470,15 +4430,6 @@
               <div class="trow">
                 <div class="ti"><strong>Trauma Cover</strong></div><label class="switch"><input type="checkbox"
                     id="sw-trauma" checked><span class="slider"></span></label>
-              </div>
-            </div>
-            <div class="acard">
-              <div class="acard-title"><span class="dot"></span>Cover Multipliers</div>
-              <div class="mg">
-                <div class="mf"><label>TPD Extra Years Income (for care costs)</label><input type="number"
-                    id="m-tpdextra" value="2" min="0" max="10"></div>
-                <div class="mf"><label>Trauma Multiplier (× annual income)</label><input type="number" id="m-traumamult"
-                    value="1.5" step="0.5" min="0.5" max="5"></div>
               </div>
             </div>
             <button class="save-btn" onclick="saveAll(this)">💾 Save Changes</button><span class="save-ok"
@@ -4713,8 +4664,12 @@
               <div class="acard-title"><span class="dot"></span>Super Replacement Benefit</div>
               <div class="mg">
                 <div class="mf"><label>Default Super Replacement Rate (%)</label><input type="number" id="m-ipsuperpct"
-                    value="12" min="0" max="15" step="0.5">
-                  <div class="note">Capped at 15%. Values above 15% default back to 15%.</div>
+                    value="12" min="0" step="0.5">
+                  <div class="note">Capped by the Maximum Super Cap below. Values above the cap default back to the cap.</div>
+                </div>
+                <div class="mf"><label>Maximum Super Cap (%)</label><input type="number" id="m-ipsupercap"
+                    value="15" min="0" max="50" step="0.5">
+                  <div class="note">The hard ceiling for the super replacement rate. Staff cannot exceed this when adjusting.</div>
                 </div>
                 <div class="mf"><label>Allow Staff to Adjust</label><select id="m-lockipsuperpct">
                     <option value="yes">Yes — staff can adjust</option>
@@ -5134,12 +5089,14 @@
             <div class="divline"></div>
             <div class="sublabel">Trauma — Income Provision</div>
             <div class="fg">
-              <div class="f"><label>% of Income for Trauma Income Provision</label>
-                <div class="pfx"><span class="p">%</span><input type="number" id="s-traumaincomepct" min="0" max="100"
-                    style="padding-left:28px" placeholder="30"></div>
-              </div>
-              <div class="f" id="df-traumaincomeyrs-section"><label>Number of Years <span class="hint">(income provision)</span></label>
-                <input type="number" id="s-traumaincomeyrs" min="0" max="10" step="0.25" placeholder="1">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div class="f"><label>% of Income for Trauma Income Provision</label>
+                  <div class="pfx"><span class="p">%</span><input type="number" id="s-traumaincomepct" min="0" max="100"
+                      style="padding-left:28px" placeholder="30"></div>
+                </div>
+                <div class="f" id="df-traumaincomeyrs-section"><label>Number of Years <span class="hint">(income provision)</span></label>
+                  <input type="number" id="s-traumaincomeyrs" min="0" max="10" step="0.25" placeholder="1">
+                </div>
               </div>
               <div class="f" style="align-self:flex-end">
                 <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% of the client's annual income as a lump-sum income provision during recovery. Adjust if the recommendation differs. The default is managed by your administrator.</div>
@@ -5179,7 +5136,7 @@
                   <option value="yes" selected>Yes — IP covers child-raising income</option>
                   <option value="no">No — include child-raising in TPD lump sum</option>
                 </select>
-                <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">When IP is in place, ongoing child-raising costs are funded by IP and removed from the TPD calculation. Toggle to "No" if the client won't have IP cover.</div>
+                <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">When IP is in place, ongoing child-raising costs are funded by IP and removed from the TPD calculation. Select "No" if the client won't have IP cover.</div>
               </div>
             </div>
           </div>
@@ -5250,17 +5207,16 @@
           <div class="sct">Assets & Resources</div>
           <div class="scs">Assets available to your family reduce the insurance need.</div>
           <div class="info-tip">These amounts will be offset against your gross insurance requirement.</div>
-          <div class="asset-disclaimer" id="asset-disclaimer"><strong>How asset offsets work when partnered:</strong> values entered as <strong>Client only</strong> reduce the client's recommended cover only. <strong>Partner only</strong> reduces the partner's only. <strong>Joint</strong> assets (e.g. household savings, the family home) count toward both calculations.</div>
+          <div class="asset-disclaimer" id="asset-disclaimer"><strong>How asset offsets work when partnered:</strong> by default the <strong>Client</strong> input reduces only the client's cover, and the <strong>Partner</strong> input reduces only the partner's cover. Toggle <strong>Joint</strong> on a row when an asset is shared (e.g. household savings, the family home) — it then collapses to a single box and offsets <strong>both</strong> calculations.</div>
 
           <!-- Assets group (always open) -->
           <div class="assets-group">
             <div class="assets-fields" id="assets-fields">
               <div class="fg" style="margin-top:14px">
-                <div class="f asset-row-wrap" id="af-cash" data-asset="cash" data-mode="joint"><label>Cash / Bank Accounts</label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('cash','client')">Client only</button>
-                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('cash','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('cash','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-cash" data-asset="cash" data-joint="no"><label>Cash / Bank Accounts</label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-cash" onchange="setAssetJoint('cash', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5279,11 +5235,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="f asset-row-wrap" id="af-resprop" data-asset="resprop" data-mode="joint"><label>Residential Property <span class="hint">(net equity)</span></label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('resprop','client')">Client only</button>
-                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('resprop','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('resprop','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-resprop" data-asset="resprop" data-joint="no"><label>Residential Property <span class="hint">(net equity)</span></label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-resprop" onchange="setAssetJoint('resprop', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5302,11 +5257,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="f asset-row-wrap" id="af-comprop" data-asset="comprop" data-mode="joint"><label>Commercial Property <span class="hint">(net equity)</span></label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('comprop','client')">Client only</button>
-                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('comprop','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('comprop','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-comprop" data-asset="comprop" data-joint="no"><label>Commercial Property <span class="hint">(net equity)</span></label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-comprop" onchange="setAssetJoint('comprop', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5325,11 +5279,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="f asset-row-wrap" id="af-invprop" data-asset="invprop" data-mode="joint"><label>Investment Property <span class="hint">(net equity)</span></label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('invprop','client')">Client only</button>
-                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('invprop','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('invprop','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-invprop" data-asset="invprop" data-joint="no"><label>Investment Property <span class="hint">(net equity)</span></label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-invprop" onchange="setAssetJoint('invprop', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5348,11 +5301,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="f asset-row-wrap" id="af-shares" data-asset="shares" data-mode="joint"><label>Shares / Equities</label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('shares','client')">Client only</button>
-                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('shares','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('shares','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-shares" data-asset="shares" data-joint="no"><label>Shares / Equities</label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-shares" onchange="setAssetJoint('shares', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5371,11 +5323,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="f asset-row-wrap" id="af-managed" data-asset="managed" data-mode="joint"><label>Managed Funds</label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt" data-mode="client" onclick="setAssetMode('managed','client')">Client only</button>
-                    <button type="button" class="amb-opt active" data-mode="joint" onclick="setAssetMode('managed','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('managed','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-managed" data-asset="managed" data-joint="no"><label>Managed Funds</label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-managed" onchange="setAssetJoint('managed', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5394,11 +5345,10 @@
                     </div>
                   </div>
                 </div>
-                <div class="f asset-row-wrap" id="af-super-asset" data-asset="super" data-mode="client"><label>Superannuation</label>
-                  <div class="asset-mode-bar">
-                    <button type="button" class="amb-opt active" data-mode="client" onclick="setAssetMode('super','client')">Client only</button>
-                    <button type="button" class="amb-opt" data-mode="joint" onclick="setAssetMode('super','joint')">Joint</button>
-                    <button type="button" class="amb-opt" data-mode="partner" onclick="setAssetMode('super','partner')">Partner only</button>
+                <div class="f asset-row-wrap" id="af-super-asset" data-asset="super" data-joint="no"><label>Superannuation</label>
+                  <div class="joint-bar">
+                    <label class="switch"><input type="checkbox" id="joint-super" onchange="setAssetJoint('super', this.checked)"><span class="slider"></span></label>
+                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
                   </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
@@ -5511,6 +5461,12 @@
               <div class="cc-lbl">● Total & Permanent Disability</div>
               <div class="cc-amt" id="r-tpd">$0</div>
               <div class="cc-desc">Lump sum if you become totally and permanently unable to work.</div>
+              <div id="tpd-topup-row" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15)">
+                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--light)">
+                  <input type="checkbox" id="tpd-topup-toggle" onchange="toggleTpdTopUp(this.checked)" style="cursor:pointer">
+                  Apply Super Tax Top-Up (<span id="tpd-topup-rate">15</span>%)
+                </label>
+              </div>
             </div>
             <div class="cover-card c3" id="card-ip">
               <div class="cc-lbl">● Income Protection</div>
@@ -5677,10 +5633,8 @@
       govsch: 5000, cathsch: 15000, cathPrimary: 6000, cathSecondary: 10500, privsch: 30000, schfinish: 18, uni: 'no',
       edGrowth: 5, lockEdGrowth: 'no',
       superpct: 80, editsuper: 'no',
-      swSavings: true, swInvprop: true, swShares: true, swExisting: true,
       defCash: true, defResProp: true, defComProp: true, defInvProp: true, defShares: true, defManaged: true, defSuper: false,
       swTpd: true, swIp: true, swTrauma: true,
-      tpdextra: 2, traumamult: 1.5,
       showassump: true,
       // ── Life Cover methodology ──
       legalCost: 5000, lockLegalCost: 'yes',
@@ -5734,6 +5688,7 @@
     let pendingLaunchRole = 'staff'; // role to use after forced password reset
     let recoveryMode = false; // true when user arrived via password reset email link
     let lastResult = null; // last calculated result
+    let _restoredTpdTopUp = null; // set by loadCalcFromHistory to override CFG default
     let selectedRole = 'staff';
     let tbState = { 's-gender': 'male', 's-smoker': 'no', 's-incpct': '75', 'p-gender': 'male', 'p-smoker': 'no' };
     let currentStep = 1;
@@ -6016,7 +5971,7 @@
         }
         // Pre-populate super contribution & income % defaults if blank
         const sc = document.getElementById('p-supercontrib');
-        if (sc && !sc.value.trim()) sc.value = Math.min((typeof CFG !== 'undefined' && CFG.ipSuperPct != null) ? CFG.ipSuperPct : 12, 15);
+        if (sc && !sc.value.trim()) sc.value = Math.min((typeof CFG !== 'undefined' && CFG.ipSuperPct != null) ? CFG.ipSuperPct : 12, (typeof CFG !== 'undefined' && CFG.ipSuperCap != null) ? CFG.ipSuperCap : 15);
         const ip = document.getElementById('p-incpct');
         if (ip && !ip.value.trim()) ip.value = (typeof CFG !== 'undefined' && CFG.ipct != null) ? CFG.ipct : 75;
         // Try auto-fill retire from p-age if already entered
@@ -6090,19 +6045,19 @@
 
     function applyPartnerToClientFields() {
       PARTNER_FIELD_PAIRS.forEach(([s, p]) => {
-        // Joint-mode assets: don't swap. The client-side input holds the joint value
+        // Joint assets: don't swap. The client-side input holds the joint value
         // and both passes need to read it from s-*, so leave it untouched.
         const ak = _assetKeyFromField(s);
-        if (ak && (document.querySelector(`.asset-row-wrap[data-asset="${ak}"]`)?.dataset.mode || 'joint') === 'joint') return;
+        if (ak && (document.querySelector(`.asset-row-wrap[data-asset="${ak}"]`)?.dataset.joint === 'yes')) return;
         const sEl = document.getElementById(s);
         const pEl = document.getElementById(p);
         if (sEl && pEl) sEl.value = pEl.value;
       });
       PARTNER_TB_PAIRS.forEach(([s, p]) => { if (tbState[p]) tbState[s] = tbState[p]; });
       PARTNER_CHECKBOX_PAIRS.forEach(([s, p]) => {
-        // Same joint-mode skip for include/exclude toggles
+        // Same joint skip for include/exclude toggles
         const ak = _assetKeyFromCheckbox(s);
-        if (ak && (document.querySelector(`.asset-row-wrap[data-asset="${ak}"]`)?.dataset.mode || 'joint') === 'joint') return;
+        if (ak && (document.querySelector(`.asset-row-wrap[data-asset="${ak}"]`)?.dataset.joint === 'yes')) return;
         const sEl = document.getElementById(s);
         const pEl = document.getElementById(p);
         if (sEl && pEl) sEl.checked = !!pEl.checked;
@@ -6135,6 +6090,13 @@
       const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = v; };
       countUpCurrency('r-life', r.results.life);
       countUpCurrency('r-tpd', r.results.tpd);
+      // Restore TPD top-up toggle state for this tab
+      (function() {
+        const chk = document.getElementById('tpd-topup-toggle');
+        const rateSpan = document.getElementById('tpd-topup-rate');
+        if (chk) chk.checked = r.inputs && r.inputs.tpdTaxTopUpApplied === 'yes';
+        if (rateSpan) rateSpan.textContent = (r.results && r.results.tpdTaxRate) || CFG.tpdTaxRate || 15;
+      })();
       countUpCurrency('r-ip', r.results.ip);
       countUpCurrency('r-trauma', r.results.trauma);
       // Super contribution benefit card — show/hide and update amount
@@ -6191,6 +6153,18 @@
       });
     }
 
+    function toggleTpdTopUp(on) {
+      if (!lastResult) return;
+      const r = lastResult.results;
+      const val = on ? r.tpdWithTopUp : r.tpdRaw;
+      countUpCurrency('r-tpd', val);
+      const bd = on ? lastResult.tpdBreakdownWithTopUp : lastResult.tpdBreakdownRaw;
+      renderBkTableCached('bk-tpd-body', bd, false);
+      lastResult.inputs.tpdTaxTopUpApplied = on ? 'yes' : 'no';
+      lastResult.results.tpd = val;
+      lastResult.tpdBreakdown = bd;
+    }
+
     function renderVarianceFromResult(r) {
       const wrap = document.getElementById('variance-wrap');
       const body = document.getElementById('bk-variance-body');
@@ -6210,23 +6184,48 @@
         { product: 'TPD Cover', calc: stripN(r.results.tpd), existing: ex.tpd || 0, unit: '' },
         { product: 'Trauma Cover', calc: stripN(r.results.trauma), existing: ex.trauma || 0, unit: '' }
       ];
-      const ipRows = isPre2021 ? [
-        { product: `IP @ ${ipReplacePctVal}% (current gen.)`, calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' },
-        { product: 'IP @ 75% (Pre-2021 IP)', calc: calcIp75, existing: ex.ip || 0, unit: '/mo' }
-      ] : [
-        { product: 'IP Monthly Benefit', calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' }
-      ];
-      const rows = [...baseRows, ...ipRows];
+      const ipRow = isPre2021 ? {
+        merged: true,
+        product: 'IP Monthly Benefit',
+        existing: ex.ip || 0,
+        unit: '/mo',
+        sub: [
+          { label: `Calculated @ ${ipReplacePctVal}% (current gen.)`, calc: stripN(r.results.ip) },
+          { label: `Calculated @ 75% (Pre-2021 IP)`,                  calc: calcIp75 }
+        ]
+      } : { product: 'IP Monthly Benefit', calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' };
+      const rows = [...baseRows, ipRow];
       wrap.classList.remove('hidden');
       body.innerHTML = '';
+      const _varLabel = (calc, exV, unit) => {
+        const diff = calc - exV;
+        if (diff > 0.5) return { cls: 'shortfall', txt: 'Shortfall ' + fmtLocal(diff) + unit };
+        if (diff < -0.5) return { cls: 'surplus', txt: 'Surplus ' + fmtLocal(Math.abs(diff)) + unit };
+        return { cls: 'neutral', txt: exV > 0 ? 'Aligned' : '—' };
+      };
       rows.forEach(rw => {
-        const diff = rw.calc - rw.existing;
-        let cls = 'neutral', label = 'Aligned';
-        if (diff > 0.5) { cls = 'shortfall'; label = 'Shortfall ' + fmtLocal(diff) + rw.unit; }
-        else if (diff < -0.5) { cls = 'surplus'; label = 'Surplus ' + fmtLocal(Math.abs(diff)) + rw.unit; }
+        if (rw.merged) {
+          const v1 = _varLabel(rw.sub[0].calc, rw.existing, rw.unit);
+          const v2 = _varLabel(rw.sub[1].calc, rw.existing, rw.unit);
+          const tr1 = document.createElement('tr');
+          tr1.className = v1.cls;
+          tr1.innerHTML = `<td><span class="rn">${rw.product}</span><span class="rnote">${rw.sub[0].label}</span></td>` +
+                          `<td>${fmtLocal(rw.sub[0].calc)}${rw.unit}</td>` +
+                          `<td rowspan="2" style="vertical-align:middle">${rw.existing > 0 ? fmtLocal(rw.existing) + rw.unit : '—'}<br><span style="font-size:11px;color:var(--light)">Pre-2021 IP @ 75%</span></td>` +
+                          `<td>${v1.txt}</td>`;
+          body.appendChild(tr1);
+          const tr2 = document.createElement('tr');
+          tr2.className = v2.cls;
+          tr2.innerHTML = `<td><span class="rn">&nbsp;</span><span class="rnote">${rw.sub[1].label}</span></td>` +
+                          `<td>${fmtLocal(rw.sub[1].calc)}${rw.unit}</td>` +
+                          `<td>${v2.txt}</td>`;
+          body.appendChild(tr2);
+          return;
+        }
+        const v = _varLabel(rw.calc, rw.existing, rw.unit);
         const tr = document.createElement('tr');
-        tr.className = cls;
-        tr.innerHTML = `<td><span class="rn">${rw.product}</span></td><td>${fmtLocal(rw.calc)}${rw.unit}</td><td>${rw.existing > 0 ? fmtLocal(rw.existing) + rw.unit : '—'}</td><td>${label}</td>`;
+        tr.className = v.cls;
+        tr.innerHTML = `<td><span class="rn">${rw.product}</span></td><td>${fmtLocal(rw.calc)}${rw.unit}</td><td>${rw.existing > 0 ? fmtLocal(rw.existing) + rw.unit : '—'}</td><td>${v.txt}</td>`;
         body.appendChild(tr);
       });
     }
@@ -6928,14 +6927,11 @@
       si('m-edgrowth', CFG.edGrowth || 5); sv('m-lockedgrowth', CFG.lockEdGrowth || 'no');
       si('m-schfinish', CFG.schfinish); sv('m-uni', CFG.uni);
       si('m-superpct', CFG.superpct); sv('m-editsuper', CFG.editsuper);
-      sc('sw-savings', CFG.swSavings); sc('sw-invprop', CFG.swInvprop);
-      sc('sw-shares', CFG.swShares); sc('sw-existing', CFG.swExisting);
       sc('m-defcash', CFG.defCash !== false); sc('m-defresprop', CFG.defResProp !== false);
       sc('m-defcomprop', CFG.defComProp !== false); sc('m-definvprop', CFG.defInvProp !== false);
       sc('m-defshares', CFG.defShares !== false); sc('m-defmanaged', CFG.defManaged !== false);
       sc('m-defsuper', CFG.defSuper === true);
       sc('sw-tpd', CFG.swTpd); sc('sw-ip', CFG.swIp); sc('sw-trauma', CFG.swTrauma);
-      si('m-tpdextra', CFG.tpdextra); si('m-traumamult', CFG.traumamult);
       si('d-earn', CFG.earn); si('d-infl', CFG.infl); si('d-super', CFG.superpct);
       sc('sw-showassump', CFG.showassump);
       si('b-name', CFG.bizName); si('b-title', CFG.calcTitle); si('b-disc', CFG.disc);
@@ -6964,6 +6960,7 @@
       // IP
       si('m-ipreplacepct', CFG.ipReplacePct); sv('m-lockipreplace', CFG.lockIpReplacePct);
       si('m-ipsuperpct', CFG.ipSuperPct); sv('m-lockipsuperpct', CFG.lockIpSuperPct);
+      si('m-ipsupercap', CFG.ipSuperCap || 15);
       si('m-ipwarnthreshold', CFG.ipWarnThreshold);
       // Debt clearance defaults — per-debt Life/TPD include toggles
       const dd = CFG.debtDefaults || {};
@@ -6989,14 +6986,11 @@
       CFG.edGrowth = gni('m-edgrowth', CFG.edGrowth || 5); CFG.lockEdGrowth = gsv('m-lockedgrowth');
       CFG.uni = gsv('m-uni'); CFG.superpct = gni('m-superpct', CFG.superpct);
       CFG.editsuper = gsv('m-editsuper');
-      CFG.swSavings = gc('sw-savings'); CFG.swInvprop = gc('sw-invprop');
-      CFG.swShares = gc('sw-shares'); CFG.swExisting = gc('sw-existing');
       CFG.defCash = gc('m-defcash'); CFG.defResProp = gc('m-defresprop');
       CFG.defComProp = gc('m-defcomprop'); CFG.defInvProp = gc('m-definvprop');
       CFG.defShares = gc('m-defshares'); CFG.defManaged = gc('m-defmanaged');
       CFG.defSuper = gc('m-defsuper');
       CFG.swTpd = gc('sw-tpd'); CFG.swIp = gc('sw-ip'); CFG.swTrauma = gc('sw-trauma');
-      CFG.tpdextra = gni('m-tpdextra', CFG.tpdextra); CFG.traumamult = gni('m-traumamult', CFG.traumamult);
       CFG.showassump = gc('sw-showassump');
       CFG.bizName = gtv('b-name', CFG.bizName); CFG.calcTitle = gtv('b-title', CFG.calcTitle);
       CFG.disc = gtv('b-disc', CFG.disc);
@@ -7020,7 +7014,8 @@
       CFG.traumaIncomeYrs = gni('m-traumaincomeyrs', CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
       CFG.lockTraumaIncomeYrs = gsv('m-locktraumaincomeyrs');
       CFG.ipReplacePct = gni('m-ipreplacepct', CFG.ipReplacePct); CFG.lockIpReplacePct = gsv('m-lockipreplace');
-      CFG.ipSuperPct = Math.min(gni('m-ipsuperpct', CFG.ipSuperPct), 15); CFG.lockIpSuperPct = gsv('m-lockipsuperpct');
+      CFG.ipSuperCap = gni('m-ipsupercap', CFG.ipSuperCap || 15);
+      CFG.ipSuperPct = Math.min(gni('m-ipsuperpct', CFG.ipSuperPct), CFG.ipSuperCap || 15); CFG.lockIpSuperPct = gsv('m-lockipsuperpct');
       CFG.ipWarnThreshold = gni('m-ipwarnthreshold', CFG.ipWarnThreshold);
       // Debt defaults — save per-debt Life/TPD include defaults
       CFG.debtDefaults = CFG.debtDefaults || {};
@@ -7990,7 +7985,6 @@
       sf('s-funeral', inp.funeral);
       sf('s-tpdded', inp.tpdDedPct);
       sf('s-tpdnonded', inp.tpdNonDedPct);
-      sf('s-traumalivingpct', inp.traumaLivingPct);
 
       // Step 4 – Dependants
       sf('s-kids', inp.kids);
@@ -8026,12 +8020,13 @@
       if (inp.traumaRepayment !== undefined) { const e = document.getElementById('s-traumarepayment'); if (e) e.value = inp.traumaRepayment; }
       if (inp.traumaIncomeYrs !== undefined) { const e = document.getElementById('s-traumaincomeyrs'); if (e) e.value = inp.traumaIncomeYrs; }
       if (inp.childIpIncluded !== undefined) { const e = document.getElementById('s-childip'); if (e) e.value = inp.childIpIncluded; }
-      // Restore asset modes (Client / Joint / Partner per row)
-      if (inp.assetModes && typeof setAssetMode === 'function') {
-        Object.keys(inp.assetModes).forEach(k => setAssetMode(k, inp.assetModes[k]));
+      // Restore asset Joint toggles per row
+      if (inp.assetJoint && typeof setAssetJoint === 'function') {
+        Object.keys(inp.assetJoint).forEach(k => setAssetJoint(k, !!inp.assetJoint[k]));
       }
       sf('s-earn', inp.earn);
       sf('s-infl', inp.infl);
+      if (inp.tpdTaxTopUpApplied !== undefined) _restoredTpdTopUp = inp.tpdTaxTopUpApplied;
       updateAssetPreview();
 
       goStep(1);
@@ -8174,10 +8169,6 @@
         const dn = document.getElementById('s-tpdnonded'); if (dn) { dn.value = CFG.tpdNonDedPct; dn.readOnly = CFG.lockTpdNonDedPct !== 'yes'; }
       }
 
-      // Trauma living % — show if unlocked
-      toggleEl('df-traumaliving-section', CFG.lockTraumaLivingPct === 'yes');
-      if (CFG.lockTraumaLivingPct === 'yes') { const e = document.getElementById('s-traumalivingpct'); if (e) e.value = CFG.traumaLivingPct; }
-
       // Trauma income years — hide field when locked, show when unlocked
       toggleEl('df-traumaincomeyrs-section', CFG.lockTraumaIncomeYrs !== 'yes');
       const traumaYrsEl = document.getElementById('s-traumaincomeyrs');
@@ -8224,7 +8215,7 @@
       if (!CFG.showassump) document.getElementById('assump-section').style.display = 'none';
       // Super contribution rate (IP)
       const scField = document.getElementById('s-supercontrib');
-      const ipSuperPct = Math.min(CFG.ipSuperPct || 12, 15);
+      const ipSuperPct = Math.min(CFG.ipSuperPct || 12, CFG.ipSuperCap || 15);
       if (scField) { scField.value = ipSuperPct; scField.readOnly = CFG.lockIpSuperPct === 'no'; }
       if (CFG.editrates === 'no') {
         document.getElementById('s-infl').readOnly = true;
@@ -8253,20 +8244,21 @@
       fields.style.display = open ? 'none' : 'block';
     }
 
-    /* Asset ownership mode per row: 'client' | 'joint' | 'partner'.
-     * Joint = single client input, value counts in both client and partner calcs.
-     * Client = only client input; partner calc gets 0 for this asset.
-     * Partner = only partner input; client calc gets 0 for this asset.
+    /* Asset Joint toggle per row: 'yes' | 'no'.
+     * Joint=yes: single client input, value counts in both client and partner calcs.
+     * Joint=no:  separate Client + Partner inputs (each with their own include toggle),
+     *            each side's value contributes only to that side's calc.
      */
-    function getAssetMode(asset) {
+    function getAssetJoint(asset) {
       const el = document.querySelector(`.asset-row-wrap[data-asset="${asset}"]`);
-      return el ? (el.dataset.mode || 'joint') : 'joint';
+      return el ? (el.dataset.joint === 'yes') : false;
     }
-    function setAssetMode(asset, mode) {
+    function setAssetJoint(asset, isJoint) {
       const el = document.querySelector(`.asset-row-wrap[data-asset="${asset}"]`);
       if (!el) return;
-      el.dataset.mode = mode;
-      el.querySelectorAll('.amb-opt').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+      el.dataset.joint = isJoint ? 'yes' : 'no';
+      const cb = document.getElementById('joint-' + asset);
+      if (cb) cb.checked = !!isJoint;
       if (typeof updateAssetPreview === 'function') updateAssetPreview();
     }
 
@@ -8275,24 +8267,24 @@
       const partnerOn = !!(document.getElementById('sw-partner-calc') && document.getElementById('sw-partner-calc').checked);
       let total = 0;
       keys.forEach(k => {
-        const mode = partnerOn ? getAssetMode(k) : 'client'; // ignore mode when partner-calc off
+        const isJoint = partnerOn && getAssetJoint(k);
         // Client toggle + label
         const incC = gc('st-'+k);
         const lC = document.getElementById('stl-'+k);
         if (lC) { lC.textContent = incC ? 'Inc.' : 'Exc.'; lC.className = 'asset-inc-lbl' + (incC ? '' : ' excluded'); }
-        const clientV = parseFloat(document.getElementById('s-'+k)?.value.replace(/,/g,'') || 0);
-        const partnerV = parseFloat(document.getElementById('p-'+k)?.value.replace(/,/g,'') || 0);
+        const clientV = parseFloat(document.getElementById('s-'+k)?.value.replace(/,/g,'') || 0) || 0;
+        const partnerV = parseFloat(document.getElementById('p-'+k)?.value.replace(/,/g,'') || 0) || 0;
         // Partner toggle + label
         const incP = gc('pt-'+k);
         const lP = document.getElementById('ptl-'+k);
         if (lP) { lP.textContent = incP ? 'Inc.' : 'Exc.'; lP.className = 'asset-inc-lbl' + (incP ? '' : ' excluded'); }
-        if (mode === 'joint') {
-          // Joint: one input (client), counts once in shared total
-          if (incC) total += isNaN(clientV) ? 0 : clientV;
-        } else if (mode === 'client') {
-          if (incC) total += isNaN(clientV) ? 0 : clientV;
-        } else if (mode === 'partner') {
-          if (partnerOn && incP) total += isNaN(partnerV) ? 0 : partnerV;
+        // Joint: just the client input, counts once.
+        // Otherwise: client's value + partner's value (if partner-calc is on), each respecting their own include toggle.
+        if (isJoint) {
+          if (incC) total += clientV;
+        } else {
+          if (incC) total += clientV;
+          if (partnerOn && incP) total += partnerV;
         }
       });
       const el = document.getElementById('assets-total-preview');
@@ -8569,7 +8561,7 @@
           }
           const scEl = document.getElementById('p-supercontrib');
           if (scEl && !scEl.value.trim() && scEl.dataset.userEdited !== 'true') {
-            scEl.value = Math.min((typeof CFG !== 'undefined' && CFG.ipSuperPct != null) ? CFG.ipSuperPct : 12, 15);
+            scEl.value = Math.min((typeof CFG !== 'undefined' && CFG.ipSuperPct != null) ? CFG.ipSuperPct : 12, (typeof CFG !== 'undefined' && CFG.ipSuperCap != null) ? CFG.ipSuperCap : 15);
           }
           const ipEl = document.getElementById('p-incpct');
           if (ipEl && !ipEl.value.trim() && ipEl.dataset.userEdited !== 'true') {
@@ -8614,20 +8606,16 @@
       const totalDebt = dedDebt + nonDedDebt; // kept for any legacy references
 
       // ── Assets ──
-      // Mode-aware lookup: respects per-row Client / Joint / Partner setting and current calc pass.
-      // When partner-calc is off, mode is ignored and we always use the client value.
+      // Joint-aware lookup: respects per-row Joint toggle and current calc pass.
+      // When partner-calc is off, joint is ignored — we just use the client value.
+      // When partner-calc is on:
+      //   - Joint: s-* holds the joint value across both passes (swap is skipped). Same value used in both calcs.
+      //   - Not joint: s-* holds client value during client pass, partner value during partner pass (post-swap). Each
+      //     pass uses its own input + toggle.
       function _assetForCalc(key) {
         const include = gc('st-' + key);
         if (!include) return 0;
-        if (_currentCalcPass === 'single') return gv('s-' + key, 0);
-        const mode = (document.querySelector(`.asset-row-wrap[data-asset="${key}"]`) || {}).dataset?.mode || 'joint';
-        // Joint values stay in s-* across passes (swap is skipped for joint), so both passes use them.
-        if (mode === 'joint') return gv('s-' + key, 0);
-        // Client-only: only contributes during the client pass (s-* during client pass holds client value).
-        if (mode === 'client') return _currentCalcPass === 'client' ? gv('s-' + key, 0) : 0;
-        // Partner-only: only contributes during the partner pass (s-* post-swap holds partner value).
-        if (mode === 'partner') return _currentCalcPass === 'partner' ? gv('s-' + key, 0) : 0;
-        return 0;
+        return gv('s-' + key, 0);
       }
       const aCash    = _assetForCalc('cash');
       const aResProp = _assetForCalc('resprop');
@@ -8793,10 +8781,12 @@
       const tpdOngoing = tpdEduTotal + tpdChildTotal + tpdIncomeTotal + tpdCarerTotal + tpdRentPV;
       const tpdGrossNeed = tpdDebtCleared + tpdMedCost + tpdBuyRes + tpdOngoing;
 
-      let tpdGross = tpdGrossNeed - totalDisposableAssets;
-      // Tax top-up (applied on the pre-asset gross before deduction)
-      if (CFG.tpdTaxTopUp === 'yes') tpdGross *= (1 + CFG.tpdTaxRate / 100);
-      const tpdCover = Math.max(tpdGross, 0);
+      const tpdGrossRaw = Math.max(tpdGrossNeed - totalDisposableAssets, 0);
+      const tpdTaxRate = CFG.tpdTaxRate || 15;
+      const tpdGrossWithTopUp = tpdGrossRaw * (1 + tpdTaxRate / 100);
+      const tpdDefaultTopUp = _restoredTpdTopUp !== null ? _restoredTpdTopUp === 'yes' : CFG.tpdTaxTopUp === 'yes';
+      _restoredTpdTopUp = null;
+      const tpdCover = tpdDefaultTopUp ? tpdGrossWithTopUp : tpdGrossRaw;
 
       // ─────────────────────────────────────────────
       // ③  INCOME PROTECTION (monthly)
@@ -8805,7 +8795,7 @@
       const ipMonthly = (income * (ipReplacePct / 100)) / 12;
 
       const rawSuperPct = CFG.lockIpSuperPct === 'no' ? (CFG.ipSuperPct || 12) : gv('s-supercontrib', CFG.ipSuperPct || 12);
-      const superContribPct = Math.min(rawSuperPct, 15);
+      const superContribPct = Math.min(rawSuperPct, CFG.ipSuperCap || 15);
       const ipSuperMonthly = (income * (superContribPct / 100)) / 12;
 
       const ipWarnThreshold = CFG.ipWarnThreshold || 250000;
@@ -8845,8 +8835,8 @@
         tpdCover > lifeCover && { label: 'TOTAL LIFE COVER NEEDED', note: 'Matched to TPD — Life cannot be lower than TPD (cover structure)', amt: tpdCover, total: true },
       ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
 
-      // TPD breakdown
-      const tpdBreakdown = [
+      // TPD breakdown — base rows (without NET total, added per toggle state)
+      const tpdBreakdownBase = [
         tpdDebtCleared > 0 && { label: 'Debt Clearance', note: `${tpdDedPct}% ded. / ${tpdNonDedPct}% non-ded.`, amt: tpdDebtCleared },
         tpdMedCost > 0 && { label: 'Medical & Rehab Costs', note: 'Lump sum provision', amt: tpdMedCost },
         tpdBuyRes > 0 && { label: 'Principal Residence', note: 'Purchase amount', amt: tpdBuyRes },
@@ -8857,8 +8847,14 @@
         tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrs} yrs (PV)`, amt: tpdRentPV },
         { label: 'Gross Insurance Need', note: '', amt: tpdGrossNeed },
         totalDisposableAssets > 0 && { label: 'Less: Disposable Assets', note: 'Super + liquid assets', amt: -totalDisposableAssets },
-        { label: 'NET TPD COVER NEEDED', note: '', amt: tpdCover, total: true },
-      ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
+      ].filter(Boolean).filter(r => r.amt !== 0);
+      const tpdBreakdownRaw = [...tpdBreakdownBase, { label: 'NET TPD COVER NEEDED', note: '', amt: tpdGrossRaw, total: true }];
+      const tpdTopUpAmt = tpdGrossRaw * (tpdTaxRate / 100);
+      const tpdBreakdownWithTopUp = [...tpdBreakdownBase,
+        tpdTopUpAmt > 0 && { label: `Tax Top-Up (+${tpdTaxRate}%)`, note: 'Super tax gross-up', amt: tpdTopUpAmt },
+        { label: 'NET TPD COVER NEEDED', note: '', amt: tpdGrossWithTopUp, total: true },
+      ].filter(Boolean);
+      const tpdBreakdown = tpdDefaultTopUp ? tpdBreakdownWithTopUp : tpdBreakdownRaw;
 
       // IP breakdown (monthly amounts)
       const ipBreakdown = [
@@ -8883,6 +8879,9 @@
       const results = {
         life: fmt(lifeCoverFinal),
         tpd: fmt(tpdCover),
+        tpdRaw: fmt(tpdGrossRaw),
+        tpdWithTopUp: fmt(tpdGrossWithTopUp),
+        tpdTaxRate,
         ip: fmt(ipMonthly) + '/mo',
         ipSuper: ipSuperMonthly > 0 ? fmt(ipSuperMonthly) + '/mo' : '',
         trauma: fmt(traumaCover),
@@ -8920,17 +8919,27 @@
         tpdDedPct, tpdNonDedPct, tpdMedCost, tpdBuyRes,
         traumaMedCost, traumaIncomeAmt, traumaRepayment, traumaIncomeYrs, traumaDebtYears, tpdIncomePct, lifeChildAmt, edGrowthPct,
         childIpIncluded: childIpIncluded ? 'yes' : 'no',
-        assetModes: ['cash','resprop','comprop','invprop','shares','managed','super'].reduce((o, k) => {
-          o[k] = (document.querySelector(`.asset-row-wrap[data-asset="${k}"]`) || {}).dataset?.mode || (k === 'super' ? 'client' : 'joint');
+        tpdTaxTopUpApplied: tpdDefaultTopUp ? 'yes' : 'no',
+        assetJoint: ['cash','resprop','comprop','invprop','shares','managed','super'].reduce((o, k) => {
+          o[k] = ((document.querySelector(`.asset-row-wrap[data-asset="${k}"]`) || {}).dataset?.joint === 'yes');
           return o;
         }, {})
       };
 
-      lastResult = { results, breakdown, tpdBreakdown, ipBreakdown, traumaBreakdown, inputs };
+      lastResult = { results, breakdown, tpdBreakdown, tpdBreakdownRaw, tpdBreakdownWithTopUp, ipBreakdown, traumaBreakdown, inputs };
 
       // Render result cards with count-up animation
       countUpCurrency('r-life', results.life);
       countUpCurrency('r-tpd', results.tpd);
+      // Init TPD top-up toggle
+      (function() {
+        const row = document.getElementById('tpd-topup-row');
+        const chk = document.getElementById('tpd-topup-toggle');
+        const rateSpan = document.getElementById('tpd-topup-rate');
+        if (row) row.style.display = CFG.swTpd ? '' : 'none';
+        if (chk) chk.checked = tpdDefaultTopUp;
+        if (rateSpan) rateSpan.textContent = tpdTaxRate;
+      })();
       countUpCurrency('r-ip', results.ip);
       countUpCurrency('r-trauma', results.trauma);
       document.getElementById('card-child-trauma').classList.toggle('hidden', !childTraumaEligible);
@@ -8975,6 +8984,7 @@
       }
       renderBkTable('bk-body', breakdown, false);
       renderBkTable('bk-tpd-body', tpdBreakdown, false);
+
       renderBkTable('bk-ip-body', ipBreakdown, true);
       renderBkTable('bk-trauma-body', traumaBreakdown, false);
 
@@ -8990,15 +9000,26 @@
         ip: gv('s-exist-ip', 0),
         ipPre2021: ipPre2021
       };
-      const varianceRows = existingToggle ? [
-        { product: 'Life Cover',      calc: lifeCoverFinal,    existing: existing.life,   unit: '' },
-        { product: 'TPD Cover',       calc: tpdCover,          existing: existing.tpd,    unit: '' },
-        { product: 'Trauma Cover',    calc: traumaCover,       existing: existing.trauma, unit: '' },
-        { product: ipPre2021 ? `IP @ ${ipReplacePct}% (current gen.)` : 'IP Monthly Benefit',
-          calc: ipMonthly,      existing: existing.ip,                     unit: '/mo' },
-        ipPre2021 ? { product: 'IP @ 75% (Pre-2021 IP)',
-          calc: ip75Monthly,    existing: existing.ip,                     unit: '/mo' } : null
-      ].filter(Boolean) : [];
+      // Build base rows (Life, TPD, Trauma always single)
+      const baseRows = [
+        { product: 'Life Cover',   calc: lifeCoverFinal, existing: existing.life,   unit: '' },
+        { product: 'TPD Cover',    calc: tpdCover,       existing: existing.tpd,    unit: '' },
+        { product: 'Trauma Cover', calc: traumaCover,    existing: existing.trauma, unit: '' }
+      ];
+      // IP row — either single (current gen) or merged-pair (Pre-2021)
+      const ipRow = ipPre2021 ? {
+        merged: true,
+        product: 'IP Monthly Benefit',
+        productNote: 'Pre-2021 policy',
+        existing: existing.ip,
+        unit: '/mo',
+        sub: [
+          { label: `Calculated @ ${ipReplacePct}% (current gen.)`, calc: ipMonthly },
+          { label: `Calculated @ 75% (Pre-2021 IP)`,               calc: ip75Monthly }
+        ]
+      } : { product: 'IP Monthly Benefit', calc: ipMonthly, existing: existing.ip, unit: '/mo' };
+      const varianceRows = existingToggle ? [...baseRows, ipRow] : [];
+
       inputs.existingCover = existingToggle ? existing : null;
       inputs.existingCoverShown = existingToggle;
       // Render variance card
@@ -9008,16 +9029,38 @@
         if (existingToggle) {
           varianceWrap.classList.remove('hidden');
           varianceBody.innerHTML = '';
+          // Helper: build the variance label cell content for a single calc/existing/unit triple
+          const _varLabel = (calc, ex, unit) => {
+            const diff = calc - ex;
+            if (diff > 0.5) return { cls: 'shortfall', txt: 'Shortfall ' + fmt(diff) + unit };
+            if (diff < -0.5) return { cls: 'surplus', txt: 'Surplus ' + fmt(Math.abs(diff)) + unit };
+            return { cls: 'neutral', txt: ex > 0 ? 'Aligned' : '—' };
+          };
           varianceRows.forEach(r => {
-            const diff = r.calc - r.existing;
-            let cls = 'neutral', label = '—';
-            if (diff > 0.5) { cls = 'shortfall'; label = 'Shortfall ' + fmt(diff) + r.unit; }
-            else if (diff < -0.5) { cls = 'surplus'; label = 'Surplus ' + fmt(Math.abs(diff)) + r.unit; }
-            else { label = 'Aligned'; }
-            const tr = document.createElement('tr');
-            tr.className = cls;
-            tr.innerHTML = `<td><span class="rn">${r.product}</span></td><td>${fmt(r.calc)}${r.unit}</td><td>${r.existing > 0 ? fmt(r.existing) + r.unit : '—'}</td><td>${label}</td>`;
-            varianceBody.appendChild(tr);
+            if (r.merged) {
+              // Pre-2021 IP: two sub-rows sharing one Existing cell (rowspan=2)
+              const v1 = _varLabel(r.sub[0].calc, r.existing, r.unit);
+              const v2 = _varLabel(r.sub[1].calc, r.existing, r.unit);
+              const tr1 = document.createElement('tr');
+              tr1.className = v1.cls;
+              tr1.innerHTML = `<td><span class="rn">${r.product}</span><span class="rnote">${r.sub[0].label}</span></td>` +
+                              `<td>${fmt(r.sub[0].calc)}${r.unit}</td>` +
+                              `<td rowspan="2" style="vertical-align:middle">${r.existing > 0 ? fmt(r.existing) + r.unit : '—'}<br><span style="font-size:11px;color:var(--light)">Pre-2021 IP @ 75%</span></td>` +
+                              `<td>${v1.txt}</td>`;
+              varianceBody.appendChild(tr1);
+              const tr2 = document.createElement('tr');
+              tr2.className = v2.cls;
+              tr2.innerHTML = `<td><span class="rn">&nbsp;</span><span class="rnote">${r.sub[1].label}</span></td>` +
+                              `<td>${fmt(r.sub[1].calc)}${r.unit}</td>` +
+                              `<td>${v2.txt}</td>`;
+              varianceBody.appendChild(tr2);
+            } else {
+              const v = _varLabel(r.calc, r.existing, r.unit);
+              const tr = document.createElement('tr');
+              tr.className = v.cls;
+              tr.innerHTML = `<td><span class="rn">${r.product}</span></td><td>${fmt(r.calc)}${r.unit}</td><td>${r.existing > 0 ? fmt(r.existing) + r.unit : '—'}</td><td>${v.txt}</td>`;
+              varianceBody.appendChild(tr);
+            }
           });
         } else {
           varianceWrap.classList.add('hidden');
@@ -9063,7 +9106,7 @@
       // Text / number inputs
       const textFields = ['s-client', 's-age', 's-income', 's-retire', 's-repyrs', 's-supercontrib',
         's-mortgage', 's-otherloan', 's-personal', 's-cc', 's-biz', 's-rent', 's-rentyrs',
-        's-legalcost', 's-debtclearpct', 's-tpdded', 's-tpdnonded', 's-traumalivingpct',
+        's-legalcost', 's-debtclearpct', 's-tpdded', 's-tpdnonded',
         's-kids', 's-youngest', 's-childcare', 's-odep', 's-odepyrs',
         's-super', 's-superpct', 's-cash', 's-resprop', 's-comprop', 's-invprop', 's-shares', 's-managed',
         's-tpdmedcost', 's-tpdbuyresamt', 's-traumamedcost', 's-tpdincomepct', 's-traumaincomepct',
@@ -9668,27 +9711,39 @@
         const incomeForIp = inputs && inputs.income ? inputs.income : 0;
         const calcIp75 = (incomeForIp * 0.75) / 12;
         const ipReplacePctVal = inputs && inputs.ipReplacePct !== undefined ? inputs.ipReplacePct : (CFG.ipReplacePct || 70);
-        const baseRows = [
-          ['Life Cover', fmt(calcLife), ex.life ? fmt(ex.life) : '—', calcLife - (ex.life || 0), false],
-          ['TPD Cover', fmt(calcTpd), ex.tpd ? fmt(ex.tpd) : '—', calcTpd - (ex.tpd || 0), false],
-          ['Trauma Cover', fmt(calcTrauma), ex.trauma ? fmt(ex.trauma) : '—', calcTrauma - (ex.trauma || 0), false]
+        const _vLabel = (calcN, exN, suffix) => {
+          if (!exN) return '—';
+          const diff = calcN - exN;
+          if (diff > 0.5) return 'Shortfall ' + fmt(diff) + suffix;
+          if (diff < -0.5) return 'Surplus ' + fmt(Math.abs(diff)) + suffix;
+          return 'Aligned';
+        };
+        // Build flat row data. Pre-2021 IP uses rowSpan on the Existing column
+        // so the existing IP figure spans both 70% and 75% calculation lines.
+        const varRows = [
+          ['Life Cover',   fmt(calcLife),   ex.life   ? fmt(ex.life)   : '—', _vLabel(calcLife,   ex.life || 0,   '')],
+          ['TPD Cover',    fmt(calcTpd),    ex.tpd    ? fmt(ex.tpd)    : '—', _vLabel(calcTpd,    ex.tpd || 0,    '')],
+          ['Trauma Cover', fmt(calcTrauma), ex.trauma ? fmt(ex.trauma) : '—', _vLabel(calcTrauma, ex.trauma || 0, '')]
         ];
-        const ipRows = isPre2021 ? [
-          [`IP @ ${ipReplacePctVal}% (current gen.)`, fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp - (ex.ip || 0), true],
-          ['IP @ 75% (Pre-2021 IP)', fmt(calcIp75) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp75 - (ex.ip || 0), true]
-        ] : [
-          ['IP Monthly Benefit', fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', calcIp - (ex.ip || 0), true]
-        ];
-        const varRows = [...baseRows, ...ipRows].map(r => {
-          const diff = r[3];
-          const isMonthly = r[4];
-          const suffix = isMonthly ? '/mo' : '';
-          let varLabel = 'Aligned';
-          if (r[2] === '—') varLabel = '—';
-          else if (diff > 0.5) varLabel = 'Shortfall ' + fmt(diff) + suffix;
-          else if (diff < -0.5) varLabel = 'Surplus ' + fmt(Math.abs(diff)) + suffix;
-          return [r[0], r[1], r[2], varLabel];
-        });
+        if (isPre2021) {
+          const exCellContent = ex.ip
+            ? { content: fmt(ex.ip) + '/mo\nPre-2021 IP @ 75%', rowSpan: 2, styles: { valign: 'middle' } }
+            : { content: '—', rowSpan: 2, styles: { valign: 'middle' } };
+          varRows.push([
+            'IP Monthly Benefit\nCalculated @ ' + ipReplacePctVal + '% (current gen.)',
+            fmt(calcIp) + '/mo',
+            exCellContent,
+            _vLabel(calcIp, ex.ip || 0, '/mo')
+          ]);
+          varRows.push([
+            'IP Monthly Benefit\nCalculated @ 75% (Pre-2021 IP)',
+            fmt(calcIp75) + '/mo',
+            // Existing cell is taken by the rowspan above
+            _vLabel(calcIp75, ex.ip || 0, '/mo')
+          ]);
+        } else {
+          varRows.push(['IP Monthly Benefit', fmt(calcIp) + '/mo', ex.ip ? fmt(ex.ip) + '/mo' : '—', _vLabel(calcIp, ex.ip || 0, '/mo')]);
+        }
         const varStartY = Math.max(leftY, rightY) + 4;
         const varBodyW = W - M * 2;
         const varHdrH = 6.5;
@@ -9721,7 +9776,7 @@
       // Assumptions line (earnings + inflation rates) just above disclaimer
       const earnVal = inputs && inputs.earn !== undefined ? inputs.earn : (CFG.earn !== undefined ? CFG.earn : '—');
       const inflVal = inputs && inputs.infl !== undefined ? inputs.infl : (CFG.infl !== undefined ? CFG.infl : '—');
-      const assumpText = `Assumptions: Earnings Rate ${earnVal}% p.a. | Inflation Rate ${inflVal}% p.a. | Real Discount Rate ${(typeof earnVal === 'number' && typeof inflVal === 'number') ? (earnVal - inflVal).toFixed(1) : '—'}% p.a.`;
+      const assumpText = `Assumptions: Earnings Rate ${earnVal}% p.a. | Inflation Rate ${inflVal}% p.a.`;
 
       // Disclaimer + footer
       const discLines2 = doc.splitTextToSize(CFG.disc, W - M * 2 - 6);
