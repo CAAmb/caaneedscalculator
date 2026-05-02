@@ -79,6 +79,7 @@
       --ease-in-out-soft: cubic-bezier(0.65, 0, 0.35, 1);
       --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
       --dur-fast: 180ms;
+      --dur-base: 300ms;
       --dur-med: 420ms;
       --dur-slow: 720ms;
 
@@ -127,7 +128,7 @@
     }
 
     .anim {
-      animation: fadeUp .3s ease
+      animation: fadeUp var(--dur-base) ease
     }
 
     /* ── LOGIN ── */
@@ -175,7 +176,7 @@
       position: relative;
       z-index: 1;
       animation: fadeUp .5s ease;
-      border-bottom: 4px solid var(--peach)
+      border-bottom: 2px solid var(--peach)
     }
 
     .login-secure-note {
@@ -394,61 +395,6 @@
       gap: 14px
     }
 
-    .topbar-wave {
-      display: flex;
-      align-items: flex-end;
-      gap: 2px;
-      height: 22px;
-      margin-right: 4px
-    }
-
-    .topbar-wave span {
-      display: inline-block;
-      width: 3px;
-      background: var(--teal2);
-      border-radius: 2px;
-      animation: wave 1.4s ease-in-out infinite
-    }
-
-    .topbar-wave span:nth-child(1) {
-      height: 10px;
-      animation-delay: 0s
-    }
-
-    .topbar-wave span:nth-child(2) {
-      height: 18px;
-      animation-delay: .15s
-    }
-
-    .topbar-wave span:nth-child(3) {
-      height: 14px;
-      animation-delay: .3s
-    }
-
-    .topbar-wave span:nth-child(4) {
-      height: 22px;
-      animation-delay: .45s
-    }
-
-    .topbar-wave span:nth-child(5) {
-      height: 12px;
-      animation-delay: .6s
-    }
-
-    @keyframes wave {
-
-      0%,
-      100% {
-        opacity: .4;
-        transform: scaleY(.7)
-      }
-
-      50% {
-        opacity: 1;
-        transform: scaleY(1)
-      }
-    }
-
     .topbar-text {
       display: flex;
       flex-direction: column
@@ -596,7 +542,7 @@
 
     .admin-panel.active {
       display: block;
-      animation: fadeUp .3s ease
+      animation: fadeUp var(--dur-base) ease
     }
 
     .ph {
@@ -804,6 +750,50 @@
       transform: translateX(26px);
     }
 
+    /* Asset include/exclude pill — matches debt pill language */
+    .asset-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px 4px 8px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: rgba(255,255,255,.55);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mid);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all .25s cubic-bezier(.4,0,.2,1);
+      user-select: none;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(0,0,0,.03);
+    }
+    .asset-pill input { position: absolute; opacity: 0; pointer-events: none; }
+    .asset-pill .ap-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    .asset-pill .ap-text::before { content: 'Exclude'; }
+    .asset-pill:has(input:checked) .ap-text::before { content: 'Include'; }
+    .asset-pill:has(input:checked) {
+      background: linear-gradient(135deg, rgba(235,163,128,.14), rgba(253,241,234,.18));
+      border-color: rgba(235,163,128,.45);
+      color: var(--peach2);
+    }
+    .asset-pill:has(input:checked) .ap-dot {
+      background: var(--peach);
+      box-shadow: 0 0 0 3px rgba(235,163,128,.22);
+    }
+    .asset-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 2px 6px rgba(0,0,0,.06);
+    }
+
     /* Premium debt-include toggle pills */
     .debt-toggles {
       display: flex;
@@ -912,7 +902,7 @@
       font-weight: 600;
       margin-left: 12px;
       opacity: 0;
-      transition: opacity .3s
+      transition: opacity var(--dur-base)
     }
 
     .save-ok.show {
@@ -1125,7 +1115,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      animation: fadeUp .3s ease;
+      animation: fadeUp var(--dur-base) ease;
       white-space: nowrap
     }
 
@@ -1425,14 +1415,14 @@
       background: var(--bg2);
       margin-top: 6px;
       overflow: hidden;
-      transition: all .3s
+      transition: all var(--dur-base)
     }
 
     .force-pw-strength-bar {
       height: 100%;
       border-radius: 4px;
       width: 0%;
-      transition: width .3s, background .3s
+      transition: width var(--dur-base), background var(--dur-base)
     }
 
     .force-pw-hint {
@@ -1659,7 +1649,7 @@
       display: flex;
       flex-direction: column;
       box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
-      animation: fadeUp .3s ease
+      animation: fadeUp var(--dur-base) ease
     }
 
     .modal-head {
@@ -4389,6 +4379,14 @@
                   </select></div>
               </div>
             </div>
+            <div class="acard">
+              <div class="acard-title"><span class="dot"></span>Child Trauma Cover</div>
+              <div class="mg">
+                <div class="mf"><label>Cover Amount ($ per child)</label><input type="number" id="m-childtraumaamt" value="50000" min="0" step="5000">
+                  <div class="note">Applied per eligible child aged 2–15. Shown as a separate card on the results screen.</div>
+                </div>
+              </div>
+            </div>
             <button class="save-btn" onclick="saveAll(this)">💾 Save Changes</button><span class="save-ok"
               id="sk-deps">✓ Saved</span>
           </div>
@@ -4763,6 +4761,8 @@
                 <div class="mf" style="grid-column:span 2"><label>Disclaimer Text</label><input type="text" id="b-disc"
                     value="This calculator provides an estimate only and does not constitute personal financial advice.">
                 </div>
+                <div class="mf" style="grid-column:span 2"><label>Smoker Loading Notice <span class="hint">(shown on PDF when client is a smoker)</span></label><textarea id="b-smokernotice" rows="3" style="width:100%;resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit">Smoker loading applies to all cover types — premiums will be higher than standard rates shown. Obtain insurer-specific smoker quotes before proceeding.</textarea>
+                </div>
               </div>
             </div>
             <button class="save-btn" onclick="saveAll(this)">💾 Save Changes</button><span class="save-ok"
@@ -5055,7 +5055,7 @@
           </div>
           <div class="divline"></div>
           <div class="sublabel">Rent Expenses <span class="hint">(if no mortgage)</span></div>
-          <div class="info-tip" style="margin-bottom:10px;font-size:12px">If the client rents rather than owning, enter their annual rent below. A present-value provision will be added to the Life &amp; TPD Cover so the client/family can continue paying rent over the income replacement period. Leave blank or enter 0 if the client has a mortgage. Note: for single clients, rent provision is only applied to TPD Cover (not Life).</div>
+          <div class="info-tip" style="margin-bottom:10px;font-size:12px">If the client rents rather than owning, enter their annual rent below. A present-value provision will be added so the client/family can continue paying rent over the income replacement period. Leave blank or enter 0 if the client has a mortgage. <strong>Single clients:</strong> rent is added to TPD only (not Life — death ends the rent obligation). <strong>Partnered clients:</strong> rent is added to both Life and TPD (the surviving partner still needs to pay rent).</div>
           <div class="fg">
             <div class="f" id="df-rent"><label>Annual Rent Expenses <span class="hint">($/year)</span></label>
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-rent"
@@ -5182,6 +5182,7 @@
               </div>
             </div>
           </div>
+          <div id="education-section">
           <div class="divline"></div>
           <div class="sublabel">Education Costs</div>
           <div class="fg">
@@ -5230,6 +5231,7 @@
               </div>
             </div>
           </div>
+          </div><!-- /education-section -->
           <div class="divline"></div>
           <div class="sublabel">Other Dependants</div>
           <div class="fg">
@@ -5265,15 +5267,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-cash"
                           placeholder="e.g. 40000" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-cash" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-cash">Inc.</span>
+                      <label class="asset-pill" id="stl-cash"><input type="checkbox" id="st-cash" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-cash"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-cash" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-cash">Inc.</span>
+                      <label class="asset-pill" id="ptl-cash"><input type="checkbox" id="pt-cash" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5287,15 +5287,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-resprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-resprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-resprop">Inc.</span>
+                      <label class="asset-pill" id="stl-resprop"><input type="checkbox" id="st-resprop" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-resprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-resprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-resprop">Inc.</span>
+                      <label class="asset-pill" id="ptl-resprop"><input type="checkbox" id="pt-resprop" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5309,15 +5307,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-comprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-comprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-comprop">Inc.</span>
+                      <label class="asset-pill" id="stl-comprop"><input type="checkbox" id="st-comprop" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-comprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-comprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-comprop">Inc.</span>
+                      <label class="asset-pill" id="ptl-comprop"><input type="checkbox" id="pt-comprop" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5331,15 +5327,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-invprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-invprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-invprop">Inc.</span>
+                      <label class="asset-pill" id="stl-invprop"><input type="checkbox" id="st-invprop" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-invprop"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-invprop" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-invprop">Inc.</span>
+                      <label class="asset-pill" id="ptl-invprop"><input type="checkbox" id="pt-invprop" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5353,15 +5347,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-shares"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-shares" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-shares">Inc.</span>
+                      <label class="asset-pill" id="stl-shares"><input type="checkbox" id="st-shares" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-shares"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-shares" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-shares">Inc.</span>
+                      <label class="asset-pill" id="ptl-shares"><input type="checkbox" id="pt-shares" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5375,15 +5367,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-managed"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-managed" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-managed">Inc.</span>
+                      <label class="asset-pill" id="stl-managed"><input type="checkbox" id="st-managed" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-managed"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-managed" checked onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-managed">Inc.</span>
+                      <label class="asset-pill" id="ptl-managed"><input type="checkbox" id="pt-managed" checked onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5397,15 +5387,13 @@
                       <span class="asset-pair-lbl">Client</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-super"
                           placeholder="e.g. 180000" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="st-super" onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="stl-super">Inc.</span>
+                      <label class="asset-pill" id="stl-super"><input type="checkbox" id="st-super" onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                     <div class="partner-asset-pair">
                       <span class="asset-pair-lbl">Partner</span>
                       <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="p-super"
                           placeholder="e.g. 0" oninput="updateAssetPreview()"></div>
-                      <label class="switch"><input type="checkbox" id="pt-super" onchange="updateAssetPreview()"><span class="slider"></span></label>
-                      <span class="asset-inc-lbl" id="ptl-super">Inc.</span>
+                      <label class="asset-pill" id="ptl-super"><input type="checkbox" id="pt-super" onchange="updateAssetPreview()"><span class="ap-dot"></span><span class="ap-text"></span></label>
                     </div>
                   </div>
                 </div>
@@ -5540,10 +5528,11 @@
               <div class="cc-lbl">● Trauma Cover</div>
               <div class="cc-amt" id="r-trauma">$0</div>
               <div class="cc-desc">Lump sum on diagnosis of cancer, heart attack, stroke or other trauma events.</div>
+              <div id="r-trauma-nil" style="display:none;margin-top:8px;font-size:11px;color:rgba(222,245,255,.45);font-style:italic">No trauma inputs entered — enter medical costs or debt repayments to generate a figure.</div>
             </div>
             <div class="cover-card full-w hidden" id="card-child-trauma">
               <div class="cc-lbl">● Child Trauma Cover</div>
-              <div class="cc-amt" id="r-child-trauma">$50,000 <span style="font-size:14px;font-weight:500;opacity:0.7">per child</span></div>
+              <div class="cc-amt" id="r-child-trauma">$0 <span style="font-size:14px;font-weight:500;opacity:0.7">per child</span></div>
               <div class="cc-desc" style="margin-top:4px;margin-bottom:0">Final sum subject to client discussion.</div>
             </div>
           </div>
@@ -5679,7 +5668,7 @@
       earn: 5.0, infl: 3.0, editrates: 'yes',
       swMortgage: true, swOtherloan: true, swPersonal: true, swCc: true, swBiz: true,
       funeral: 15000,
-      govsch: 5000, cathsch: 15000, cathPrimary: 6000, cathSecondary: 10500, privsch: 30000, schfinish: 18, uni: 'no',
+      govsch: 5000, cathsch: 15000, cathPrimary: 6000, cathSecondary: 10500, privsch: 30000, schfinish: 18, secondaryStartAge: 12, retirementAge: 65, uni: 'no',
       edGrowth: 5, lockEdGrowth: 'no',
       superpct: 80, editsuper: 'no',
       defCash: true, defResProp: true, defComProp: true, defInvProp: true, defShares: true, defManaged: true, defSuper: false,
@@ -5717,12 +5706,29 @@
       ipReplacePct: 70, lockIpReplacePct: 'yes',
       ipSuperPct: 12, lockIpSuperPct: 'no', ipSuperCap: 15,
       ipWarnThreshold: 250000,
+      childTraumaAmt: 50000,
       bizName: 'Coastal Advisory Australia', calcTitle: 'Wealth Protection Calculator',
-      disc: 'Any advice produced by this calculator is general in nature only and has not been tailored to your personal objectives, financial situation or needs. Please seek personal advice from a licensed financial adviser prior to acting on this information. Coastal Advisory Australia. coastaladvisory.com.au'
+      disc: 'Any advice produced by this calculator is general in nature only and has not been tailored to your personal objectives, financial situation or needs. Please seek personal advice from a licensed financial adviser prior to acting on this information. Coastal Advisory Australia. coastaladvisory.com.au',
+      smokerNotice: 'Smoker loading applies to all cover types — premiums will be higher than standard rates shown. Obtain insurer-specific smoker quotes before proceeding.'
     };
 
     // Staff users: [{id, name, username, password, mustResetPassword}]
     function escapeHTML(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+    // Shared toast — single DOM element reused across all call sites; clears pending timer on reuse
+    let _toastEl = null, _toastTimer = null;
+    function showToast(html, duration, extraStyle) {
+      if (!_toastEl) {
+        _toastEl = document.createElement('div');
+        _toastEl.className = 'load-toast';
+        document.body.appendChild(_toastEl);
+      }
+      clearTimeout(_toastTimer);
+      _toastEl.innerHTML = html;
+      Object.assign(_toastEl.style, { display: '', opacity: '1', background: extraStyle || '' });
+      _toastTimer = setTimeout(() => { if (_toastEl) _toastEl.style.opacity = '0'; }, (duration || 3500) - 300);
+      setTimeout(() => { if (_toastEl) _toastEl.style.display = 'none'; }, duration || 3500);
+    }
 
     let USERS = [];
     let pendingPwResetUserId = null; // tracks which user is being reset by admin
@@ -5845,12 +5851,7 @@
           const errBody = await r.text().catch(() => r.status);
           console.warn('History save failed:', r.status, errBody);
           // Show a visible warning so the user knows the save didn't persist
-          const toast = document.createElement('div');
-          toast.className = 'load-toast';
-          toast.style.background = 'var(--red)';
-          toast.textContent = '⚠️ Calculation saved locally but could not sync to cloud (status ' + r.status + '). Check Supabase RLS policies on caa_history.';
-          document.body.appendChild(toast);
-          setTimeout(() => toast.remove(), 8000);
+          showToast('⚠️ Calculation saved locally but could not sync to cloud (status ' + r.status + '). Check Supabase RLS policies on caa_history.', 8000, 'var(--red)');
         }
       } catch (e) { console.warn('Supabase history save error:', e); }
     }
@@ -6563,6 +6564,9 @@
         grid.innerHTML = '';
         if (youngestField) youngestField.style.display = '';
       }
+      // Hide entire education section when no children
+      const eduSection = document.getElementById('education-section');
+      if (eduSection) eduSection.style.display = (kids === 0) ? 'none' : '';
       // Show / hide the "all children same school costs?" toggle (only 2+ children)
       const sameRow = document.getElementById('edcost-same-toggle-row');
       if (sameRow) sameRow.style.display = (kids >= 2) ? 'flex' : 'none';
@@ -6677,7 +6681,7 @@
         if (primaryEl && (!keepUser || !primaryEl.value.trim())) primaryEl.value = fmtN(CFG.privsch || 30000);
         if (secondaryWrap) secondaryWrap.style.display = 'none';
       } else if (t === 'cath') {
-        if (primaryLbl) primaryLbl.innerHTML = 'Annual Primary Cost <span class="hint">(up to age 12)</span>';
+        if (primaryLbl) primaryLbl.innerHTML = 'Annual Primary Cost <span class="hint">(up to age ' + (CFG.secondaryStartAge || 12) + ')</span>';
         if (primaryEl && (!keepUser || !primaryEl.value.trim())) primaryEl.value = fmtN(CFG.cathPrimary || 6000);
         if (secondaryWrap) secondaryWrap.style.display = '';
         if (secondaryEl && (!keepUser || !secondaryEl.value.trim())) secondaryEl.value = fmtN(CFG.cathSecondary || 10500);
@@ -6990,6 +6994,7 @@
       si('d-earn', CFG.earn); si('d-infl', CFG.infl); si('d-super', CFG.superpct);
       sc('sw-showassump', CFG.showassump);
       si('b-name', CFG.bizName); si('b-title', CFG.calcTitle); si('b-disc', CFG.disc);
+      si('b-smokernotice', CFG.smokerNotice); si('m-childtraumaamt', CFG.childTraumaAmt || 50000);
       // Admin credentials are managed via Supabase Auth dashboard
       // ── New methodology fields ──
       // Life
@@ -7049,6 +7054,8 @@
       CFG.showassump = gc('sw-showassump');
       CFG.bizName = gtv('b-name', CFG.bizName); CFG.calcTitle = gtv('b-title', CFG.calcTitle);
       CFG.disc = gtv('b-disc', CFG.disc);
+      CFG.smokerNotice = gtv('b-smokernotice', CFG.smokerNotice);
+      CFG.childTraumaAmt = gni('m-childtraumaamt', CFG.childTraumaAmt || 50000);
       // Admin credentials managed via Supabase Auth — no local save needed
       // ── New methodology fields ──
       CFG.legalCost = gni('m-legalcost', CFG.legalCost); CFG.lockLegalCost = gsv('m-locklegalcost');
@@ -7124,11 +7131,7 @@
       u.role = newRole;
       const ok = await persistSaveUser(u);
       if (ok) {
-        const toast = document.createElement('div');
-        toast.className = 'load-toast';
-        toast.innerHTML = '✅ Role updated to <strong>' + newRole + '</strong> for ' + escapeHTML(u.name);
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3500);
+        showToast('✅ Role updated to <strong>' + newRole + '</strong> for ' + escapeHTML(u.name), 3500);
       } else {
         u.role = prevRole; // revert on failure
         renderUsersList();
@@ -7166,11 +7169,7 @@
       if (confirmBtn) { confirmBtn.textContent = 'Yes, Reset Password'; confirmBtn.disabled = false; }
       if (ok) {
         renderUsersList();
-        const toast = document.createElement('div');
-        toast.className = 'load-toast';
-        toast.innerHTML = '🔑 Flagged for password change. Set their new password in the Supabase Auth dashboard, then share it with the user.';
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 6000);
+        showToast('🔑 Flagged for password change. Set their new password in the Supabase Auth dashboard, then share it with the user.', 6000);
       } else {
         alert('Failed to update the reset flag. Please check your connection and try again.');
         u.mustResetPassword = false;
@@ -8141,7 +8140,7 @@
           + '<span style="color:var(--text);font-weight:600">' + r[1] + '</span>'
           + '</div>';
       }).join('');
-      overlay.innerHTML = '<div style="background:white;border-radius:16px;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:fadeUp .3s ease">'
+      overlay.innerHTML = '<div style="background:white;border-radius:16px;width:100%;max-width:min(560px,calc(100vw - 32px));max-height:90dvh;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,.3);animation:fadeUp .3s ease">'
         + '<div style="padding:22px 26px;border-bottom:1px solid var(--bg2);display:flex;align-items:flex-start;justify-content:space-between">'
         + '<div><div style="font-family:Playfair Display,serif;font-size:20px;font-weight:700;color:var(--navy)">' + escapeHTML(entry.client || 'Unnamed') + '</div>'
         + '<div style="font-size:12px;color:var(--light);margin-top:2px">' + escapeHTML(entry.date || '') + '</div></div>'
@@ -8317,22 +8316,37 @@
       if (typeof updateAssetPreview === 'function') updateAssetPreview();
     }
 
+    // Pre-cache asset DOM elements — built once on first call, reused on every keystroke
+    let _assetEls = null;
+    function getAssetEls() {
+      if (_assetEls) return _assetEls;
+      const keys = ['cash','resprop','comprop','invprop','shares','managed','super'];
+      _assetEls = {};
+      keys.forEach(k => {
+        _assetEls[k] = {
+          client: document.getElementById('s-'+k),
+          partner: document.getElementById('p-'+k),
+          stc: document.getElementById('st-'+k),
+          stp: document.getElementById('pt-'+k)
+        };
+      });
+      return _assetEls;
+    }
+
     function updateAssetPreview() {
       const keys = ['cash','resprop','comprop','invprop','shares','managed','super'];
-      const partnerOn = !!(document.getElementById('sw-partner-calc') && document.getElementById('sw-partner-calc').checked);
+      const els = getAssetEls();
+      const swPartnerEl = document.getElementById('sw-partner-calc');
+      const partnerOn = !!(swPartnerEl && swPartnerEl.checked);
       let total = 0;
       keys.forEach(k => {
         const isJoint = partnerOn && getAssetJoint(k);
-        // Client toggle + label
-        const incC = gc('st-'+k);
-        const lC = document.getElementById('stl-'+k);
-        if (lC) { lC.textContent = incC ? 'Inc.' : 'Exc.'; lC.className = 'asset-inc-lbl' + (incC ? '' : ' excluded'); }
-        const clientV = parseFloat(document.getElementById('s-'+k)?.value.replace(/,/g,'') || 0) || 0;
-        const partnerV = parseFloat(document.getElementById('p-'+k)?.value.replace(/,/g,'') || 0) || 0;
-        // Partner toggle + label
-        const incP = gc('pt-'+k);
-        const lP = document.getElementById('ptl-'+k);
-        if (lP) { lP.textContent = incP ? 'Inc.' : 'Exc.'; lP.className = 'asset-inc-lbl' + (incP ? '' : ' excluded'); }
+        // Client toggle + partner toggle (pill styling handled by CSS :has())
+        const e = els[k];
+        const incC = !!(e.stc && e.stc.checked);
+        const incP = !!(e.stp && e.stp.checked);
+        const clientV = parseFloat(e.client?.value.replace(/,/g,'') || 0) || 0;
+        const partnerV = parseFloat(e.partner?.value.replace(/,/g,'') || 0) || 0;
         // Joint: just the client input, counts once.
         // Otherwise: client's value + partner's value (if partner-calc is on), each respecting their own include toggle.
         if (isJoint) {
@@ -8460,7 +8474,7 @@
         if (primaryEl) primaryEl.value = fmt(CFG.privsch || 30000);
         secondaryWrap.style.display = 'none';
       } else if (t === 'cath') {
-        primaryLbl.innerHTML = 'Annual Primary Cost <span class="hint">(up to age 12)</span>';
+        primaryLbl.innerHTML = 'Annual Primary Cost <span class="hint">(up to age ' + (CFG.secondaryStartAge || 12) + ')</span>';
         if (primaryEl) primaryEl.value = fmt(CFG.cathPrimary || 6000);
         secondaryWrap.style.display = '';
         if (secondaryEl) secondaryEl.value = fmt(CFG.cathSecondary || 10500);
@@ -8554,12 +8568,16 @@
         runCalc();
         const clientResult = lastResult ? JSON.parse(JSON.stringify(lastResult)) : null;
         const snap = snapshotClientPersonal();
-        applyPartnerToClientFields();
-        _currentCalcPass = 'partner';
-        runCalc();
-        const partnerResult = lastResult ? JSON.parse(JSON.stringify(lastResult)) : null;
-        restoreClientPersonal(snap);
-        _currentCalcPass = 'single';
+        let partnerResult = null;
+        try {
+          applyPartnerToClientFields();
+          _currentCalcPass = 'partner';
+          runCalc();
+          partnerResult = lastResult ? JSON.parse(JSON.stringify(lastResult)) : null;
+        } finally {
+          restoreClientPersonal(snap);
+          _currentCalcPass = 'single';
+        }
         dualResult = { client: clientResult, partner: partnerResult };
         // Reveal tab bar + populate names
         const tabBar = document.getElementById('cp-tab-bar');
@@ -8688,7 +8706,8 @@
       // ①  LIFE COVER
       // ─────────────────────────────────────────────
       const repYrs = gv('s-repyrs', CFG.ryrs);
-      const incPct = parseFloat(gv('s-incpct', CFG.ipct)) / 100;
+      const _incRaw = parseFloat(gv('s-incpct', CFG.ipct)) || 75;
+      const incPct = _incRaw > 1 ? _incRaw / 100 : _incRaw;
       const annNeed = income * incPct;
       const incomePV = pvAnn(annNeed, dr, repYrs);
 
@@ -8740,7 +8759,7 @@
           if (schT === 'cath') {
             const prim = primOv > 0 ? primOv : (CFG.cathPrimary || 6000);
             const sec = secOv > 0 ? secOv : (CFG.cathSecondary || 10500);
-            const primaryYrs = Math.max(Math.min(12 - age, childSchYrs), 0);
+            const primaryYrs = Math.max(Math.min((CFG.secondaryStartAge || 12) - age, childSchYrs), 0);
             const secondaryYrs = Math.max(childSchYrs - primaryYrs, 0);
             const primaryPV = pvGrow(prim, edGrowth, dr, primaryYrs);
             const secondaryPV = secondaryYrs > 0
@@ -8888,7 +8907,7 @@
         otherAssets > 0 && { label: 'Less: Other Disposable Assets', note: '', amt: -(otherAssets) },
         { label: 'NET LIFE COVER NEEDED', note: '', amt: lifeCover, total: true },
         tpdCover > lifeCover && { label: 'TOTAL LIFE COVER NEEDED', note: 'Matched to TPD — Life cannot be lower than TPD (cover structure)', amt: tpdCover, total: true },
-      ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
+      ].filter(r => r && (r.amt !== 0 || r.total));
 
       // TPD breakdown — base rows (without NET total, added per toggle state)
       const tpdBreakdownBase = [
@@ -8902,7 +8921,7 @@
         tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrs} yrs (PV)`, amt: tpdRentPV },
         { label: 'Gross Insurance Need', note: '', amt: tpdGrossNeed },
         totalDisposableAssets > 0 && { label: 'Less: Disposable Assets', note: 'Super + liquid assets', amt: -totalDisposableAssets },
-      ].filter(Boolean).filter(r => r.amt !== 0);
+      ].filter(r => r && r.amt !== 0);
       const tpdBreakdownRaw = [...tpdBreakdownBase, { label: 'NET TPD COVER NEEDED', note: '', amt: tpdGrossRaw, total: true }];
       const tpdTopUpAmt = tpdGrossRaw * (tpdTaxRate / 100);
       const tpdBreakdownWithTopUp = [...tpdBreakdownBase,
@@ -8923,11 +8942,12 @@
         traumaIncomeAmt > 0 && { label: 'Income Provision', note: `${traumaIncomePct}% of income × ${traumaIncomeYrs < 1 ? Math.round(traumaIncomeYrs * 12) + ' months' : traumaIncomeYrs + ' yr' + (traumaIncomeYrs !== 1 ? 's' : '')}`, amt: traumaIncomeAmt },
         traumaLiving > 0 && { label: 'Debt Repayment Provision', note: `${traumaDebtYears < 1 ? Math.round(traumaDebtYears * 12) + ' months' : traumaDebtYears + ' yr' + (traumaDebtYears !== 1 ? 's' : '')} non-deductible repayments`, amt: traumaLiving },
         { label: 'NET TRAUMA COVER NEEDED', note: '', amt: traumaCover, total: true },
-      ].filter(Boolean).filter(r => r.amt !== 0 || r.total);
+      ].filter(r => r && (r.amt !== 0 || r.total));
 
       // Child trauma: $50,000 minimum per child aged 2–15
       const childTraumaEligible = kids > 0 && youngest >= 2 && youngest <= 15;
-      const childTraumaCover = childTraumaEligible ? kids * 50000 : 0;
+      const childTraumaAmt = CFG.childTraumaAmt || 50000;
+      const childTraumaCover = childTraumaEligible ? kids * childTraumaAmt : 0;
 
       // Life cover must not be lower than TPD cover (cover structure requirement)
       const lifeCoverFinal = Math.max(lifeCover, tpdCover);
@@ -8998,7 +9018,11 @@
       })();
       countUpCurrency('r-ip', results.ip);
       countUpCurrency('r-trauma', results.trauma);
+      const traumaNilEl = document.getElementById('r-trauma-nil');
+      if (traumaNilEl) traumaNilEl.style.display = (traumaCover === 0) ? '' : 'none';
       document.getElementById('card-child-trauma').classList.toggle('hidden', !childTraumaEligible);
+      const ctAmtEl = document.getElementById('r-child-trauma');
+      if (ctAmtEl) ctAmtEl.innerHTML = fmt(childTraumaAmt) + ' <span style="font-size:14px;font-weight:500;opacity:0.7">per child</span>';
 
       // Super contribution benefit
       const superBenefitEl = document.getElementById('r-ip-super');
@@ -9194,6 +9218,8 @@
       const edPerSec = document.getElementById('edcost-per-child-section'); if (edPerSec) edPerSec.style.display = 'none';
       const edPerGrid = document.getElementById('edcost-per-child-grid'); if (edPerGrid) edPerGrid.innerHTML = '';
       const topSch = document.getElementById('f-school-type'); if (topSch) topSch.style.display = '';
+      // Hide education section (kids default to 0)
+      const eduSec = document.getElementById('education-section'); if (eduSec) eduSec.style.display = 'none';
       // Reset existing-cover toggle + section
       const exCb = document.getElementById('sw-existing-cover'); if (exCb) exCb.checked = false;
       const exSec = document.getElementById('existing-cover-section'); if (exSec) exSec.style.display = 'none';
@@ -9335,17 +9361,8 @@
       function drawGradientBanner(cx, cy, w, hdrH, r) {
         doc.setFillColor(...NAVY_MID);
         doc.roundedRect(cx, cy, w, hdrH, r, r, 'F');
-        const rangeH = hdrH - r;
-        const steps = 16;
-        for (let i = 0; i < steps; i++) {
-          const t = i / (steps - 1);
-          doc.setFillColor(
-            Math.round(NAVY_MID[0] + t * (NAVY_DEEP[0] - NAVY_MID[0])),
-            Math.round(NAVY_MID[1] + t * (NAVY_DEEP[1] - NAVY_MID[1])),
-            Math.round(NAVY_MID[2] + t * (NAVY_DEEP[2] - NAVY_MID[2]))
-          );
-          doc.rect(cx, cy + r + i * rangeH / steps, w, rangeH / steps + 0.3, 'F');
-        }
+        doc.setFillColor(...NAVY_DEEP);
+        doc.rect(cx, cy + r, w, hdrH - r, 'F');
       }
 
       function drawFooter(pageNum, totalPages) {
@@ -9380,8 +9397,11 @@
           pillX + pillW / 2, pillY + pillH / 2, { align: 'center', baseline: 'middle' });
       }
 
+      // Pre-split disclaimer once — reused by drawDisclaimer and closer strip
+      const _discLines = doc.splitTextToSize(CFG.disc || '', W - M * 2 - 6);
+
       function drawDisclaimer(startY) {
-        const dLines = doc.splitTextToSize(CFG.disc, W - M * 2 - 6);
+        const dLines = _discLines;
         const dH = Math.max(15, dLines.length * 3.4 + 5);
         doc.setFillColor(246, 251, 255);
         doc.roundedRect(M, startY, W - M * 2, dH, 2, 2, 'F');
@@ -9449,7 +9469,7 @@
       y = HERO_H + 6;
 
       // ── Cover cards: 2×2 grid with rationale lines ──
-      const retireAge = inputs?.retire || 65;
+      const retireAge = inputs?.retire || CFG.retirementAge || 65;
       const RAT = {
         life: 'Clears debts and replaces income through to retirement',
         tpd: 'Funds debts, medical costs and long-term lifestyle needs',
@@ -9586,7 +9606,7 @@
 
       // Smoker notice (compact)
       if (inputs && inputs.smoker === 'yes') {
-        const smokerText = 'Smoker loading applies to all cover types — premiums will be higher than standard rates shown. Obtain insurer-specific smoker quotes before proceeding.';
+        const smokerText = CFG.smokerNotice || 'Smoker loading applies to all cover types — premiums will be higher than standard rates shown. Obtain insurer-specific smoker quotes before proceeding.';
         const smLines = doc.splitTextToSize(smokerText, W - M * 2 - 12);
         const smH = Math.max(13, smLines.length * 3.4 + 7);
         doc.setFillColor(255, 243, 230);
@@ -9608,7 +9628,7 @@
       }
 
       // ── Brand closer strip — "Plan everything. Regret nothing." ──
-      const discLines1 = doc.splitTextToSize(CFG.disc, W - M * 2 - 6);
+      const discLines1 = _discLines;
       const discH1 = Math.max(15, discLines1.length * 3.4 + 5);
       const closerH = 12;
       const closerY = H_PAGE - FOOTER_H - discH1 - closerH - 4;
