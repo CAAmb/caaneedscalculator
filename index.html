@@ -763,6 +763,47 @@
       transform: translateX(20px)
     }
 
+    /* Premium super tax top-up card */
+    .tax-topup-card {
+      background: linear-gradient(135deg, var(--peach3) 0%, #fff 60%);
+      border: 1.5px solid var(--peach);
+      border-radius: 12px;
+      padding: 14px 16px;
+      box-shadow: 0 2px 12px rgba(235, 163, 128, .15);
+      transition: box-shadow .25s;
+    }
+    .tax-topup-card:has(input:checked) {
+      box-shadow: 0 4px 20px rgba(235, 163, 128, .35);
+    }
+    .tax-topup-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--peach2);
+      background: rgba(235, 163, 128, .2);
+      border-radius: 20px;
+      padding: 3px 9px;
+      margin-bottom: 10px;
+    }
+    .switch-lg {
+      width: 56px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+    .switch-lg .slider::before {
+      width: 22px;
+      height: 22px;
+      left: 4px;
+      top: 4px;
+    }
+    .switch-lg input:checked + .slider::before {
+      transform: translateX(26px);
+    }
+
     /* Premium debt-include toggle pills */
     .debt-toggles {
       display: flex;
@@ -4531,15 +4572,16 @@
                     <option value="yes">Yes</option>
                   </select></div>
               </div>
-              <div class="trow" style="margin-top:14px">
-                <div class="ti"><strong>Enable Tax Top-Up Provision</strong><span>Adds a tax provision using a flat %
-                    rate below</span></div><label class="switch"><input type="checkbox" id="sw-tpdtaxtopup"><span
-                    class="slider"></span></label>
-              </div>
-              <div class="mg" style="margin-top:14px">
-                <div class="mf"><label>Tax Top-Up Rate (%)</label><input type="number" id="m-tpdtaxrate" value="15"
-                    min="0" max="50">
-                  <div class="note">Flat rate applied to total TPD need when tax top-up is on.</div>
+              <div class="tax-topup-card" style="margin-top:14px">
+                <div class="tax-topup-badge">⚡ Super Tax Provision</div>
+                <div class="trow" style="border:none;padding-bottom:0">
+                  <div class="ti"><strong>Enable Tax Top-Up Provision</strong><span>Adds a tax gross-up — life cover will be raised to match if lower</span></div>
+                  <label class="switch switch-lg"><input type="checkbox" id="sw-tpdtaxtopup"><span class="slider"></span></label>
+                </div>
+                <div class="mg" style="margin-top:12px">
+                  <div class="mf"><label>Tax Top-Up Rate (%)</label><input type="number" id="m-tpdtaxrate" value="15" min="0" max="50">
+                    <div class="note">Flat rate applied to total TPD need when tax top-up is on.</div>
+                  </div>
                 </div>
               </div>
             </div>
