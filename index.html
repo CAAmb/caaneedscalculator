@@ -4921,7 +4921,7 @@
             <div class="f" id="f-supercontrib"><label>Super Contribution Rate <span class="hint">(% of gross
                   income)</span></label>
               <div class="pfx"><span class="p">%</span><input type="number" id="s-supercontrib" min="0" max="30"
-                  step="0.5" style="padding-left:28px" placeholder="e.g. 12"></div>
+                  step="0.5" style="padding-left:28px" placeholder="e.g. 12" onchange="clampSuperContrib(this)"></div>
             </div>
             <div class="f" style="align-self:flex-end">
               <div class="info-tip" style="margin-bottom:0;font-size:12px">This calculates the employer super
@@ -4958,7 +4958,7 @@
                 </div>
                 <div class="f"><label>Partner's Years to Retirement</label><input type="number" id="p-retire" placeholder="Auto (age 65)" min="1" max="50"></div>
                 <div class="f"><label>Partner's Super Contribution <span class="hint">(%)</span></label>
-                  <div class="pfx"><span class="p">%</span><input type="number" id="p-supercontrib" min="0" max="30" step="0.5" style="padding-left:28px" placeholder="e.g. 12"></div>
+                  <div class="pfx"><span class="p">%</span><input type="number" id="p-supercontrib" min="0" max="30" step="0.5" style="padding-left:28px" placeholder="e.g. 12" onchange="clampSuperContrib(this)"></div>
                 </div>
                 <div class="f"><label>Partner's % of Income to Replace <span class="hint">(Life)</span></label>
                   <div class="pfx"><span class="p">%</span><input type="number" id="p-incpct" min="1" max="100" step="1" style="padding-left:28px" placeholder="e.g. 75"></div>
@@ -5714,6 +5714,15 @@
       Object.assign(_toastEl.style, { display: '', opacity: '1', background: extraStyle || '' });
       _toastTimer = setTimeout(() => { if (_toastEl) _toastEl.style.opacity = '0'; }, (duration || 3500) - 300);
       setTimeout(() => { if (_toastEl) _toastEl.style.display = 'none'; }, duration || 3500);
+    }
+
+    function clampSuperContrib(el) {
+      const cap = CFG.ipSuperCap || 15;
+      const val = parseFloat(el.value);
+      if (!isNaN(val) && val > cap) {
+        el.value = cap;
+        showToast(`⚠️ Super rate capped at <strong>${cap}%</strong> — no insurer offers super replacement above the configured cap. Some insurers cap at lower rates (e.g. 12%).`, 5000);
+      }
     }
 
     let USERS = [];
@@ -6550,7 +6559,9 @@
         grid.innerHTML = '';
         if (youngestField) youngestField.style.display = '';
       }
-      // Hide entire education section when no children
+      // Hide child-raising and education sections when no children
+      const childCostWrap = document.getElementById('df-childcost-wrap');
+      if (childCostWrap) childCostWrap.style.display = (kids === 0) ? 'none' : '';
       const eduSection = document.getElementById('education-section');
       if (eduSection) eduSection.style.display = (kids === 0) ? 'none' : '';
       // Show / hide the "all children same school costs?" toggle (only 2+ children)
@@ -9204,7 +9215,8 @@
       const edPerSec = document.getElementById('edcost-per-child-section'); if (edPerSec) edPerSec.style.display = 'none';
       const edPerGrid = document.getElementById('edcost-per-child-grid'); if (edPerGrid) edPerGrid.innerHTML = '';
       const topSch = document.getElementById('f-school-type'); if (topSch) topSch.style.display = '';
-      // Hide education section (kids default to 0)
+      // Hide child-raising + education sections (kids default to 0)
+      const childCostWrapR = document.getElementById('df-childcost-wrap'); if (childCostWrapR) childCostWrapR.style.display = 'none';
       const eduSec = document.getElementById('education-section'); if (eduSec) eduSec.style.display = 'none';
       // Reset existing-cover toggle + section
       const exCb = document.getElementById('sw-existing-cover'); if (exCb) exCb.checked = false;
