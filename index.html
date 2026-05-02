@@ -2793,8 +2793,8 @@
       color: var(--mid);
     }
     .f.asset-row-wrap.has-partner .joint-bar { display: inline-flex; }
-    .joint-bar-label { color: var(--mid); }
-    .f.asset-row-wrap[data-joint="yes"] .joint-bar-label { color: var(--peach2); }
+    .joint-pill .ap-text::before { content: 'Joint'; }
+    .joint-pill:has(input:checked) .ap-text::before { content: 'Joint'; }
 
     /* Joint mode collapses to a single client box (used for both calcs).
      * Only relevant when partner-calc is on. */
@@ -5259,9 +5259,7 @@
               <div class="fg" style="margin-top:14px">
                 <div class="f asset-row-wrap" id="af-cash" data-asset="cash" data-joint="no"><label>Cash / Bank Accounts</label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-cash" onchange="setAssetJoint('cash', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-cash" onchange="setAssetJoint('cash', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5279,9 +5277,7 @@
                 </div>
                 <div class="f asset-row-wrap" id="af-resprop" data-asset="resprop" data-joint="no"><label>Residential Property <span class="hint">(net equity)</span></label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-resprop" onchange="setAssetJoint('resprop', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-resprop" onchange="setAssetJoint('resprop', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5299,9 +5295,7 @@
                 </div>
                 <div class="f asset-row-wrap" id="af-comprop" data-asset="comprop" data-joint="no"><label>Commercial Property <span class="hint">(net equity)</span></label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-comprop" onchange="setAssetJoint('comprop', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-comprop" onchange="setAssetJoint('comprop', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5319,9 +5313,7 @@
                 </div>
                 <div class="f asset-row-wrap" id="af-invprop" data-asset="invprop" data-joint="no"><label>Investment Property <span class="hint">(net equity)</span></label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-invprop" onchange="setAssetJoint('invprop', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-invprop" onchange="setAssetJoint('invprop', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5339,9 +5331,7 @@
                 </div>
                 <div class="f asset-row-wrap" id="af-shares" data-asset="shares" data-joint="no"><label>Shares / Equities</label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-shares" onchange="setAssetJoint('shares', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-shares" onchange="setAssetJoint('shares', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5359,9 +5349,7 @@
                 </div>
                 <div class="f asset-row-wrap" id="af-managed" data-asset="managed" data-joint="no"><label>Managed Funds</label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-managed" onchange="setAssetJoint('managed', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-managed" onchange="setAssetJoint('managed', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
@@ -5379,9 +5367,7 @@
                 </div>
                 <div class="f asset-row-wrap" id="af-super-asset" data-asset="super" data-joint="no"><label>Superannuation</label>
                   <div class="joint-bar">
-                    <label class="switch"><input type="checkbox" id="joint-super" onchange="setAssetJoint('super', this.checked)"><span class="slider"></span></label>
-                    <span class="joint-bar-label">Joint (counts in both client & partner)</span>
-                  </div>
+                    <label class="asset-pill joint-pill"><input type="checkbox" id="joint-super" onchange="setAssetJoint('super', this.checked)"><span class="ap-dot"></span><span class="ap-text"></span></label>                  </div>
                   <div class="asset-input-row">
                     <div class="asset-pair">
                       <span class="asset-pair-lbl">Client</span>
