@@ -5503,11 +5503,18 @@
               <div class="cc-lbl">● Total & Permanent Disability</div>
               <div class="cc-amt" id="r-tpd">$0</div>
               <div class="cc-desc">Lump sum if you become totally and permanently unable to work.</div>
-              <div id="tpd-topup-row" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15)">
-                <label style="display:flex;align-items:center;gap:8px;font-size:12px;cursor:pointer;color:var(--light)">
-                  <input type="checkbox" id="tpd-topup-toggle" onchange="toggleTpdTopUp(this.checked)" style="cursor:pointer">
-                  Apply Super Tax Top-Up (<span id="tpd-topup-rate">15</span>%)
-                </label>
+              <div id="tpd-topup-row" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                  <div>
+                    <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:rgba(222,245,255,.45);margin-bottom:3px">Super Tax</div>
+                    <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.88)">Apply Tax Top-Up (<span id="tpd-topup-rate">15</span>%)</div>
+                    <div style="font-size:11px;color:rgba(222,245,255,.4);margin-top:2px">Life cover raised to match if lower</div>
+                  </div>
+                  <label class="switch" style="flex-shrink:0">
+                    <input type="checkbox" id="tpd-topup-toggle" onchange="toggleTpdTopUp(this.checked)">
+                    <span class="slider"></span>
+                  </label>
+                </div>
               </div>
             </div>
             <div class="cover-card c3" id="card-ip">
@@ -6200,6 +6207,12 @@
       const r = lastResult.results;
       const val = on ? r.tpdWithTopUp : r.tpdRaw;
       countUpCurrency('r-tpd', val);
+      const parseAmt = s => parseFloat(String(s).replace(/[^0-9.]/g, '')) || 0;
+      const tpdNum = parseAmt(val);
+      const lifeBaseNum = parseAmt(r.lifeBase);
+      const newLife = tpdNum > lifeBaseNum ? val : r.lifeBase;
+      countUpCurrency('r-life', newLife);
+      lastResult.results.life = newLife;
       const bd = on ? lastResult.tpdBreakdownWithTopUp : lastResult.tpdBreakdownRaw;
       renderBkTableCached('bk-tpd-body', bd, false);
       lastResult.inputs.tpdTaxTopUpApplied = on ? 'yes' : 'no';
@@ -8920,6 +8933,7 @@
       const lifeCoverFinal = Math.max(lifeCover, tpdCover);
       const results = {
         life: fmt(lifeCoverFinal),
+        lifeBase: fmt(lifeCoverFinal),
         tpd: fmt(tpdCover),
         tpdRaw: fmt(tpdGrossRaw),
         tpdWithTopUp: fmt(tpdGrossWithTopUp),
