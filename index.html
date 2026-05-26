@@ -4758,8 +4758,7 @@
                 </div>
                 <div class="mf"><label>Calculator Title</label><input type="text" id="b-title"
                     value="Life Insurance Needs Calculator"></div>
-                <div class="mf" style="grid-column:span 2"><label>Disclaimer Text</label><input type="text" id="b-disc"
-                    value="This calculator provides an estimate only and does not constitute personal financial advice.">
+                <div class="mf" style="grid-column:span 2"><label>Disclaimer Text</label><textarea id="b-disc" rows="3" style="width:100%;resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit">This tool is designed to assist with the fact-finding and needs analysis process - not replace it. Figures generated are indicative only and advisers should apply professional judgement before presenting any insurance recommendation to a client.</textarea>
                 </div>
                 <div class="mf" style="grid-column:span 2"><label>Smoker Loading Notice <span class="hint">(shown on PDF when client is a smoker)</span></label><textarea id="b-smokernotice" rows="3" style="width:100%;resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit">Smoker loading applies to all cover types — premiums will be higher than standard rates shown. Obtain insurer-specific smoker quotes before proceeding.</textarea>
                 </div>
@@ -4909,8 +4908,8 @@
             </div>
             <div class="f"><label>Years Until Retirement (Default To Age 65)</label><input type="number" id="s-retire" placeholder="Auto (age 65)"
                 min="1" max="50"></div>
-            <div class="f" id="f-repyrs"><label>Income Replacement Period (years) <span
-                  class="hint">- for surviving spouse</span></label><input type="number" id="s-repyrs" min="1" max="40"></div>
+            <div class="f" id="f-repyrs"><label>Income Replacement Period <span
+                  class="hint">(years)</span></label><input type="number" id="s-repyrs" min="1" max="40"></div>
             <div class="f" id="f-incpct"><label>% of Income to Replace <span class="hint">(Life Cover)</span></label>
               <div class="pfx"><span class="p">%</span><input type="number" id="s-incpct" min="1" max="100" step="1" style="padding-left:28px" placeholder="e.g. 75"></div>
             </div>
@@ -5567,6 +5566,11 @@
               <tbody id="bk-variance-body"></tbody>
             </table>
           </div>
+          <div class="bkwrap full-w" id="notes-wrap" style="margin-top:16px">
+            <div class="bk-title">Adviser Notes</div>
+            <div class="bk-sub">Optional — included in the PDF export</div>
+            <textarea id="calc-notes" rows="4" placeholder="Add any notes, observations or special instructions here…" style="width:100%;resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;line-height:1.5"></textarea>
+          </div>
           <div class="brand-closer">
             <div class="bc-line1">Plan everything.</div>
             <div class="bc-dot"></div>
@@ -5696,7 +5700,7 @@
       ipWarnThreshold: 250000,
       childTraumaAmt: 50000,
       bizName: 'Coastal Advisory Australia', calcTitle: 'Wealth Protection Calculator',
-      disc: 'Any advice produced by this calculator is general in nature only and has not been tailored to your personal objectives, financial situation or needs. Please seek personal advice from a licensed financial adviser prior to acting on this information. Coastal Advisory Australia. coastaladvisory.com.au',
+      disc: 'This tool is designed to assist with the fact-finding and needs analysis process - not replace it. Figures generated are indicative only and advisers should apply professional judgement before presenting any insurance recommendation to a client.',
       smokerNotice: 'Smoker loading applies to all cover types — premiums will be higher than standard rates shown. Obtain insurer-specific smoker quotes before proceeding.'
     };
 
@@ -8961,7 +8965,7 @@
       const lifeCoverFinal = Math.max(lifeCover, tpdCover);
       const results = {
         life: fmt(lifeCoverFinal),
-        lifeBase: fmt(lifeCoverFinal),
+        lifeBase: fmt(lifeCover),   // raw net life (before TPD match) — used by toggleTpdTopUp
         tpd: fmt(tpdCover),
         tpdRaw: fmt(tpdGrossRaw),
         tpdWithTopUp: fmt(tpdGrossWithTopUp),
@@ -9207,6 +9211,9 @@
         'p-exist-life', 'p-exist-tpd', 'p-exist-trauma', 'p-exist-ip',
         's-earn', 's-infl'];
       textFields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      // Clear adviser notes
+      const notesEl = document.getElementById('calc-notes');
+      if (notesEl) notesEl.value = '';
       // Clear the manual-edit flag on retirement so auto-fill resumes on next age entry
       { const r = document.getElementById('s-retire'); if (r) delete r.dataset.userEdited; }
       // Reset per-debt include toggles — apply admin-configured defaults
@@ -9356,6 +9363,7 @@
     }
 
     function generatePDF(client, date, results, breakdown, tpdBreakdown, ipBreakdown, traumaBreakdown, inputs, staffName) {
+      const advNotes = (document.getElementById('calc-notes') || {}).value?.trim() || '';
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const W = 210, H_PAGE = 297, M = 16;
@@ -9705,6 +9713,27 @@
       doc.text(date, W - M, 12, { align: 'right' });
 
       y = HDR2 + 5;
+
+      // Adviser notes block — only rendered when notes are present
+      if (advNotes) {
+        const noteLines = doc.splitTextToSize(advNotes, W - M * 2 - 8);
+        const noteH = noteLines.length * 3.8 + 10;
+        doc.setFillColor(253, 241, 234);
+        doc.roundedRect(M, y, W - M * 2, noteH, 2, 2, 'F');
+        doc.setDrawColor(...PEACH);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(M, y, W - M * 2, noteH, 2, 2, 'S');
+        doc.setFillColor(...PEACH);
+        doc.rect(M, y, 3, noteH, 'F');
+        doc.setLineWidth(0);
+        doc.setTextColor(...NAVY);
+        doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+        doc.text('ADVISER NOTES', M + 5, y + 4.5);
+        doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(60, 80, 100);
+        doc.text(noteLines, M + 5, y + 9);
+        y += noteH + 6;
+      }
 
       // Mini-table helpers
       const colGap = 4;
