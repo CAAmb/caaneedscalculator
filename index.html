@@ -9434,6 +9434,8 @@
       }
 
       // Pre-split disclaimer once — reused by drawDisclaimer and closer strip
+      // Font must be set before splitTextToSize so character widths are measured correctly
+      doc.setFontSize(6.6); doc.setFont('helvetica', 'normal');
       const _discLines = doc.splitTextToSize(CFG.disc || '', W - M * 2 - 6);
 
       function drawDisclaimer(startY) {
@@ -9730,27 +9732,6 @@
 
       y = HDR2 + 5;
 
-      // Adviser notes block — only rendered when notes are present
-      if (advNotes) {
-        const noteLines = doc.splitTextToSize(advNotes, W - M * 2 - 8);
-        const noteH = noteLines.length * 3.8 + 10;
-        doc.setFillColor(253, 241, 234);
-        doc.roundedRect(M, y, W - M * 2, noteH, 2, 2, 'F');
-        doc.setDrawColor(...PEACH);
-        doc.setLineWidth(0.3);
-        doc.roundedRect(M, y, W - M * 2, noteH, 2, 2, 'S');
-        doc.setFillColor(...PEACH);
-        doc.rect(M, y, 3, noteH, 'F');
-        doc.setLineWidth(0);
-        doc.setTextColor(...NAVY);
-        doc.setFontSize(7); doc.setFont('helvetica', 'bold');
-        doc.text('ADVISER NOTES', M + 5, y + 4.5);
-        doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
-        doc.setTextColor(60, 80, 100);
-        doc.text(noteLines, M + 5, y + 9);
-        y += noteH + 6;
-      }
-
       // Mini-table helpers
       const colGap = 4;
       const colW2 = (W - M * 2 - colGap) / 2;
@@ -9833,6 +9814,7 @@
         traumaBreakdown ? traumaBreakdown.length - 1 : null) + 3;
 
       // Existing Cover Variance table (full width, below the 2×2 grid)
+      let varFinalY = null;
       if (inputs && inputs.existingCoverShown && inputs.existingCover) {
         const ex = inputs.existingCover;
         const stripN = s => parseFloat(String(s || '0').replace(/[^0-9.-]/g, '')) || 0;
@@ -9900,10 +9882,31 @@
             }
           }
         });
-        const varFinalY = doc.lastAutoTable.finalY;
+        varFinalY = doc.lastAutoTable.finalY;
         doc.setDrawColor(200, 218, 238);
         doc.setLineWidth(0.35);
         doc.roundedRect(M, varStartY, varBodyW, varFinalY - varStartY, 2, 2, 'S');
+      }
+
+      // Adviser notes — below variance table (or below 2×2 grid if no variance)
+      if (advNotes) {
+        const notesStartY = varFinalY != null ? varFinalY + 4 : Math.max(leftY, rightY) + 4;
+        const noteLines = doc.splitTextToSize(advNotes, W - M * 2 - 8);
+        const noteH = noteLines.length * 3.8 + 10;
+        doc.setFillColor(253, 241, 234);
+        doc.roundedRect(M, notesStartY, W - M * 2, noteH, 2, 2, 'F');
+        doc.setDrawColor(...PEACH);
+        doc.setLineWidth(0.3);
+        doc.roundedRect(M, notesStartY, W - M * 2, noteH, 2, 2, 'S');
+        doc.setFillColor(...PEACH);
+        doc.rect(M, notesStartY, 3, noteH, 'F');
+        doc.setLineWidth(0);
+        doc.setTextColor(...NAVY);
+        doc.setFontSize(7); doc.setFont('helvetica', 'bold');
+        doc.text('ADVISER NOTES', M + 5, notesStartY + 4.5);
+        doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(60, 80, 100);
+        doc.text(noteLines, M + 5, notesStartY + 9);
       }
 
       // Assumptions line (earnings + inflation rates) just above disclaimer
@@ -9912,6 +9915,7 @@
       const assumpText = `Assumptions: Earnings Rate ${earnVal}% p.a. | Inflation Rate ${inflVal}% p.a.`;
 
       // Disclaimer + footer
+      doc.setFontSize(6.6); doc.setFont('helvetica', 'normal');
       const discLines2 = doc.splitTextToSize(CFG.disc, W - M * 2 - 6);
       const discH2 = Math.max(15, discLines2.length * 3.4 + 5);
       const assumpY = H_PAGE - FOOTER_H - discH2 - 7;
