@@ -8866,11 +8866,11 @@
       const tpdIncomeYrs = gv('s-retire', 0);
       const tpdIncomeTotal = pvAnn(income * tpdIncomePct / 100, dr, tpdIncomeYrs);
 
-      // Child-raising IP toggle: if IP is included, exclude child-raising from TPD.
-      // If IP is NOT included, fold child-raising into TPD (subject to admin's tpdSwChild master switch).
+      // Child-raising IP toggle: if IP is included, exclude child-raising AND education from TPD.
+      // If IP is NOT included, both fold into TPD (subject to their respective admin master switches).
       const childIpIncluded = (() => { const e = document.getElementById('s-childip'); return e ? e.value !== 'no' : true; })();
-      // Education & child-raising — reuse Life calculations, toggled by admin
-      const tpdEduTotal = CFG.tpdSwEdu !== false ? edPV : 0;
+      // Education & child-raising — reuse Life calculations, both governed by IP inclusion toggle
+      const tpdEduTotal = (CFG.tpdSwEdu !== false && !childIpIncluded) ? edPV : 0;
       const tpdChildTotal = (CFG.tpdSwChild !== false && !childIpIncluded) ? lifeChildPV : 0;
 
       // Carer cost: 1 year of partner income if partnered, else singles default
