@@ -7397,7 +7397,11 @@
         </div>
         <div class="hist-actions">
           <button class="ubtn rename-calc" onclick="toggleRename('${h.id}','${userId}')">✏️ Rename</button>
-          <button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}')">↩ Load</button>
+          ${h.inputs && h.inputs._isDual
+            ? `<button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}','both')">↩ Load Both</button>
+               <button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}','client')">↩ Client Only</button>
+               <button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}','partner')">↩ Partner Only</button>`
+            : `<button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}')">↩ Load</button>`}
           <button class="ubtn view-hist" onclick="exportHistPDF('${userId}','${h.id}')">📄 Export PDF</button>
           <button class="ubtn del-calc" onclick="confirmDeleteCalc('${h.id}','${userId}','${sc}')">🗑 Delete</button>
         </div>
@@ -7989,15 +7993,21 @@
     }
 
     // ══════════ LOAD FROM HISTORY ══════════
-    function loadCalcFromHistory(histId) {
+    // mode: 'both' (default) | 'client' | 'partner'
+    // 'client' / 'partner' on a dual entry loads only that person into the client fields (no partner section)
+    function loadCalcFromHistory(histId, mode) {
       if (currentRole !== 'staff') return;
+      mode = mode || 'both';
       let entry = null;
       for (const uid of Object.keys(HISTORY)) {
         const found = (HISTORY[uid] || []).find(h => h.id === histId);
         if (found) { entry = found; break; }
       }
       if (!entry || !entry.inputs) return;
-      const inp = entry.inputs;
+      // For dual entries, 'partner' mode loads the partner's data into the client fields (single calc)
+      const inp = (mode === 'partner' && entry.inputs._isDual && entry.inputs._partnerInputs)
+        ? entry.inputs._partnerInputs
+        : entry.inputs;
 
       closeHistModal();
       resetAllFields();
@@ -8111,8 +8121,8 @@
       if (inp.tpdTaxTopUpApplied !== undefined) _restoredTpdTopUp = inp.tpdTaxTopUpApplied;
       updateAssetPreview();
 
-      // Restore partner fields for dual entries
-      if (inp._isDual && inp._partnerInputs) {
+      // Restore partner fields for dual entries — only when loading both
+      if (mode === 'both' && inp._isDual && inp._partnerInputs) {
         const p = inp._partnerInputs;
         // Ensure partner calc toggle is enabled
         const pcCb = document.getElementById('sw-partner-calc');
@@ -8656,13 +8666,13 @@
           if (!HISTORY[currentUser.id]) HISTORY[currentUser.id] = [];
           const cInp = (clientResult && clientResult.inputs) || {};
           const pInp = (partnerResult && partnerResult.inputs) || {};
-          const cName = cInp.client || 'Client';
-          const pName = pInp.client || 'Partner';
+          const _dCName = cInp.client || 'Client';
+          const _dPName = pInp.client || 'Partner';
           const dualEntry = {
             id: 'h' + Date.now(),
             date: new Date().toLocaleString('en-AU'),
-            client: cName + ' & ' + pName,
-            calcName: cName + ' & ' + pName,
+            client: _dCName + ' & ' + _dPName,
+            calcName: _dCName + ' & ' + _dPName,
             userName: currentUser.name,
             results: clientResult ? { ...clientResult.results } : {},
             breakdown: clientResult ? [...clientResult.breakdown] : [],
