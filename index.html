@@ -6036,11 +6036,32 @@
       const on = !!(document.getElementById('sw-p-tpdincomepct') && document.getElementById('sw-p-tpdincomepct').checked);
       const sec = document.getElementById('df-p-tpdincomepct-fields');
       if (sec) sec.style.display = on ? '' : 'none';
+      // Pre-fill from client value when first enabling
+      if (on) {
+        const pFld = document.getElementById('p-tpdincomepct');
+        if (pFld && !pFld.value) {
+          const clientVal = document.getElementById('s-tpdincomepct');
+          if (clientVal && clientVal.value) pFld.value = clientVal.value;
+        }
+      }
     }
     function togglePartnerTraumaIncome() {
       const on = !!(document.getElementById('sw-p-traumaincome') && document.getElementById('sw-p-traumaincome').checked);
       const sec = document.getElementById('df-p-traumaincome-fields');
       if (sec) sec.style.display = on ? '' : 'none';
+      // Pre-fill from client values when first enabling
+      if (on) {
+        const pPct = document.getElementById('p-traumaincomepct');
+        if (pPct && !pPct.value) {
+          const clientPct = document.getElementById('s-traumaincomepct');
+          if (clientPct && clientPct.value) pPct.value = clientPct.value;
+        }
+        const pYrs = document.getElementById('p-traumaincomeyrs');
+        if (pYrs && !pYrs.value) {
+          const clientYrs = document.getElementById('s-traumaincomeyrs');
+          pYrs.value = (clientYrs && clientYrs.value) ? clientYrs.value : (CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
+        }
+      }
     }
 
     // Show / hide the partner existing-cover input block
