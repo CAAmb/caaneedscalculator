@@ -6886,55 +6886,99 @@
     // ══════════ CONFETTI ON CALCULATE ══════════
     // Self-contained canvas particle burst. Brand colours only. Limited to
     // once per user per calendar day so it feels like a reward, not noise.
-    function fireConfetti() {
+    function fireConfetti(mega) {
       const uid = (currentUser && currentUser.id) || 'anon';
       const today = new Date().toISOString().slice(0, 10);
       const key = 'confetti_fired_' + uid + '_' + today;
       try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }
-      catch(e) { /* storage blocked — still fire once per page load */ }
-      const colors = ['#eba380', '#d4825a', '#0f2433', '#25526e', '#def5ff', '#ffffff'];
+      catch(e) {}
+      const colors = ['#eba380','#d4825a','#fdf1ea','#0f2433','#25526e','#def5ff','#ffffff','#f9c784','#a8d8ea','#ff6b6b','#c3f0ca'];
+      const W = window.innerWidth, H = window.innerHeight;
       const canvas = document.createElement('canvas');
       canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9997';
-      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      canvas.width = W; canvas.height = H;
       document.body.appendChild(canvas);
       const ctx = canvas.getContext('2d');
       const particles = [];
-      // Two bursts from left-lower and right-lower corners for a nicer spread
-      [[0.15, 0.85, 1], [0.85, 0.85, -1]].forEach(([sx, sy, dir]) => {
-        for (let i = 0; i < 90; i++) {
+      const rand = (a, b) => a + Math.random() * (b - a);
+      const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+      // Burst origins: corners + centre top + centre screen
+      const origins = mega
+        ? [[.1,.9,1,.8],[.9,.9,-1,.8],[.5,.95,0,1],[.2,.5,1,.6],[.8,.5,-1,.6],[.5,.15,0,.4]]
+        : [[.12,.88,1,.75],[.88,.88,-1,.75],[.5,.9,0,.9]];
+      const countPer = mega ? 80 : 55;
+      origins.forEach(([sx, sy, dir, spread]) => {
+        for (let i = 0; i < countPer; i++) {
+          const shape = pick(['rect','rect','rect','circle','ribbon','star']);
+          const angle = dir === 0
+            ? rand(-Math.PI * spread, -Math.PI * (1 - spread))
+            : rand(-Math.PI * spread, -Math.PI * 0.1) * dir;
+          const spd = rand(6, mega ? 22 : 16);
           particles.push({
-            x: window.innerWidth * sx,
-            y: window.innerHeight * sy,
-            vx: dir * (Math.random() * 10 + 4),
-            vy: -(Math.random() * 14 + 8),
-            g: 0.38,
-            size: 5 + Math.random() * 7,
-            rot: Math.random() * 360,
-            vr: (Math.random() - 0.5) * 14,
-            c: colors[Math.floor(Math.random() * colors.length)],
-            a: 1
+            x: W * sx + rand(-20, 20),
+            y: H * sy + rand(-10, 10),
+            vx: Math.cos(angle) * spd * (dir === 0 ? rand(0.5,1) : 1),
+            vy: Math.sin(angle) * spd,
+            g: rand(0.28, 0.42),
+            drag: rand(0.985, 0.998),
+            size: rand(5, mega ? 14 : 10),
+            rot: rand(0, 360),
+            vr: rand(-16, 16),
+            c: pick(colors),
+            a: 1,
+            shape,
+            wobble: rand(0, Math.PI * 2),
+            wobbleSpd: rand(0.05, 0.15)
           });
         }
       });
+      const totalFrames = mega ? 260 : 200;
+      const fadeStart = mega ? 160 : 110;
       let frame = 0;
+      function drawStar(ctx, r) {
+        ctx.beginPath();
+        for (let i = 0; i < 5; i++) {
+          const a = (i * 4 * Math.PI / 5) - Math.PI / 2;
+          const b = a + 2 * Math.PI / 5;
+          ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a) * r, Math.sin(a) * r);
+          ctx.lineTo(Math.cos(b) * r * 0.4, Math.sin(b) * r * 0.4);
+        }
+        ctx.closePath(); ctx.fill();
+      }
       (function tick() {
         frame++;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, W, H);
         particles.forEach(p => {
-          p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
-          if (frame > 90) p.a = Math.max(0, p.a - 0.018);
+          p.vx *= p.drag; p.vy *= p.drag;
+          p.vy += p.g; p.x += p.vx; p.y += p.vy;
+          p.rot += p.vr; p.wobble += p.wobbleSpd;
+          if (frame > fadeStart) p.a = Math.max(0, p.a - (mega ? 0.012 : 0.016));
+          if (p.a <= 0) return;
           ctx.save();
           ctx.globalAlpha = p.a;
           ctx.translate(p.x, p.y);
           ctx.rotate(p.rot * Math.PI / 180);
           ctx.fillStyle = p.c;
-          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+          if (p.shape === 'circle') {
+            ctx.beginPath(); ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2); ctx.fill();
+          } else if (p.shape === 'ribbon') {
+            // Thin long streamer that wobbles
+            ctx.scale(1, Math.abs(Math.sin(p.wobble)) * 0.9 + 0.1);
+            ctx.fillRect(-p.size * 0.2, -p.size * 1.4, p.size * 0.4, p.size * 2.8);
+          } else if (p.shape === 'star') {
+            drawStar(ctx, p.size * 0.6);
+          } else {
+            // rect — squash on wobble axis for a "flipping" effect
+            ctx.scale(Math.abs(Math.cos(p.wobble)) * 0.9 + 0.1, 1);
+            ctx.fillRect(-p.size / 2, -p.size * 0.4, p.size, p.size * 0.8);
+          }
           ctx.restore();
         });
-        if (frame < 160) requestAnimationFrame(tick);
+        if (frame < totalFrames) requestAnimationFrame(tick);
         else canvas.remove();
       })();
     }
+    function fireMegaConfetti() { fireConfetti(true); }
 
     // ══════════ EASTER EGG — TRIPLE-CLICK BRAND ══════════
     const EASTER_QUOTES = [
@@ -8715,6 +8759,7 @@
     // whether to count Client-only / Partner-only / Joint assets for the current pass.
     // 'single' = no partner calc; 'client' = client pass of dual; 'partner' = partner pass of dual.
     let _currentCalcPass = 'single';
+    let _dualCalcClientIncome = 0; // client's income captured before partner field swap, used for partner's carer cost
 
     function runCalcWithValidation() {
       if (!validateInputs()) return;
@@ -8725,6 +8770,7 @@
         runCalc();
         const clientResult = lastResult ? JSON.parse(JSON.stringify(lastResult)) : null;
         const snap = snapshotClientPersonal();
+        _dualCalcClientIncome = gv('s-income', 0); // capture before fields are swapped
         let partnerResult = null;
         try {
           applyPartnerToClientFields();
@@ -8763,7 +8809,7 @@
           updateStreakBadge();
           const _sb = document.getElementById('save-calc-btn');
           if (_sb) { _sb.textContent = '✓ Auto-saved'; _sb.classList.add('saved'); }
-          fireConfetti();
+          fireMegaConfetti();
         }
 
         // Reveal tab bar + populate names
@@ -8981,7 +9027,12 @@
       const marital = document.getElementById('s-marital').value;
       const partnerIncome = gv('s-partner', 0);
       const isPartnered = marital === 'partnered';
-      const carerCost = isPartnered && partnerIncome > 0 ? partnerIncome : (CFG.carerSingleAmt || 52000);
+      // For the partner's calc pass, carer cost = client's income (client would need to reduce work to care for partner).
+      // For client pass or single calc, carer cost = partner's income as entered in s-partner.
+      const _carerIncomeAmt = (_currentCalcPass === 'partner' && _dualCalcClientIncome > 0)
+        ? _dualCalcClientIncome
+        : partnerIncome;
+      const carerCost = isPartnered && _carerIncomeAmt > 0 ? _carerIncomeAmt : (CFG.carerSingleAmt || 52000);
 
       // Life fixed costs
       const legalCost = gv('s-legalcost', CFG.legalCost);
@@ -9378,7 +9429,7 @@
           updateStreakBadge();
           saveBtn.textContent = '✓ Auto-saved';
           saveBtn.classList.add('saved');
-          fireConfetti();
+          fireMegaConfetti();
         } else {
           saveBtn.textContent = '💾 Save Calculation';
           saveBtn.classList.remove('saved');
