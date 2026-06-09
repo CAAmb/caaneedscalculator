@@ -5132,6 +5132,19 @@
                 <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% where clients hold Income Protection cover. Adjust if the client does not hold IP or the recommendation differs. The default is managed by your administrator.</div>
               </div>
             </div>
+            <div id="df-tpdincomepct-partner-row" style="display:none;margin-top:10px">
+              <div class="trow">
+                <div class="ti"><strong>Different % for partner?</strong><span>Use a separate income replacement % for the partner's TPD calculation</span></div>
+                <label class="switch"><input type="checkbox" id="sw-p-tpdincomepct" onchange="togglePartnerTpdIncomePct()"><span class="slider"></span></label>
+              </div>
+              <div id="df-p-tpdincomepct-fields" style="display:none;margin-top:10px">
+                <div class="fg">
+                  <div class="f"><label>Partner's TPD Income Replacement %</label>
+                    <div class="pfx"><span class="p">%</span><input type="number" id="p-tpdincomepct" min="0" max="100" style="padding-left:28px" placeholder="30"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <!-- Trauma income % — shown if admin unlocks -->
           <div id="df-traumaincomepct-section" style="display:none">
@@ -5149,6 +5162,22 @@
               </div>
               <div class="f" style="align-self:flex-end">
                 <div class="info-tip" style="margin-bottom:0;font-size:12px">The default is 30% of the client's annual income as a lump-sum income provision during recovery. Adjust if the recommendation differs. The default is managed by your administrator.</div>
+              </div>
+            </div>
+            <div id="df-traumaincome-partner-row" style="display:none;margin-top:10px">
+              <div class="trow">
+                <div class="ti"><strong>Different figures for partner?</strong><span>Use separate income provision % and years for the partner's trauma calculation</span></div>
+                <label class="switch"><input type="checkbox" id="sw-p-traumaincome" onchange="togglePartnerTraumaIncome()"><span class="slider"></span></label>
+              </div>
+              <div id="df-p-traumaincome-fields" style="display:none;margin-top:10px">
+                <div class="fg">
+                  <div class="f"><label>Partner's Income Provision %</label>
+                    <div class="pfx"><span class="p">%</span><input type="number" id="p-traumaincomepct" min="0" max="100" style="padding-left:28px" placeholder="30"></div>
+                  </div>
+                  <div class="f"><label>Partner's Number of Years</label>
+                    <input type="number" id="p-traumaincomeyrs" min="0" max="10" step="0.25" placeholder="1">
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -6003,6 +6032,17 @@
       if (sec) sec.style.display = (cb && cb.checked) ? '' : 'none';
     }
 
+    function togglePartnerTpdIncomePct() {
+      const on = !!(document.getElementById('sw-p-tpdincomepct') && document.getElementById('sw-p-tpdincomepct').checked);
+      const sec = document.getElementById('df-p-tpdincomepct-fields');
+      if (sec) sec.style.display = on ? '' : 'none';
+    }
+    function togglePartnerTraumaIncome() {
+      const on = !!(document.getElementById('sw-p-traumaincome') && document.getElementById('sw-p-traumaincome').checked);
+      const sec = document.getElementById('df-p-traumaincome-fields');
+      if (sec) sec.style.display = on ? '' : 'none';
+    }
+
     // Show / hide the partner existing-cover input block
     function togglePartnerExistingCoverSection() {
       const cb = document.getElementById('sw-partner-existing-cover');
@@ -6026,6 +6066,11 @@
       // Show/hide the asset offset disclaimer
       const dis = document.getElementById('asset-disclaimer');
       if (dis) dis.classList.toggle('visible', on);
+      // Show/hide partner income override toggles
+      const tpdPartnerRow = document.getElementById('df-tpdincomepct-partner-row');
+      if (tpdPartnerRow) tpdPartnerRow.style.display = on ? '' : 'none';
+      const traumaPartnerRow = document.getElementById('df-traumaincome-partner-row');
+      if (traumaPartnerRow) traumaPartnerRow.style.display = on ? '' : 'none';
       // Refresh asset total preview now that partner side is in/out
       if (typeof updateAssetPreview === 'function') updateAssetPreview();
       if (on) {
@@ -8112,6 +8157,16 @@
       if (inp.traumaRepayment !== undefined) { const e = document.getElementById('s-traumarepayment'); if (e) e.value = inp.traumaRepayment; }
       if (inp.traumaIncomeYrs !== undefined) { const e = document.getElementById('s-traumaincomeyrs'); if (e) e.value = inp.traumaIncomeYrs; }
       if (inp.childIpIncluded !== undefined) { const e = document.getElementById('s-childip'); if (e) e.value = inp.childIpIncluded; }
+      // Restore partner income overrides
+      if (inp.pTpdIncomePctOn) {
+        const sw = document.getElementById('sw-p-tpdincomepct'); if (sw) { sw.checked = true; togglePartnerTpdIncomePct(); }
+        if (inp.pTpdIncomePct != null) sf('p-tpdincomepct', inp.pTpdIncomePct);
+      }
+      if (inp.pTraumaIncomeOn) {
+        const sw = document.getElementById('sw-p-traumaincome'); if (sw) { sw.checked = true; togglePartnerTraumaIncome(); }
+        if (inp.pTraumaIncomePct != null) sf('p-traumaincomepct', inp.pTraumaIncomePct);
+        if (inp.pTraumaIncomeYrs != null) sf('p-traumaincomeyrs', inp.pTraumaIncomeYrs);
+      }
       // Restore asset Joint toggles per row
       if (inp.assetJoint && typeof setAssetJoint === 'function') {
         Object.keys(inp.assetJoint).forEach(k => setAssetJoint(k, !!inp.assetJoint[k]));
@@ -8945,7 +9000,9 @@
 
       // Dynamic income replacement: % of income × PV to retirement
       // Staff-editable in all cases — defaults to admin-configured value when field is blank
-      const tpdIncomePct = gv('s-tpdincomepct', CFG.tpdIncomePct || 30);
+      const tpdIncomePct = (_currentCalcPass === 'partner' && document.getElementById('sw-p-tpdincomepct') && document.getElementById('sw-p-tpdincomepct').checked)
+        ? gv('p-tpdincomepct', CFG.tpdIncomePct || 30)
+        : gv('s-tpdincomepct', CFG.tpdIncomePct || 30);
       const tpdIncomeYrs = gv('s-retire', 0);
       const tpdIncomeTotal = pvAnn(income * tpdIncomePct / 100, dr, tpdIncomeYrs);
 
@@ -8991,9 +9048,14 @@
       // ─────────────────────────────────────────────
       const traumaMedCost = (CFG.lockTraumaMedCost === 'yes') ? gv('s-traumamedcost', CFG.traumaMedCost) : CFG.traumaMedCost;
       // Income provision: % of income × number of years (replaces carer cost for trauma)
-      const traumaIncomePct = (CFG.lockTraumaIncomePct === 'yes') ? gv('s-traumaincomepct', CFG.traumaIncomePct || 30) : (CFG.traumaIncomePct || 30);
+      const _partnerTraumaOn = _currentCalcPass === 'partner' && document.getElementById('sw-p-traumaincome') && document.getElementById('sw-p-traumaincome').checked;
+      const traumaIncomePct = _partnerTraumaOn
+        ? gv('p-traumaincomepct', CFG.traumaIncomePct || 30)
+        : ((CFG.lockTraumaIncomePct === 'yes') ? gv('s-traumaincomepct', CFG.traumaIncomePct || 30) : (CFG.traumaIncomePct || 30));
       const adminTraumaIncomeYrs = (CFG.traumaIncomeYrs != null ? CFG.traumaIncomeYrs : 1);
-      const traumaIncomeYrs = CFG.lockTraumaIncomeYrs === 'yes' ? adminTraumaIncomeYrs : (gv('s-traumaincomeyrs', adminTraumaIncomeYrs) || adminTraumaIncomeYrs);
+      const traumaIncomeYrs = _partnerTraumaOn
+        ? (gv('p-traumaincomeyrs', adminTraumaIncomeYrs) || adminTraumaIncomeYrs)
+        : (CFG.lockTraumaIncomeYrs === 'yes' ? adminTraumaIncomeYrs : (gv('s-traumaincomeyrs', adminTraumaIncomeYrs) || adminTraumaIncomeYrs));
       const traumaIncomeAmt = income * (traumaIncomePct / 100) * traumaIncomeYrs;
       // Non-deductible debt repayments × configurable years (admin-only setting)
       const traumaDebtYears = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
@@ -9104,7 +9166,12 @@
         shares: aShares, managed: aManaged,
         earn, infl,
         tpdDedPct, tpdNonDedPct, tpdMedCost, tpdBuyRes,
-        traumaMedCost, traumaIncomeAmt, traumaRepayment, traumaIncomeYrs, traumaDebtYears, tpdIncomePct, lifeChildAmt, edGrowthPct,
+        traumaMedCost, traumaIncomePct, traumaIncomeAmt, traumaRepayment, traumaIncomeYrs, traumaDebtYears, tpdIncomePct, lifeChildAmt, edGrowthPct,
+        pTpdIncomePctOn: _currentCalcPass !== 'partner' && document.getElementById('sw-p-tpdincomepct') ? !!document.getElementById('sw-p-tpdincomepct').checked : undefined,
+        pTpdIncomePct: _currentCalcPass !== 'partner' && document.getElementById('sw-p-tpdincomepct') && document.getElementById('sw-p-tpdincomepct').checked ? gv('p-tpdincomepct', null) : undefined,
+        pTraumaIncomeOn: _currentCalcPass !== 'partner' && document.getElementById('sw-p-traumaincome') ? !!document.getElementById('sw-p-traumaincome').checked : undefined,
+        pTraumaIncomePct: _currentCalcPass !== 'partner' && document.getElementById('sw-p-traumaincome') && document.getElementById('sw-p-traumaincome').checked ? gv('p-traumaincomepct', null) : undefined,
+        pTraumaIncomeYrs: _currentCalcPass !== 'partner' && document.getElementById('sw-p-traumaincome') && document.getElementById('sw-p-traumaincome').checked ? gv('p-traumaincomeyrs', null) : undefined,
         childIpIncluded: childIpIncluded ? 'yes' : 'no',
         tpdTaxTopUpApplied: tpdDefaultTopUp ? 'yes' : 'no',
         assetJoint: ['cash','resprop','comprop','invprop','shares','managed','super'].reduce((o, k) => {
@@ -9315,6 +9382,10 @@
       // Clear adviser notes
       const notesEl = document.getElementById('calc-notes');
       if (notesEl) notesEl.value = '';
+      // Clear partner income override toggles and fields
+      ['sw-p-tpdincomepct','sw-p-traumaincome'].forEach(id => { const e = document.getElementById(id); if (e) e.checked = false; });
+      ['p-tpdincomepct','p-traumaincomepct','p-traumaincomeyrs'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+      ['df-p-tpdincomepct-fields','df-p-traumaincome-fields'].forEach(id => { const e = document.getElementById(id); if (e) e.style.display = 'none'; });
       // Clear the manual-edit flag on retirement so auto-fill resumes on next age entry
       { const r = document.getElementById('s-retire'); if (r) delete r.dataset.userEdited; }
       // Reset per-debt include toggles — apply admin-configured defaults
