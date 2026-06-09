@@ -8111,6 +8111,49 @@
       if (inp.tpdTaxTopUpApplied !== undefined) _restoredTpdTopUp = inp.tpdTaxTopUpApplied;
       updateAssetPreview();
 
+      // Restore partner fields for dual entries
+      if (inp._isDual && inp._partnerInputs) {
+        const p = inp._partnerInputs;
+        // Ensure partner calc toggle is enabled
+        const pcCb = document.getElementById('sw-partner-calc');
+        if (pcCb && !pcCb.checked) { pcCb.checked = true; if (typeof togglePartnerCalcSection === 'function') togglePartnerCalcSection(); }
+        // Personal fields
+        sf('p-client', p.client);
+        sf('p-age', p.age);
+        sf('p-income', p.income);
+        sf('p-retire', p.retire);
+        sf('p-supercontrib', p.superContribPct);
+        sf('p-incpct', p.incPct);
+        // Toggle buttons (gender, smoker)
+        ['p-gender', 'p-smoker'].forEach(function(key) {
+          if (!p[key]) return;
+          tbState[key] = p[key];
+          document.querySelectorAll('.tbg .tb').forEach(function(btn) {
+            var m = (btn.getAttribute('onclick') || '').match(/'([^']+)','([^']+)'/);
+            if (m && m[1] === key) btn.classList.toggle('active', m[2] === p[key]);
+          });
+        });
+        // Partner existing cover
+        if (p.existingCoverShown && p.existingCover) {
+          var pexCb = document.getElementById('sw-partner-existing-cover');
+          if (pexCb) { pexCb.checked = true; if (typeof togglePartnerExistingCoverSection === 'function') togglePartnerExistingCoverSection(); }
+          var pex = p.existingCover;
+          var setExP = function(id, v) { var e = document.getElementById(id); if (e && v) e.value = Number(v).toLocaleString('en-AU'); };
+          setExP('p-exist-life', pex.life); setExP('p-exist-tpd', pex.tpd);
+          setExP('p-exist-trauma', pex.trauma); setExP('p-exist-ip', pex.ip);
+          var preElP = document.getElementById('p-exist-ip-pre2021');
+          if (preElP) preElP.value = pex.ipPre2021 ? 'yes' : 'no';
+        }
+        // Partner assets (non-joint only — joint values already restored from client inputs)
+        sf('p-super', p.superBal);
+        sf('p-cash', p.cash);
+        sf('p-resprop', p.resprop);
+        sf('p-comprop', p.comprop);
+        sf('p-invprop', p.invprop);
+        sf('p-shares', p.shares);
+        sf('p-managed', p.managed);
+      }
+
       goStep(1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -8607,6 +8650,36 @@
           _currentCalcPass = 'single';
         }
         dualResult = { client: clientResult, partner: partnerResult };
+
+        // Save one combined history entry covering both people
+        if (currentUser) {
+          if (!HISTORY[currentUser.id]) HISTORY[currentUser.id] = [];
+          const cInp = (clientResult && clientResult.inputs) || {};
+          const pInp = (partnerResult && partnerResult.inputs) || {};
+          const cName = cInp.client || 'Client';
+          const pName = pInp.client || 'Partner';
+          const dualEntry = {
+            id: 'h' + Date.now(),
+            date: new Date().toLocaleString('en-AU'),
+            client: cName + ' & ' + pName,
+            calcName: cName + ' & ' + pName,
+            userName: currentUser.name,
+            results: clientResult ? { ...clientResult.results } : {},
+            breakdown: clientResult ? [...clientResult.breakdown] : [],
+            tpdBreakdown: clientResult ? [...(clientResult.tpdBreakdown || [])] : [],
+            ipBreakdown: clientResult ? [...(clientResult.ipBreakdown || [])] : [],
+            traumaBreakdown: clientResult ? [...(clientResult.traumaBreakdown || [])] : [],
+            inputs: { ...cInp, _isDual: true, _partnerInputs: { ...pInp } }
+          };
+          HISTORY[currentUser.id].unshift(dualEntry);
+          persistSaveHistory(currentUser.id, dualEntry);
+          updateHistCount();
+          updateStreakBadge();
+          const _sb = document.getElementById('save-calc-btn');
+          if (_sb) { _sb.textContent = '✓ Auto-saved'; _sb.classList.add('saved'); }
+          fireConfetti();
+        }
+
         // Reveal tab bar + populate names
         const tabBar = document.getElementById('cp-tab-bar');
         if (tabBar) tabBar.classList.remove('hidden');
@@ -9184,32 +9257,34 @@
       rv.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
       // Auto-save to history
+      // Skip during dual-calc client/partner passes — runCalcWithValidation saves one combined entry instead
       const saveBtn = document.getElementById('save-calc-btn');
-      if (currentUser) {
-        if (!HISTORY[currentUser.id]) HISTORY[currentUser.id] = [];
-        const entry = {
-          id: 'h' + Date.now(),
-          date: new Date().toLocaleString('en-AU'),
-          client: document.getElementById('s-client').value.trim() || 'Unnamed Client',
-          userName: currentUser.name,
-          results: { ...results },
-          breakdown: [...breakdown],
-          tpdBreakdown: [...tpdBreakdown],
-          ipBreakdown: [...ipBreakdown],
-          traumaBreakdown: [...traumaBreakdown],
-          inputs: { ...inputs }
-        };
-        HISTORY[currentUser.id].unshift(entry);
-        persistSaveHistory(currentUser.id, entry);
-        updateHistCount();
-        updateStreakBadge();
-        saveBtn.textContent = '✓ Auto-saved';
-        saveBtn.classList.add('saved');
-        // Celebrate — once per user per calendar day, brand colours only
-        fireConfetti();
-      } else {
-        saveBtn.textContent = '💾 Save Calculation';
-        saveBtn.classList.remove('saved');
+      if (_currentCalcPass === 'single') {
+        if (currentUser) {
+          if (!HISTORY[currentUser.id]) HISTORY[currentUser.id] = [];
+          const entry = {
+            id: 'h' + Date.now(),
+            date: new Date().toLocaleString('en-AU'),
+            client: document.getElementById('s-client').value.trim() || 'Unnamed Client',
+            userName: currentUser.name,
+            results: { ...results },
+            breakdown: [...breakdown],
+            tpdBreakdown: [...tpdBreakdown],
+            ipBreakdown: [...ipBreakdown],
+            traumaBreakdown: [...traumaBreakdown],
+            inputs: { ...inputs }
+          };
+          HISTORY[currentUser.id].unshift(entry);
+          persistSaveHistory(currentUser.id, entry);
+          updateHistCount();
+          updateStreakBadge();
+          saveBtn.textContent = '✓ Auto-saved';
+          saveBtn.classList.add('saved');
+          fireConfetti();
+        } else {
+          saveBtn.textContent = '💾 Save Calculation';
+          saveBtn.classList.remove('saved');
+        }
       }
     }
 
