@@ -4167,7 +4167,7 @@
         <div class="login-err hidden" id="forgot-err"></div>
         <button class="login-btn" id="forgot-btn" onclick="sendPasswordReset()">Send Reset Email</button>
         <div id="forgot-success" class="forgot-success hidden">✓ Reset email sent! Check your inbox and click the link to set a new password.</div>
-        <button class="forgot-link" onclick="toggleForgotPw(false)" style="margin-top:8px">â† Back to login</button>
+        <button class="forgot-link" onclick="toggleForgotPw(false)" style="margin-top:8px">← Back to login</button>
       </div>
       <div class="login-secure-note">🔒 Data securely stored in Sydney, Australia</div>
     </div>
@@ -4229,7 +4229,7 @@
           <div class="sb-item" onclick="showPanel('meth-trauma',this)"><span class="icon">🏥</span>Trauma</div>
           <div class="sb-item" onclick="showPanel('meth-ip',this)"><span class="icon">🩺</span>Income Protection</div>
           <div class="sb-label">Defaults</div>
-          <div class="sb-item" onclick="showPanel('defaults',this)"><span class="icon">⚙ï¸</span>Assumptions</div>
+          <div class="sb-item" onclick="showPanel('defaults',this)"><span class="icon">⚙️</span>Assumptions</div>
           <div class="sb-item" onclick="showPanel('brand',this)"><span class="icon">🎨</span>Branding</div>
           <div class="sb-label">Data</div>
           <div class="sb-item" onclick="showPanel('allhist',this)"><span class="icon">📋</span>All Calculations</div>
@@ -4795,7 +4795,7 @@
               </div>
               <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:stretch">
                 <button class="save-btn" id="insights-pdf-btn" onclick="exportInsightsPDF()" style="background:linear-gradient(135deg,#eba380,#d4825a);color:#fff;white-space:nowrap;padding:9px 20px;font-size:13px">📄 Export Report PDF</button>
-                <button class="save-btn" id="insights-refresh-btn" onclick="loadInsights()" style="white-space:nowrap;padding:9px 20px;font-size:13px">â†» Refresh</button>
+                <button class="save-btn" id="insights-refresh-btn" onclick="loadInsights()" style="white-space:nowrap;padding:9px 20px;font-size:13px">↻ Refresh</button>
               </div>
             </div>
             <div id="insights-body">
@@ -4898,7 +4898,7 @@
             </div>
           </div>
           <div class="nav-row">
-            <div></div><button class="btn btn-primary" onclick="goStep(2)">Next: Income â†’</button>
+            <div></div><button class="btn btn-primary" onclick="goStep(2)">Next: Income →</button>
           </div>
         </div>
 
@@ -5002,8 +5002,8 @@
               </div>
             </div>
           </div>
-          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(1)">â† Back</button><button
-              class="btn btn-primary" onclick="goStep(3)">Next: Debts â†’</button></div>
+          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(1)">← Back</button><button
+              class="btn btn-primary" onclick="goStep(3)">Next: Debts →</button></div>
         </div>
 
         <!-- Step 3 -->
@@ -5181,8 +5181,8 @@
               </div>
             </div>
           </div>
-          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(2)">â† Back</button><button
-              class="btn btn-primary" onclick="goStep(4)">Next: Dependants â†’</button></div>
+          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(2)">← Back</button><button
+              class="btn btn-primary" onclick="goStep(4)">Next: Dependants →</button></div>
         </div>
 
         <!-- Step 4 -->
@@ -5278,8 +5278,8 @@
             <div class="f"><label>Years of Support Required</label><input type="number" id="s-odepyrs"
                 placeholder="e.g. 10" min="0" max="30"></div>
           </div>
-          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(3)">â† Back</button><button
-              class="btn btn-primary" onclick="goStep(5)">Next: Assets â†’</button></div>
+          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(3)">← Back</button><button
+              class="btn btn-primary" onclick="goStep(5)">Next: Assets →</button></div>
         </div>
 
         <!-- Step 5 -->
@@ -5477,7 +5477,7 @@
             <div class="calc-error-banner-title">âš  Please fix the following before calculating:</div>
             <ul id="calc-error-list"></ul>
           </div>
-          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(4)">â† Back</button><button
+          <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(4)">← Back</button><button
               class="btn btn-calc" onclick="runCalcWithValidation()">★ Calculate My Cover</button></div>
         </div>
 
@@ -5612,7 +5612,7 @@
             <textarea id="calc-notes" rows="4" placeholder="Add any notes, observations or special instructions here…" style="width:100%;resize:vertical;border:1.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;line-height:1.5"></textarea>
           </div>
           <div class="disclaimer" id="staff-disc"></div>
-          <div class="restart-row"><button class="btn btn-ghost" onclick="restartCalc()">â†º Start again</button></div>
+          <div class="restart-row"><button class="btn btn-ghost" onclick="restartCalc()">↺ Start again</button></div>
         </div>
 
       </div>
@@ -5680,7 +5680,7 @@
         <input type="password" id="fp-confirm" placeholder="Re-enter new password">
       </div>
       <div class="force-pw-err" id="fp-err"></div>
-      <button class="force-pw-btn" onclick="submitForcePw()">Set New Password â†’</button>
+      <button class="force-pw-btn" onclick="submitForcePw()">Set New Password →</button>
     </div>
   </div>
 
@@ -5994,11 +5994,11 @@
       // Explicitly request the email + profile scopes so Azure AD returns the
       // user's email claim in the ID token. Without this, Supabase responds
       // with "Error getting user email from external provider".
-      // openid  â†’ required for OIDC id_token
-      // email   â†’ email claim
-      // profile â†’ name / given_name
-      // offline_access â†’ refresh token
-      // User.Read â†’ Microsoft Graph fallback (Supabase reads email from Graph
+      // openid  → required for OIDC id_token
+      // email   → email claim
+      // profile → name / given_name
+      // offline_access → refresh token
+      // User.Read → Microsoft Graph fallback (Supabase reads email from Graph
       //   if the id_token claim is missing)
       const scopes = 'openid email profile offline_access User.Read';
       window.location.href = SB_URL + '/auth/v1/authorize?provider=azure'
@@ -6144,7 +6144,7 @@
       ['s-gender', 'p-gender'],
       ['s-smoker', 'p-smoker']
     ];
-    // Asset include/exclude toggles – st-* (client) â†” pt-* (partner). Swapped during partner calc
+    // Asset include/exclude toggles – st-* (client) ↔ pt-* (partner). Swapped during partner calc
     // so the partner's own include/exclude states drive the partner calculation.
     const PARTNER_CHECKBOX_PAIRS = [
       ['st-cash',    'pt-cash'],
@@ -7269,7 +7269,7 @@
       u.role = newRole;
       const ok = await persistSaveUser(u);
       if (ok) {
-        showToast('âœ… Role updated to <strong>' + newRole + '</strong> for ' + escapeHTML(u.name), 3500);
+        showToast('✅ Role updated to <strong>' + newRole + '</strong> for ' + escapeHTML(u.name), 3500);
       } else {
         u.role = prevRole; // revert on failure
         renderUsersList();
@@ -7379,7 +7379,7 @@
         // password to guarantee a fresh valid token before calling persistSaveUser.
         // (Relying on the PUT response body alone is unreliable: if token capture fails silently
         //  the stale token hits a 401, the refresh also fails because it was invalidated, and
-        //  persistSaveUser never clears must_reset_password in the DB â†’ loop repeats every login.)
+        //  persistSaveUser never clears must_reset_password in the DB → loop repeats every login.)
         try {
           const reAuth = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
             method: 'POST',
@@ -7420,7 +7420,7 @@
     }
 
     function deleteUser(id) {
-      if (!confirm('Remove this user from the app?\n\nThis removes their profile and calculation history here, but you must also delete them in Supabase Auth (Authentication â†’ Users) to fully revoke login access.')) return;
+      if (!confirm('Remove this user from the app?\n\nThis removes their profile and calculation history here, but you must also delete them in Supabase Auth (Authentication → Users) to fully revoke login access.')) return;
       USERS = USERS.filter(u => u.id !== id);
       delete HISTORY[id];
       renderUsersList();
@@ -7506,7 +7506,7 @@
           <div class="hc"><div class="hc-lbl">Trauma</div><div class="hc-val">${h.results.trauma}</div></div>
         </div>
         <div class="hist-actions">
-          <button class="ubtn rename-calc" onclick="toggleRename('${h.id}','${userId}')">âœï¸ Rename</button>
+          <button class="ubtn rename-calc" onclick="toggleRename('${h.id}','${userId}')">✏️ Rename</button>
           ${h.inputs && h.inputs._isDual
             ? `<button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}','both')">↩ Load Both</button>
                <button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}','client')">↩ Client Only</button>
@@ -7591,7 +7591,7 @@
         <div class="hc"><div class="hc-lbl">Trauma</div><div class="hc-val">${h.results.trauma}</div></div>
       </div>
       <div class="hist-actions">
-        <button class="ubtn rename-calc" onclick="toggleRename('${h.id}',null)">âœï¸ Rename</button>
+        <button class="ubtn rename-calc" onclick="toggleRename('${h.id}',null)">✏️ Rename</button>
         <button class="ubtn view-inputs-btn" onclick="previewHistInputs('${h.id}')">🔍 View Inputs</button>
         <button class="ubtn view-hist" onclick="exportAllHistPDF('${su}', '${h.id}')">📄 Export PDF</button>
         <button class="ubtn del-calc" onclick="confirmDeleteCalc('${h.id}',null,'${sc}')">🗑 Delete</button>
@@ -7617,7 +7617,7 @@
       if (!body) return;
 
       body.innerHTML = '<div class="insights-loading"><div class="insights-spinner"></div>Loading statistics…</div>';
-      if (btn) { btn.disabled = true; btn.textContent = 'â†» Loading…'; }
+      if (btn) { btn.disabled = true; btn.textContent = '↻ Loading…'; }
 
       try {
         // Reload fresh data from Supabase
@@ -7684,7 +7684,7 @@
         Object.entries(staffCount).forEach(([name, cnt]) => {
           if (cnt > topStaffCount) { topStaff = name; topStaffCount = cnt; }
         });
-        // Sort users: this-month desc â†’ total desc â†’ name
+        // Sort users: this-month desc → total desc → name
         const userBreakdown = Object.keys(staffCount).map(name => ({
           name, total: staffCount[name], month: staffMonthCount[name] || 0
         })).sort((a, b) => (b.month - a.month) || (b.total - a.total) || a.name.localeCompare(b.name));
@@ -7808,7 +7808,7 @@
         console.error('Insights error:', err);
         body.innerHTML = '<div class="no-hist" style="padding:24px;color:var(--red)">Failed to load statistics. Please try again.</div>';
       } finally {
-        if (btn) { btn.disabled = false; btn.textContent = 'â†» Refresh'; }
+        if (btn) { btn.disabled = false; btn.textContent = '↻ Refresh'; }
       }
     }
 
@@ -10266,7 +10266,7 @@
               if (d.access_token) {
                 accessToken = d.access_token;
                 refreshToken = d.refresh_token;
-                // SSO flow â†’ treat as signup/login. Only treat as recovery when
+                // SSO flow → treat as signup/login. Only treat as recovery when
                 // the flow was explicitly kicked off by the password-reset path.
                 callbackType = (flowTag === 'sso') ? 'signup' : 'recovery';
               }
