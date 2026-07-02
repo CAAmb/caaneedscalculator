@@ -4607,7 +4607,7 @@
               </div>
               <div class="mg" style="margin-top:14px">
                 <div class="mf"><label>Default Income Replacement (% of income)</label><input type="number" id="m-tpdincomepct" value="30" min="0" max="100">
-                  <div class="note">Applied to client income Ã— PV to retirement age. Philosophy: 30%.</div>
+                  <div class="note">Applied to client income × PV to retirement age. Philosophy: 30%.</div>
                 </div>
                 <div class="mf"><label>Allow Staff to Adjust Income %</label><select id="m-locktpdincomepct">
                     <option value="no">No – lock to default</option>
@@ -4671,7 +4671,7 @@
               <div class="acard-title"><span class="dot"></span>Debt Repayment Provision</div>
               <div class="mg">
                 <div class="mf"><label>Default Provision (years)</label><input type="number" id="m-traumadebtyears" value="0.5" min="0" max="5" step="0.25">
-                  <div class="note">Trauma provision = this many years Ã— the client's annual non-deductible debt repayments. Default: 0.5 years (6 months). Admin-only setting – staff don't see or edit this.</div>
+                  <div class="note">Trauma provision = this many years × the client's annual non-deductible debt repayments. Default: 0.5 years (6 months). Admin-only setting – staff don't see or edit this.</div>
                 </div>
               </div>
             </div>
@@ -4782,6 +4782,10 @@
             </div>
             <div class="acard">
               <div class="acard-title"><span class="dot"></span>Calculation History</div>
+              <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+                <input type="text" id="ahist-search-name" placeholder="Search by client name…" oninput="_renderFilteredHist()" style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+                <input type="text" id="ahist-search-adviser" placeholder="Search by adviser…" oninput="_renderFilteredHist()" style="flex:1;min-width:160px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font-size:13px">
+              </div>
               <div id="all-hist-list"></div>
             </div>
           </div>
@@ -5190,14 +5194,14 @@
           <div class="sct">Dependants & Children</div>
           <div class="scs">Factor in ongoing costs of supporting your family.</div>
           <div class="fg">
-            <div class="f"><label>Number of Dependent Children</label><input type="number" id="s-kids"
+            <div class="f"><label>Number of Dependant Children</label><input type="number" id="s-kids"
                 placeholder="e.g. 2" min="0" max="10" value="0"></div>
             <div class="f" id="f-youngest"><label>Age of Child</label><input type="number" id="s-youngest" placeholder="e.g. 5"
                 min="0" max="17"></div>
           </div>
           <!-- Dynamic individual child ages (shown when 2+ children) -->
           <div id="child-ages-section" style="display:none;margin-top:10px">
-            <div class="info-tip" style="margin-bottom:10px;font-size:12px">Enter the age of each dependent child – each child's remaining years until age 18 are used to calculate child-raising and education costs individually.</div>
+            <div class="info-tip" style="margin-bottom:10px;font-size:12px">Enter the age of each dependant child – each child's remaining years until age 18 are used to calculate child-raising and education costs individually.</div>
             <div class="fg" id="child-ages-grid"></div>
           </div>
           <!-- Child-raising cost + IP toggle – side by side. Wrapper always visible; the cost
@@ -6892,7 +6896,7 @@
       const key = 'confetti_fired_' + uid + '_' + today;
       try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }
       catch(e) {}
-      const colors = ['#eba380','#d4825a','#fdf1ea','#0f2433','#25526e','#def5ff','#ffffff','#f9c784','#a8d8ea','#ff6b6b','#c3f0ca'];
+      const colors = ['#eba380','#d4825a','#fdf1ea','#0f2433','#25526e','#def5ff','#ffffff','#f9c784','#a8d8ea','#ff6b6b','#c3f0ca','#ffd700','#ff9f43','#ee5a24','#009432','#0652DD'];
       const W = window.innerWidth, H = window.innerHeight;
       const canvas = document.createElement('canvas');
       canvas.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9997';
@@ -6902,38 +6906,38 @@
       const particles = [];
       const rand = (a, b) => a + Math.random() * (b - a);
       const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-      // Burst origins: corners + centre top + centre screen
+      // Burst origins: corners + centre + mid-sides + top
       const origins = mega
-        ? [[.1,.9,1,.8],[.9,.9,-1,.8],[.5,.95,0,1],[.2,.5,1,.6],[.8,.5,-1,.6],[.5,.15,0,.4]]
-        : [[.12,.88,1,.75],[.88,.88,-1,.75],[.5,.9,0,.9]];
-      const countPer = mega ? 80 : 55;
+        ? [[.1,.9,1,.8],[.9,.9,-1,.8],[.5,.95,0,1],[.2,.5,1,.6],[.8,.5,-1,.6],[.5,.15,0,.4],[.05,.5,1,.5],[.95,.5,-1,.5]]
+        : [[.12,.88,1,.75],[.88,.88,-1,.75],[.5,.9,0,.9],[.3,.6,1,.65],[.7,.6,-1,.65]];
+      const countPer = mega ? 120 : 80;
       origins.forEach(([sx, sy, dir, spread]) => {
         for (let i = 0; i < countPer; i++) {
-          const shape = pick(['rect','rect','rect','circle','ribbon','star']);
+          const shape = pick(['rect','rect','circle','ribbon','star','heart','diamond','rect']);
           const angle = dir === 0
             ? rand(-Math.PI * spread, -Math.PI * (1 - spread))
             : rand(-Math.PI * spread, -Math.PI * 0.1) * dir;
-          const spd = rand(6, mega ? 22 : 16);
+          const spd = rand(7, mega ? 28 : 20);
           particles.push({
-            x: W * sx + rand(-20, 20),
-            y: H * sy + rand(-10, 10),
+            x: W * sx + rand(-25, 25),
+            y: H * sy + rand(-12, 12),
             vx: Math.cos(angle) * spd * (dir === 0 ? rand(0.5,1) : 1),
             vy: Math.sin(angle) * spd,
-            g: rand(0.28, 0.42),
-            drag: rand(0.985, 0.998),
-            size: rand(5, mega ? 14 : 10),
+            g: rand(0.25, 0.44),
+            drag: rand(0.983, 0.997),
+            size: rand(5, mega ? 16 : 12),
             rot: rand(0, 360),
-            vr: rand(-16, 16),
+            vr: rand(-18, 18),
             c: pick(colors),
             a: 1,
             shape,
             wobble: rand(0, Math.PI * 2),
-            wobbleSpd: rand(0.05, 0.15)
+            wobbleSpd: rand(0.05, 0.18)
           });
         }
       });
-      const totalFrames = mega ? 260 : 200;
-      const fadeStart = mega ? 160 : 110;
+      const totalFrames = mega ? 320 : 250;
+      const fadeStart = mega ? 200 : 145;
       let frame = 0;
       function drawStar(ctx, r) {
         ctx.beginPath();
@@ -6945,6 +6949,13 @@
         }
         ctx.closePath(); ctx.fill();
       }
+      function drawHeart(ctx, r) {
+        ctx.beginPath();
+        ctx.moveTo(0, r * 0.3);
+        ctx.bezierCurveTo(-r * 1.2, -r * 0.5, -r * 2, r * 0.7, 0, r * 1.5);
+        ctx.bezierCurveTo(r * 2, r * 0.7, r * 1.2, -r * 0.5, 0, r * 0.3);
+        ctx.fill();
+      }
       (function tick() {
         frame++;
         ctx.clearRect(0, 0, W, H);
@@ -6952,7 +6963,7 @@
           p.vx *= p.drag; p.vy *= p.drag;
           p.vy += p.g; p.x += p.vx; p.y += p.vy;
           p.rot += p.vr; p.wobble += p.wobbleSpd;
-          if (frame > fadeStart) p.a = Math.max(0, p.a - (mega ? 0.012 : 0.016));
+          if (frame > fadeStart) p.a = Math.max(0, p.a - (mega ? 0.010 : 0.014));
           if (p.a <= 0) return;
           ctx.save();
           ctx.globalAlpha = p.a;
@@ -6962,11 +6973,19 @@
           if (p.shape === 'circle') {
             ctx.beginPath(); ctx.arc(0, 0, p.size * 0.5, 0, Math.PI * 2); ctx.fill();
           } else if (p.shape === 'ribbon') {
-            // Thin long streamer that wobbles
             ctx.scale(1, Math.abs(Math.sin(p.wobble)) * 0.9 + 0.1);
             ctx.fillRect(-p.size * 0.2, -p.size * 1.4, p.size * 0.4, p.size * 2.8);
           } else if (p.shape === 'star') {
             drawStar(ctx, p.size * 0.6);
+          } else if (p.shape === 'heart') {
+            drawHeart(ctx, p.size * 0.4);
+          } else if (p.shape === 'diamond') {
+            ctx.beginPath();
+            ctx.moveTo(0, -p.size * 0.7);
+            ctx.lineTo(p.size * 0.45, 0);
+            ctx.lineTo(0, p.size * 0.7);
+            ctx.lineTo(-p.size * 0.45, 0);
+            ctx.closePath(); ctx.fill();
           } else {
             // rect – squash on wobble axis for a "flipping" effect
             ctx.scale(Math.abs(Math.cos(p.wobble)) * 0.9 + 0.1, 1);
@@ -7559,21 +7578,40 @@
       filterHistModal();
     }
 
+    let _allHistData = [];
+
     async function renderAllHist() {
       const el = document.getElementById('all-hist-list');
       el.innerHTML = '<div class="no-hist">Loading…</div>';
-      // Always reload from Supabase so admin sees latest data from all staff
       await persistLoad();
-      const allEntries = [];
-      // Iterate all HISTORY keys, not just USERS – catches entries whose profile
-      // auto-registration may not have completed yet
+      _allHistData = [];
       Object.keys(HISTORY).forEach(uid => {
         const u = USERS.find(x => x.id === uid);
-        (HISTORY[uid] || []).forEach(h => allEntries.push({ ...h, userName: h.userName || (u ? u.name : uid) }));
+        (HISTORY[uid] || []).forEach(h => _allHistData.push({ ...h, userName: h.userName || (u ? u.name : uid) }));
       });
-      allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
-      if (!allEntries.length) { el.innerHTML = '<div class="no-hist">No calculations saved yet.</div>'; return; }
-      el.innerHTML = allEntries.map(h => {
+      _allHistData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      const nameEl = document.getElementById('ahist-search-name');
+      const advEl = document.getElementById('ahist-search-adviser');
+      if (nameEl) nameEl.value = '';
+      if (advEl) advEl.value = '';
+      _renderFilteredHist();
+    }
+
+    function _renderFilteredHist() {
+      const el = document.getElementById('all-hist-list');
+      if (!el) return;
+      const nameQ = (document.getElementById('ahist-search-name')?.value || '').toLowerCase().trim();
+      const advQ = (document.getElementById('ahist-search-adviser')?.value || '').toLowerCase().trim();
+      const filtered = _allHistData.filter(h => {
+        if (nameQ && !(h.client || '').toLowerCase().includes(nameQ)) return false;
+        if (advQ && !(h.userName || '').toLowerCase().includes(advQ)) return false;
+        return true;
+      });
+      if (!filtered.length) {
+        el.innerHTML = '<div class="no-hist">' + (_allHistData.length ? 'No results match your search.' : 'No calculations saved yet.') + '</div>';
+        return;
+      }
+      el.innerHTML = filtered.map(h => {
         const sc = escapeHTML(h.client);
         const su = escapeHTML(h.userName);
         return `<div class="hist-item" id="hi-${h.id}">
@@ -7913,7 +7951,7 @@
             doc.roundedRect(cx, cy, cw, ch, r, r, 'S');
           }
 
-          // â”€â”€ Summary stats (2 rows Ã— 2 cols) â”€â”€
+          // â”€â”€ Summary stats (2 rows × 2 cols) â”€â”€
           sectionLine('SUMMARY');
           const cw = (W - M * 2 - 8) / 2, ch = 28;
           statCard(M,        y, cw, ch, 'Total Calculations', d.totalCalcs.toLocaleString('en-AU'), null);
@@ -8319,7 +8357,7 @@
         ['Business Debts', fmtV(inp.biz)],
         ['Annual Rent', fmtV(inp.rent)],
         ['Funeral Expenses', fmtV(inp.funeral)],
-        ['Dependent Children', inp.kids !== undefined ? inp.kids : '–'],
+        ['Dependant Children', inp.kids !== undefined ? inp.kids : '–'],
         ['School Type', inp.school || '–'],
         ['Childcare (p/a)', fmtV(inp.childcare)],
         ['Other Dependant Support', fmtV(inp.odep)],
@@ -9070,7 +9108,7 @@
         tpdBuyRes = gv('s-tpdbuyresamt', 0);
       }
 
-      // Dynamic income replacement: % of income Ã— PV to retirement
+      // Dynamic income replacement: % of income × PV to retirement
       // Staff-editable in all cases – defaults to admin-configured value when field is blank
       const tpdIncomePct = (_currentCalcPass === 'partner' && document.getElementById('sw-p-tpdincomepct') && document.getElementById('sw-p-tpdincomepct').checked)
         ? gv('p-tpdincomepct', CFG.tpdIncomePct || 30)
@@ -9119,7 +9157,7 @@
       // â‘£  TRAUMA COVER
       // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       const traumaMedCost = (CFG.lockTraumaMedCost === 'yes') ? gv('s-traumamedcost', CFG.traumaMedCost) : CFG.traumaMedCost;
-      // Income provision: % of income Ã— number of years (replaces carer cost for trauma)
+      // Income provision: % of income × number of years (replaces carer cost for trauma)
       const _partnerTraumaOn = _currentCalcPass === 'partner' && document.getElementById('sw-p-traumaincome') && document.getElementById('sw-p-traumaincome').checked;
       const traumaIncomePct = _partnerTraumaOn
         ? gv('p-traumaincomepct', CFG.traumaIncomePct || 30)
@@ -9129,7 +9167,7 @@
         ? (gv('p-traumaincomeyrs', adminTraumaIncomeYrs) || adminTraumaIncomeYrs)
         : (CFG.lockTraumaIncomeYrs === 'yes' ? adminTraumaIncomeYrs : (gv('s-traumaincomeyrs', adminTraumaIncomeYrs) || adminTraumaIncomeYrs));
       const traumaIncomeAmt = income * (traumaIncomePct / 100) * traumaIncomeYrs;
-      // Non-deductible debt repayments Ã— configurable years (admin-only setting)
+      // Non-deductible debt repayments × configurable years (admin-only setting)
       const traumaDebtYears = (CFG.traumaDebtYears != null ? CFG.traumaDebtYears : 0.5);
       const traumaRepayment = gv('s-traumarepayment', 0);
       const traumaLiving = traumaRepayment * traumaDebtYears;
@@ -9142,10 +9180,10 @@
         { label: 'Legal / Estate Costs', note: 'Fixed cost', amt: legalCost },
         { label: 'Funeral & Final Expenses', note: 'Fixed cost', amt: funeralCost },
         { label: 'Debt Clearance', note: `${lifeDebtClearPct}% of total debt`, amt: lifeDebtCleared },
-        rentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr Ã— ${rentYrs} yrs (PV)`, amt: rentPV },
-        { label: 'Income Replacement', note: `${Math.round(incPct * 100)}% of income Ã— ${repYrs} yrs`, amt: incomePV },
-        lifeChildPV > 0 && { label: 'Child-Raising Costs', note: kids >= 2 ? `${fmt(lifeChildAmt)}/child/yr – per child until age 18` : `${fmt(lifeChildAmt)}/child/yr Ã— ${childRaisingYrs} yrs`, amt: lifeChildPV },
-        edPV > 0 && { label: 'Education & Childcare', note: kids >= 2 ? `${kids} children – per-child schooling (${edGrowthPct}% growth)` : `${kids} child Ã— ${schYrs} yrs (${edGrowthPct}% growth)`, amt: edPV },
+        rentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrs} yrs (PV)`, amt: rentPV },
+        { label: 'Income Replacement', note: `${Math.round(incPct * 100)}% of income × ${repYrs} yrs`, amt: incomePV },
+        lifeChildPV > 0 && { label: 'Child-Raising Costs', note: kids >= 2 ? `${fmt(lifeChildAmt)}/child/yr – per child until age 18` : `${fmt(lifeChildAmt)}/child/yr × ${childRaisingYrs} yrs`, amt: lifeChildPV },
+        edPV > 0 && { label: 'Education & Childcare', note: kids >= 2 ? `${kids} children – per-child schooling (${edGrowthPct}% growth)` : `${kids} child × ${schYrs} yrs (${edGrowthPct}% growth)`, amt: edPV },
         odepPV > 0 && { label: 'Other Dependant Support', note: `${odepYrs} years`, amt: odepPV },
         { label: 'Gross Insurance Need', note: '', amt: lifeGross },
         superOffset > 0 && { label: 'Less: Superannuation', note: `${sPct}% of balance`, amt: -superOffset },
@@ -9159,11 +9197,11 @@
         tpdDebtCleared > 0 && { label: 'Debt Clearance', note: `${tpdDedPct}% ded. / ${tpdNonDedPct}% non-ded.`, amt: tpdDebtCleared },
         tpdMedCost > 0 && { label: 'Medical & Rehab Costs', note: 'Lump sum provision', amt: tpdMedCost },
         tpdBuyRes > 0 && { label: 'Principal Residence', note: 'Purchase amount', amt: tpdBuyRes },
-        tpdIncomeTotal > 0 && { label: 'Income Replacement', note: `${tpdIncomePct}% of income Ã— ${tpdIncomeYrs} yrs to retirement`, amt: tpdIncomeTotal },
+        tpdIncomeTotal > 0 && { label: 'Income Replacement', note: `${tpdIncomePct}% of income × ${tpdIncomeYrs} yrs to retirement`, amt: tpdIncomeTotal },
         tpdEduTotal > 0 && { label: 'Education Expenses', note: 'As per Life calculation', amt: tpdEduTotal },
         tpdChildTotal > 0 && { label: 'Child-Raising Costs', note: 'As per Life calculation', amt: tpdChildTotal },
         tpdCarerTotal > 0 && { label: 'Carer Cost', note: isPartnered ? '1 yr partner income' : 'Singles default', amt: tpdCarerTotal },
-        tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr Ã— ${rentYrs} yrs (PV)`, amt: tpdRentPV },
+        tpdRentPV > 0 && { label: 'Rent Provision', note: `${fmt(annualRent)}/yr × ${rentYrs} yrs (PV)`, amt: tpdRentPV },
         { label: 'Gross Insurance Need', note: '', amt: tpdGrossNeed },
         totalDisposableAssets > 0 && { label: 'Less: Disposable Assets', note: 'Super + liquid assets', amt: -totalDisposableAssets },
       ].filter(r => r && r.amt !== 0);
@@ -9177,14 +9215,14 @@
 
       // IP breakdown (monthly amounts)
       const ipBreakdown = [
-        { label: 'Monthly Income Benefit', note: `${ipReplacePct}% of gross income Ã· 12`, amt: ipMonthly },
-        ipSuperMonthly > 0 && { label: 'Monthly Super Benefit', note: `${superContribPct}% of gross income Ã· 12`, amt: ipSuperMonthly },
+        { label: 'Monthly Income Benefit', note: `${ipReplacePct}% of gross income ÷ 12`, amt: ipMonthly },
+        ipSuperMonthly > 0 && { label: 'Monthly Super Benefit', note: `${superContribPct}% of gross income ÷ 12`, amt: ipSuperMonthly },
       ].filter(Boolean);
 
       // Trauma breakdown
       const traumaBreakdown = [
         traumaMedCost > 0 && { label: 'Medical & Rehab Costs', note: 'Lump sum provision', amt: traumaMedCost },
-        traumaIncomeAmt > 0 && { label: 'Income Provision', note: `${traumaIncomePct}% of income Ã— ${traumaIncomeYrs < 1 ? Math.round(traumaIncomeYrs * 12) + ' months' : traumaIncomeYrs + ' yr' + (traumaIncomeYrs !== 1 ? 's' : '')}`, amt: traumaIncomeAmt },
+        traumaIncomeAmt > 0 && { label: 'Income Provision', note: `${traumaIncomePct}% of income × ${traumaIncomeYrs < 1 ? Math.round(traumaIncomeYrs * 12) + ' months' : traumaIncomeYrs + ' yr' + (traumaIncomeYrs !== 1 ? 's' : '')}`, amt: traumaIncomeAmt },
         traumaLiving > 0 && { label: 'Debt Repayment Provision', note: `${traumaDebtYears < 1 ? Math.round(traumaDebtYears * 12) + ' months' : traumaDebtYears + ' yr' + (traumaDebtYears !== 1 ? 's' : '')} non-deductible repayments`, amt: traumaLiving },
         { label: 'NET TRAUMA COVER NEEDED', note: '', amt: traumaCover, total: true },
       ].filter(r => r && (r.amt !== 0 || r.total));
@@ -9734,7 +9772,7 @@
 
       y = HERO_H + 6;
 
-      // â”€â”€ Cover cards: 2Ã—2 grid with rationale lines â”€â”€
+      // â”€â”€ Cover cards: 2×2 grid with rationale lines â”€â”€
       const retireAge = inputs?.retire || CFG.retirementAge || 65;
       const RAT = {
         life: 'Clears debts and replaces income through to retirement',
@@ -10028,7 +10066,7 @@
         return finalY;
       }
 
-      // 2Ã—2 breakdowns
+      // 2×2 breakdowns
       const bStart = y;
       let leftY = bStart;
       leftY = miniTable(breakdown, leftY, M, 'Life Cover', breakdown ? breakdown.length - 1 : null) + 3;
@@ -10041,7 +10079,7 @@
       rightY = miniTable(traumaBreakdown, rightY, colR, 'Trauma Cover',
         traumaBreakdown ? traumaBreakdown.length - 1 : null) + 3;
 
-      // Existing Cover Variance table (full width, below the 2Ã—2 grid)
+      // Existing Cover Variance table (full width, below the 2×2 grid)
       let varFinalY = null;
       if (inputs && inputs.existingCoverShown && inputs.existingCover) {
         const ex = inputs.existingCover;
@@ -10055,11 +10093,10 @@
         const calcIp75 = (incomeForIp * 0.75) / 12;
         const ipReplacePctVal = inputs && inputs.ipReplacePct !== undefined ? inputs.ipReplacePct : (CFG.ipReplacePct || 70);
         const _vLabel = (calcN, exN, suffix) => {
-          if (!exN) return '–';
           const diff = calcN - exN;
           if (diff > 0.5) return 'Shortfall ' + fmt(diff) + suffix;
           if (diff < -0.5) return 'Surplus ' + fmt(Math.abs(diff)) + suffix;
-          return 'Aligned';
+          return (calcN > 0 || exN > 0) ? 'Aligned' : '–';
         };
         // Build flat row data. Pre-2021 IP uses rowSpan on the Existing column
         // so the existing IP figure spans both 70% and 75% calculation lines.
@@ -10116,7 +10153,7 @@
         doc.roundedRect(M, varStartY, varBodyW, varFinalY - varStartY, 2, 2, 'S');
       }
 
-      // Adviser notes – below variance table (or below 2Ã—2 grid if no variance)
+      // Adviser notes – below variance table (or below 2×2 grid if no variance)
       if (advNotes) {
         const notesStartY = varFinalY != null ? varFinalY + 4 : Math.max(leftY, rightY) + 4;
         const noteLines = doc.splitTextToSize(advNotes, W - M * 2 - 8);
