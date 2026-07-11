@@ -2413,6 +2413,69 @@
       color: #7ee8e6
     }
 
+    .quote-req-btn {
+      background: linear-gradient(135deg, #0f2433 0%, #1a8080 100%);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 10px 20px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-left: auto;
+      box-shadow: 0 6px 18px rgba(15, 36, 51, .3);
+      transition: all .2s
+    }
+
+    .quote-req-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(15, 36, 51, .42)
+    }
+
+    /* What's New modal */
+    .wn-box {
+      background: #fff;
+      border-radius: 18px;
+      width: 100%;
+      max-width: 520px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+      animation: fadeUp var(--dur-base) ease;
+    }
+    .wn-hero {
+      background: linear-gradient(135deg, #0f2433 0%, #1c4666 60%, #1a8080 100%);
+      color: #fff;
+      text-align: center;
+      padding: 30px 28px 26px;
+    }
+    .wn-spark { font-size: 40px; line-height: 1; margin-bottom: 8px; }
+    .wn-hero h3 { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+    .wn-hero p { font-size: 13px; opacity: .85; margin: 0; }
+    .wn-body { padding: 22px 26px 4px; display: flex; flex-direction: column; gap: 16px; }
+    .wn-item { display: flex; gap: 13px; align-items: flex-start; }
+    .wn-ico {
+      flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px;
+      display: flex; align-items: center; justify-content: center; font-size: 19px;
+      background: var(--peach-soft, #fdf1ea);
+    }
+    .wn-new .wn-ico { background: linear-gradient(135deg, #0f2433, #1a8080); }
+    .wn-item strong { display: block; font-size: 14.5px; color: var(--navy, #0f2433); margin-bottom: 3px; font-weight: 700; }
+    .wn-item span { display: block; font-size: 12.8px; line-height: 1.5; color: var(--light, #7a91a3); }
+    .wn-item span b { color: var(--peach2, #d97a58); font-weight: 700; }
+    .wn-btn {
+      display: block; width: calc(100% - 52px); margin: 20px 26px 4px;
+      background: linear-gradient(135deg, var(--peach, #eba380) 0%, var(--peach2, #d97a58) 100%);
+      color: #fff; border: none; border-radius: 11px; padding: 13px; font-size: 14px;
+      font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
+      letter-spacing: .02em; transition: all .2s;
+    }
+    .wn-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(235, 163, 128, .42); }
+    .wn-foot { text-align: center; font-size: 11px; color: var(--light, #7a91a3); padding: 0 26px 22px; margin: 8px 0 0; }
+
     .cover-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -5493,6 +5556,7 @@
             <div class="res-actions">
               <button class="pdf-btn" onclick="exportPDF()">📄 Export PDF</button>
               <button class="save-calc-btn" id="save-calc-btn" onclick="saveCalc()">💾 Save Calculation</button>
+              <button class="quote-req-btn" id="req-quote-btn" onclick="requestQuote()">📝 Request Insurance Quote →</button>
             </div>
 
           </div>
@@ -5643,6 +5707,35 @@
         <span class="hist-filter-count" id="hist-filter-count"></span>
       </div>
       <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- WHAT'S NEW -->
+  <div class="modal-overlay hidden" id="whatsnew-modal">
+    <div class="wn-box" onclick="event.stopPropagation()">
+      <div class="wn-hero">
+        <div class="wn-spark">🎉</div>
+        <h3>What's New</h3>
+        <p>A few upgrades to the Needs Calculator</p>
+      </div>
+      <div class="wn-body">
+        <div class="wn-item wn-new">
+          <div class="wn-ico">📝</div>
+          <div>
+            <strong>Request a Quote</strong>
+            <span>Finished a calculation? Hit the new <b>Request Insurance Quote</b> button on the results screen — it opens the Quote Request form with the cover figures already filled in, including the partner when you've run a partner calculation.</span>
+          </div>
+        </div>
+        <div class="wn-item">
+          <div class="wn-ico">✨</div>
+          <div>
+            <strong>Fixes &amp; polish</strong>
+            <span>Cleared up some garbled symbols across the app and the PDF, the PDF now shows the shortfall correctly when there's no existing cover, and gender loads correctly when you open a saved calculation — plus a little more confetti. 🎊</span>
+          </div>
+        </div>
+      </div>
+      <button class="wn-btn" onclick="closeWhatsNew()">Got it 🎉</button>
+      <p class="wn-foot">Thanks for using Mat's Amazing Needs Calculator.</p>
     </div>
   </div>
 
@@ -6856,6 +6949,7 @@
         switchBtn.style.display = isDbAdmin ? '' : 'none';
         switchBtn.textContent = (role === 'admin') ? 'Switch to Staff' : 'Switch to Admin';
       }
+      maybeShowWhatsNew();
     }
 
     // In-app view swap for users flagged admin in caa_users. Pure DOM swap
@@ -6890,12 +6984,15 @@
     // â•â•â•â•â•â•â•â•â•â• CONFETTI ON CALCULATE â•â•â•â•â•â•â•â•â•â•
     // Self-contained canvas particle burst. Brand colours only. Limited to
     // once per user per calendar day so it feels like a reward, not noise.
-    function fireConfetti(mega) {
-      const uid = (currentUser && currentUser.id) || 'anon';
-      const today = new Date().toISOString().slice(0, 10);
-      const key = 'confetti_fired_' + uid + '_' + today;
-      try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }
-      catch(e) {}
+    function fireConfetti(mega, force) {
+      // `force` bypasses the once-per-day guard (used by the What's New celebration).
+      if (!force) {
+        const uid = (currentUser && currentUser.id) || 'anon';
+        const today = new Date().toISOString().slice(0, 10);
+        const key = 'confetti_fired_' + uid + '_' + today;
+        try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }
+        catch(e) {}
+      }
       const colors = ['#eba380','#d4825a','#fdf1ea','#0f2433','#25526e','#def5ff','#ffffff','#f9c784','#a8d8ea','#ff6b6b','#c3f0ca','#ffd700','#ff9f43','#ee5a24','#009432','#0652DD'];
       const W = window.innerWidth, H = window.innerHeight;
       const canvas = document.createElement('canvas');
@@ -6999,6 +7096,58 @@
     }
     function fireMegaConfetti() { fireConfetti(true); }
 
+    // ═════ REQUEST INSURANCE QUOTE ═════
+    // Hands the calculated cover figures + basic details to the standalone Quote Request
+    // app via a URL hash. No server round-trip; data never leaves the browser except in
+    // the hash of the new tab we open. Occupation / DOB / age are intentionally NOT sent
+    // — the adviser enters those in the quote form. The partner is included only when a
+    // dual (partner) calculation was run.
+    const QUOTE_REQUEST_URL = 'https://caamb.github.io/CAAQuoteRequest/';
+    function requestQuote() {
+      if (!lastResult) return;
+      const num = s => String(s == null ? '' : s).replace(/[^0-9.]/g, '');
+      const pack = res => {
+        const r = (res && res.results) || {};
+        const i = (res && res.inputs) || {};
+        return {
+          name:   i.client || '',
+          sex:    i.gender || '',
+          smoker: i.smoker || '',
+          income: num(i.income),
+          life:   num(r.life),
+          tpd:    num(r.tpd),
+          trauma: num(r.trauma),
+          ip:     num(r.ip),
+          child:  r.childTraumaEligible ? num(r.childTrauma) : ''
+        };
+      };
+      const payload = (dualResult && dualResult.client && dualResult.partner)
+        ? { client: pack(dualResult.client), partner: pack(dualResult.partner) }
+        : { client: pack(lastResult) };
+      const hash = '#quote=' + btoa(encodeURIComponent(JSON.stringify(payload)));
+      window.open(QUOTE_REQUEST_URL + hash, '_blank', 'noopener');
+    }
+
+    // ═════ WHAT'S NEW (one-time, per user) ═════
+    // Bump WHATSNEW_VERSION whenever there's a new update to announce — everyone sees
+    // the window once more. Tracked per user in this browser's localStorage.
+    const WHATSNEW_VERSION = '2026-07';
+    function maybeShowWhatsNew() {
+      const uid = (currentUser && currentUser.id) || 'anon';
+      const key = 'whatsnew_seen_' + WHATSNEW_VERSION + '_' + uid;
+      try { if (localStorage.getItem(key)) return; } catch (e) {}
+      const modal = document.getElementById('whatsnew-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    function closeWhatsNew() {
+      const uid = (currentUser && currentUser.id) || 'anon';
+      const key = 'whatsnew_seen_' + WHATSNEW_VERSION + '_' + uid;
+      try { localStorage.setItem(key, '1'); } catch (e) {}
+      const modal = document.getElementById('whatsnew-modal');
+      if (modal) modal.classList.add('hidden');
+      fireConfetti(true, true); // force — celebrate even if calc confetti already fired today
+    }
+
     // â•â•â•â•â•â•â•â•â•â• EASTER EGG – TRIPLE-CLICK BRAND â•â•â•â•â•â•â•â•â•â•
     const EASTER_QUOTES = [
       'Plan everything. Regret nothing.',
@@ -7010,7 +7159,8 @@
       'Fun fact: the average Aussie is underinsured by ~$300k in life cover.',
       'Triple-click again for more wisdom. Or maybe just the same wisdom.',
       'Advisers who triple-click brands live 3% longer. (Not peer-reviewed.)',
-      "🦘 This calculator was not harmed during the making of these calculations."
+      "🦘 This calculator was not harmed during the making of these calculations.",
+      '🏆 Nicole "the founding finder" Cowling found this first.'
     ];
     let __brandClicks = 0, __brandTimer = null;
     function brandTripleClick() {
@@ -8186,13 +8336,14 @@
         if (preEl) preEl.value = ex.ipPre2021 ? 'yes' : 'no';
       }
 
-      // Toggle buttons (gender, smoker)
-      ['s-gender', 's-smoker'].forEach(function (key) {
-        if (!inp[key]) return;
-        tbState[key] = inp[key];
+      // Toggle buttons (gender, smoker) — values are saved under keys `gender`/`smoker`
+      [['s-gender', 'gender'], ['s-smoker', 'smoker']].forEach(function (pair) {
+        const key = pair[0], val = inp[pair[1]];
+        if (!val) return;
+        tbState[key] = val;
         document.querySelectorAll('#sc-1 .tbg .tb').forEach(function (btn) {
           const m = (btn.getAttribute('onclick') || '').match(/'([^']+)','([^']+)'/);
-          if (m && m[1] === key) btn.classList.toggle('active', m[2] === inp[key]);
+          if (m && m[1] === key) btn.classList.toggle('active', m[2] === val);
         });
       });
 
@@ -8292,13 +8443,14 @@
         sf('p-retire', p.retire);
         sf('p-supercontrib', p.superContribPct);
         sf('p-incpct', p.incPct);
-        // Toggle buttons (gender, smoker)
-        ['p-gender', 'p-smoker'].forEach(function(key) {
-          if (!p[key]) return;
-          tbState[key] = p[key];
+        // Toggle buttons (gender, smoker) — values are saved under keys `gender`/`smoker`
+        [['p-gender', 'gender'], ['p-smoker', 'smoker']].forEach(function(pair) {
+          var key = pair[0], val = p[pair[1]];
+          if (!val) return;
+          tbState[key] = val;
           document.querySelectorAll('.tbg .tb').forEach(function(btn) {
             var m = (btn.getAttribute('onclick') || '').match(/'([^']+)','([^']+)'/);
-            if (m && m[1] === key) btn.classList.toggle('active', m[2] === p[key]);
+            if (m && m[1] === key) btn.classList.toggle('active', m[2] === val);
           });
         });
         // Partner existing cover
