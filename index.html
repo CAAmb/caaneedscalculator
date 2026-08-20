@@ -5,7 +5,7 @@
   <link rel="icon" type="image/png" href="favicon.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mat's Amazing Needs Calculator | Coastal Advisory Australia</title>
+  <title>CAA Needs Calculator</title>
   <!-- Brand typography: Plus Jakarta Sans stands in for Halyard Display until OTF is embedded. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1884,22 +1884,6 @@
       background: linear-gradient(90deg, var(--teal), var(--teal2), transparent)
     }
 
-    .ch-badge {
-      display: inline-block;
-      background: rgba(232, 129, 106, .18);
-      border: 1px solid rgba(232, 129, 106, .4);
-      color: #e8816a;
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 4px 11px;
-      border-radius: 20px;
-      margin-bottom: 10px;
-      position: relative;
-      z-index: 1
-    }
-
     .calc-header h1 {
       font-family: 'Playfair Display', serif;
       font-size: clamp(20px, 2.8vw, 28px);
@@ -2435,46 +2419,6 @@
       transform: translateY(-2px);
       box-shadow: 0 12px 30px rgba(15, 36, 51, .42)
     }
-
-    /* What's New modal */
-    .wn-box {
-      background: #fff;
-      border-radius: 18px;
-      width: 100%;
-      max-width: 520px;
-      overflow: hidden;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
-      animation: fadeUp var(--dur-base) ease;
-    }
-    .wn-hero {
-      background: linear-gradient(135deg, #0f2433 0%, #1c4666 60%, #1a8080 100%);
-      color: #fff;
-      text-align: center;
-      padding: 30px 28px 26px;
-    }
-    .wn-spark { font-size: 40px; line-height: 1; margin-bottom: 8px; }
-    .wn-hero h3 { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
-    .wn-hero p { font-size: 13px; opacity: .85; margin: 0; }
-    .wn-body { padding: 22px 26px 4px; display: flex; flex-direction: column; gap: 16px; }
-    .wn-item { display: flex; gap: 13px; align-items: flex-start; }
-    .wn-ico {
-      flex-shrink: 0; width: 38px; height: 38px; border-radius: 11px;
-      display: flex; align-items: center; justify-content: center; font-size: 19px;
-      background: var(--peach-soft, #fdf1ea);
-    }
-    .wn-new .wn-ico { background: linear-gradient(135deg, #0f2433, #1a8080); }
-    .wn-item strong { display: block; font-size: 14.5px; color: var(--navy, #0f2433); margin-bottom: 3px; font-weight: 700; }
-    .wn-item span { display: block; font-size: 12.8px; line-height: 1.5; color: var(--light, #7a91a3); }
-    .wn-item span b { color: var(--peach2, #d97a58); font-weight: 700; }
-    .wn-btn {
-      display: block; width: calc(100% - 52px); margin: 20px 26px 4px;
-      background: linear-gradient(135deg, var(--peach, #eba380) 0%, var(--peach2, #d97a58) 100%);
-      color: #fff; border: none; border-radius: 11px; padding: 13px; font-size: 14px;
-      font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
-      letter-spacing: .02em; transition: all .2s;
-    }
-    .wn-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(235, 163, 128, .42); }
-    .wn-foot { text-align: center; font-size: 11px; color: var(--light, #7a91a3); padding: 0 26px 22px; margin: 8px 0 0; }
 
     .cover-grid {
       display: grid;
@@ -3378,14 +3322,6 @@
     .calc-header-stripe {
       height: 3px !important;
       background: linear-gradient(90deg, transparent, var(--peach) 15%, var(--peach2) 50%, var(--peach) 85%, transparent) !important;
-    }
-
-    .ch-badge {
-      background: rgba(235, 163, 128, 0.14) !important;
-      border: 1px solid rgba(235, 163, 128, 0.4) !important;
-      color: var(--peach) !important;
-      backdrop-filter: blur(8px);
-      letter-spacing: 0.24em !important;
     }
 
     .calc-header h1 {
@@ -4882,7 +4818,6 @@
           <button class="hist-btn" onclick="openMyHistory()">📋 My History <span class="hist-count"
               id="my-hist-count">0</span></button>
           <div class="calc-header-stripe"></div>
-          <div class="ch-badge">Mat's Amazing Needs Calculator</div>
           <h1>How much cover do<br>you <em>really</em> need?</h1>
           <p class="calc-header-sub">Complete each section for a personalised insurance recommendation.</p>
           <p class="calc-header-tagline">Plan everything · Regret nothing</p>
@@ -5707,35 +5642,6 @@
         <span class="hist-filter-count" id="hist-filter-count"></span>
       </div>
       <div class="modal-body" id="modal-body"></div>
-    </div>
-  </div>
-
-  <!-- WHAT'S NEW -->
-  <div class="modal-overlay hidden" id="whatsnew-modal">
-    <div class="wn-box" onclick="event.stopPropagation()">
-      <div class="wn-hero">
-        <div class="wn-spark">🎉</div>
-        <h3>What's New</h3>
-        <p>A few upgrades to the Needs Calculator</p>
-      </div>
-      <div class="wn-body">
-        <div class="wn-item wn-new">
-          <div class="wn-ico">📝</div>
-          <div>
-            <strong>Request a Quote</strong>
-            <span>Finished a calculation? Hit the new <b>Request Insurance Quote</b> button on the results screen — it opens the Quote Request form with the cover figures already filled in, including the partner when you've run a partner calculation.</span>
-          </div>
-        </div>
-        <div class="wn-item">
-          <div class="wn-ico">✨</div>
-          <div>
-            <strong>Fixes &amp; polish</strong>
-            <span>Cleared up some garbled symbols across the app and the PDF, the PDF now shows the shortfall correctly when there's no existing cover, and gender loads correctly when you open a saved calculation — plus a little more confetti. 🎊</span>
-          </div>
-        </div>
-      </div>
-      <button class="wn-btn" onclick="closeWhatsNew()">Got it 🎉</button>
-      <p class="wn-foot">Thanks for using Mat's Amazing Needs Calculator.</p>
     </div>
   </div>
 
@@ -6949,7 +6855,6 @@
         switchBtn.style.display = isDbAdmin ? '' : 'none';
         switchBtn.textContent = (role === 'admin') ? 'Switch to Staff' : 'Switch to Admin';
       }
-      maybeShowWhatsNew();
     }
 
     // In-app view swap for users flagged admin in caa_users. Pure DOM swap
@@ -6984,15 +6889,12 @@
     // â•â•â•â•â•â•â•â•â•â• CONFETTI ON CALCULATE â•â•â•â•â•â•â•â•â•â•
     // Self-contained canvas particle burst. Brand colours only. Limited to
     // once per user per calendar day so it feels like a reward, not noise.
-    function fireConfetti(mega, force) {
-      // `force` bypasses the once-per-day guard (used by the What's New celebration).
-      if (!force) {
-        const uid = (currentUser && currentUser.id) || 'anon';
-        const today = new Date().toISOString().slice(0, 10);
-        const key = 'confetti_fired_' + uid + '_' + today;
-        try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }
-        catch(e) {}
-      }
+    function fireConfetti(mega) {
+      const uid = (currentUser && currentUser.id) || 'anon';
+      const today = new Date().toISOString().slice(0, 10);
+      const key = 'confetti_fired_' + uid + '_' + today;
+      try { if (localStorage.getItem(key)) return; localStorage.setItem(key, '1'); }
+      catch(e) {}
       const colors = ['#eba380','#d4825a','#fdf1ea','#0f2433','#25526e','#def5ff','#ffffff','#f9c784','#a8d8ea','#ff6b6b','#c3f0ca','#ffd700','#ff9f43','#ee5a24','#009432','#0652DD'];
       const W = window.innerWidth, H = window.innerHeight;
       const canvas = document.createElement('canvas');
@@ -7128,26 +7030,6 @@
       window.open(QUOTE_REQUEST_URL + hash, '_blank', 'noopener');
     }
 
-    // ═════ WHAT'S NEW (one-time, per user) ═════
-    // Bump WHATSNEW_VERSION whenever there's a new update to announce — everyone sees
-    // the window once more. Tracked per user in this browser's localStorage.
-    const WHATSNEW_VERSION = '2026-07';
-    function maybeShowWhatsNew() {
-      const uid = (currentUser && currentUser.id) || 'anon';
-      const key = 'whatsnew_seen_' + WHATSNEW_VERSION + '_' + uid;
-      try { if (localStorage.getItem(key)) return; } catch (e) {}
-      const modal = document.getElementById('whatsnew-modal');
-      if (modal) modal.classList.remove('hidden');
-    }
-    function closeWhatsNew() {
-      const uid = (currentUser && currentUser.id) || 'anon';
-      const key = 'whatsnew_seen_' + WHATSNEW_VERSION + '_' + uid;
-      try { localStorage.setItem(key, '1'); } catch (e) {}
-      const modal = document.getElementById('whatsnew-modal');
-      if (modal) modal.classList.add('hidden');
-      fireConfetti(true, true); // force — celebrate even if calc confetti already fired today
-    }
-
     // â•â•â•â•â•â•â•â•â•â• EASTER EGG – TRIPLE-CLICK BRAND â•â•â•â•â•â•â•â•â•â•
     const EASTER_QUOTES = [
       'Plan everything. Regret nothing.',
@@ -7155,7 +7037,7 @@
       'An ounce of prevention is worth a pound of claim.',
       '🌊 Built with saltwater and spreadsheets on the NSW coast.',
       "You've found the secret button. A wizard appears only to the worthy.",
-      "Mat's Amazing Needs Calculator – accept no substitutes.",
+      'CAA Needs Calculator – accept no substitutes.',
       'Fun fact: the average Aussie is underinsured by ~$300k in life cover.',
       'Triple-click again for more wisdom. Or maybe just the same wisdom.',
       'Advisers who triple-click brands live 3% longer. (Not peer-reviewed.)',
