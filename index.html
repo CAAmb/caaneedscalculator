@@ -2813,16 +2813,22 @@
     .smsf-panel { display: none; margin-top: 10px; padding: 13px 14px; border: 1.5px solid rgba(235,163,128,.4); border-radius: 12px; background: rgba(253,241,234,.4); }
     .f.asset-row-wrap[data-smsf="yes"] .smsf-panel { display: block; }
     .f.asset-row-wrap[data-smsf="yes"] .joint-bar { display: none !important; }
-    .smsf-head, .smsf-row { display: grid; grid-template-columns: 1fr 116px 72px 72px 30px; gap: 8px; align-items: center; }
-    .smsf-panel[data-partner="no"] .smsf-head,
-    .smsf-panel[data-partner="no"] .smsf-row { grid-template-columns: 1fr 116px 72px 30px; }
     .smsf-panel[data-partner="no"] .smsf-p { display: none !important; }
-    .smsf-head { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--mid); margin-bottom: 7px; }
+    .smsf-sub { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--navy); margin: 14px 0 7px; }
+    .smsf-sub.first { margin-top: 0; }
+    .smsf-head, .smsf-row { display: grid; grid-template-columns: 1fr 132px 30px; gap: 8px; align-items: start; }
+    .smsf-head { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
     .smsf-head span:not(:first-child) { text-align: right; }
     .smsf-row { margin-bottom: 7px; }
-    .smsf-row input { width: 100%; padding: 7px 9px; font-size: 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; background: #fff; }
+    .smsf-row textarea, .smsf-row input { width: 100%; padding: 7px 9px; font-size: 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; background: #fff; }
+    .smsf-row textarea { resize: none; overflow: hidden; min-height: 34px; line-height: 1.35; display: block; }
     .smsf-row input.smsf-num { text-align: right; }
-    .smsf-rm { width: 26px; height: 26px; border-radius: 50%; border: none; background: rgba(192,57,43,.1); color: #c0392b; cursor: pointer; font-size: 12px; line-height: 1; }
+    /* Whole-of-fund ownership split */
+    .smsf-split { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 13px; padding-top: 12px; border-top: 1px solid rgba(235,163,128,.35); }
+    .smsf-split-lbl { font-size: 11px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--navy); margin-right: 2px; }
+    .smsf-split label { font-size: 12px; font-weight: 600; color: var(--mid); display: inline-flex; align-items: center; gap: 6px; }
+    .smsf-split input { width: 78px; padding: 7px 9px; text-align: right; font-size: 13px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; background: #fff; }
+    .smsf-rm { width: 26px; height: 26px; margin-top: 4px; border-radius: 50%; border: none; background: rgba(192,57,43,.1); color: #c0392b; cursor: pointer; font-size: 12px; line-height: 1; }
     .smsf-rm:hover { background: rgba(192,57,43,.2); }
     .smsf-add { margin-top: 3px; padding: 7px 14px; border-radius: 8px; border: 1.5px dashed rgba(235,163,128,.6); background: transparent; color: var(--peach2); font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
     .smsf-add:hover { background: rgba(235,163,128,.12); }
@@ -2831,8 +2837,6 @@
     .smsf-warn { display: none; margin-top: 8px; font-size: 11.5px; color: #c0392b; font-weight: 600; }
     .smsf-panel.over .smsf-warn { display: block; }
     .smsf-note { font-size: 11px; color: var(--light); margin-bottom: 9px; }
-    /* Results-screen SMSF table: hide partner columns when partner calc is off */
-    #smsf-wrap.smsf-no-partner .smsf-col-p { display: none; }
 
     /* Joint mode collapses to a single client box (used for both calcs).
      * Only relevant when partner-calc is on. */
@@ -5452,18 +5456,28 @@
                     </div>
                   </div>
                   <div class="smsf-panel" id="smsf-panel" data-partner="no">
-                    <div class="smsf-note">List the SMSF assets and each member's ownership share. Shares don't need to total 100% &ndash; any unallocated portion is simply excluded.</div>
-                    <div class="smsf-head">
-                      <span>SMSF Asset</span><span>Value</span><span>Client %</span><span class="smsf-p">Partner %</span><span></span>
+                    <div class="smsf-note">List the fund's assets and any debts, then set each member's ownership share of the fund. Shares don't need to total 100% &ndash; any unallocated portion is simply excluded.</div>
+                    <div class="smsf-sub first">Assets</div>
+                    <div class="smsf-head"><span>Description</span><span>Value</span><span></span></div>
+                    <div id="smsf-asset-rows"></div>
+                    <button type="button" class="smsf-add" onclick="addSmsfRow('assets')">+ Add asset</button>
+                    <div class="smsf-sub">Debts</div>
+                    <div class="smsf-head"><span>Description</span><span>Amount owing</span><span></span></div>
+                    <div id="smsf-debt-rows"></div>
+                    <button type="button" class="smsf-add" onclick="addSmsfRow('debts')">+ Add debt</button>
+                    <div class="smsf-split">
+                      <span class="smsf-split-lbl">Ownership split</span>
+                      <label>Client <input type="number" min="0" max="100" id="smsf-cpct" value="100" oninput="updateSmsfSplit('cpct', this.value)">%</label>
+                      <label class="smsf-p">Partner <input type="number" min="0" max="100" id="smsf-ppct" value="0" oninput="updateSmsfSplit('ppct', this.value)">%</label>
                     </div>
-                    <div id="smsf-rows"></div>
-                    <button type="button" class="smsf-add" onclick="addSmsfItem()">+ Add SMSF asset</button>
                     <div class="smsf-tot">
+                      <span>Assets: <b id="smsf-tot-a">$0</b></span>
+                      <span>Debts: <b id="smsf-tot-d">$0</b></span>
+                      <span>Net fund value: <b id="smsf-tot-net">$0</b></span>
                       <span>Client share: <b id="smsf-tot-c">$0</b></span>
                       <span class="smsf-p">Partner share: <b id="smsf-tot-p">$0</b></span>
-                      <span>Fund total: <b id="smsf-tot-all">$0</b></span>
                     </div>
-                    <div class="smsf-warn">One or more assets allocate more than 100% between client and partner.</div>
+                    <div class="smsf-warn">Client and partner shares add up to more than 100% of the fund.</div>
                   </div>
                 </div>
               </div>
@@ -5646,7 +5660,7 @@
             <div class="bk-title">SMSF Ownership Split</div>
             <div class="bk-sub">How the superannuation figure used in this calculation was arrived at</div>
             <table class="bkt variance-table">
-              <thead><tr><th>SMSF Asset</th><th>Value</th><th>Client %</th><th>Client Share</th><th class="smsf-col-p">Partner %</th><th class="smsf-col-p">Partner Share</th></tr></thead>
+              <thead><tr><th>SMSF Assets &amp; Debts</th><th>Amount</th></tr></thead>
               <tbody id="bk-smsf-body"></tbody>
             </table>
           </div>
@@ -6380,27 +6394,22 @@
       const body = document.getElementById('bk-smsf-body');
       if (!wrap || !body) return;
       const inp = r.inputs || {};
-      const items = Array.isArray(inp.smsfItems) ? inp.smsfItems : [];
-      if (!inp.smsfOn || !items.length) { wrap.classList.add('hidden'); body.innerHTML = ''; return; }
+      const hasAny = (Array.isArray(inp.smsfAssets) && inp.smsfAssets.length)
+        || (Array.isArray(inp.smsfDebts) && inp.smsfDebts.length);
+      if (!inp.smsfOn || !hasAny) { wrap.classList.add('hidden'); body.innerHTML = ''; return; }
       const swP = document.getElementById('sw-partner-calc');
       const partnerOn = !!(inp._isDual || inp._partnerInputs || (swP && swP.checked));
-      wrap.classList.toggle('smsf-no-partner', !partnerOn);
-      const fmtLocal = n => '$' + Math.round(n).toLocaleString('en-AU');
-      const t = smsfTotals(items);
+      const t = smsfReport(inp);
       body.innerHTML = '';
-      items.forEach(it => {
-        const v = smsfNum(it.value), cp = smsfNum(it.cpct), pp = smsfNum(it.ppct);
+      t.rows.forEach(row => {
+        if (row.partnerOnly && !partnerOn) return;
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td><span class="rn">${escapeHTML(String(it.desc || 'SMSF asset'))}</span></td>`
-          + `<td>${fmtLocal(v)}</td><td>${cp}%</td><td>${fmtLocal(v * cp / 100)}</td>`
-          + `<td class="smsf-col-p">${pp}%</td><td class="smsf-col-p">${fmtLocal(v * pp / 100)}</td>`;
+        if (row.kind === 'net' || row.kind === 'share') tr.className = 'tot';
+        const strong = row.kind === 'sub' ? 'font-weight:700' : '';
+        tr.innerHTML = `<td><span class="rn" style="${strong}">${escapeHTML(String(row.label))}</span></td>`
+          + `<td style="${strong}">${smsfMoney(row.amt)}</td>`;
         body.appendChild(tr);
       });
-      const tot = document.createElement('tr');
-      tot.className = 'tot';
-      tot.innerHTML = `<td><span class="rn">TOTAL</span></td><td>${fmtLocal(t.total)}</td><td></td>`
-        + `<td>${fmtLocal(t.client)}</td><td class="smsf-col-p"></td><td class="smsf-col-p">${fmtLocal(t.partner)}</td>`;
-      body.appendChild(tot);
       wrap.classList.remove('hidden');
     }
 
@@ -8370,9 +8379,20 @@
 
       // Step 5 – Assets & Assumptions
       // SMSF split (restore before s-super so recalc doesn't fight the restored value)
-      smsfItems = Array.isArray(inp.smsfItems) ? inp.smsfItems.map(function (it) {
-        return { desc: it.desc || '', value: it.value || '', cpct: it.cpct, ppct: it.ppct };
-      }) : [];
+      var _pick = function (a) { return Array.isArray(a) ? a.map(function (it) { return { desc: it.desc || '', value: it.value || '' }; }) : []; };
+      if (Array.isArray(inp.smsfItems) && !inp.smsfAssets) {
+        // Legacy shape: per-item percentages. Carry the items over as assets and
+        // take the whole-of-fund split from the first item.
+        smsfAssets = _pick(inp.smsfItems);
+        smsfDebts = [];
+        smsfCpct = inp.smsfItems.length ? (inp.smsfItems[0].cpct != null ? inp.smsfItems[0].cpct : 100) : 100;
+        smsfPpct = inp.smsfItems.length ? (inp.smsfItems[0].ppct != null ? inp.smsfItems[0].ppct : 0) : 0;
+      } else {
+        smsfAssets = _pick(inp.smsfAssets);
+        smsfDebts = _pick(inp.smsfDebts);
+        smsfCpct = inp.smsfCpct != null ? inp.smsfCpct : 100;
+        smsfPpct = inp.smsfPpct != null ? inp.smsfPpct : 0;
+      }
       if (typeof toggleSmsf === 'function') toggleSmsf(!!inp.smsfOn);
       sf('s-super', inp.superBal);
       sf('s-superpct', inp.superpct);
@@ -8586,11 +8606,16 @@
 
       let y = 22;
       // Two label/value pairs per row so a full record fits ~2 pages per person.
-      function section(title, rows) {
+      // Pass single=true for running totals, which must read top-to-bottom.
+      function section(title, rows, single) {
         const packed = [];
-        for (let k = 0; k < rows.length; k += 2) {
-          const a = rows[k], b = rows[k + 1] || ['', ''];
-          packed.push([a[0], a[1], b[0], b[1]]);
+        if (single) {
+          rows.forEach(r => packed.push([r[0], r[1], '', '']));
+        } else {
+          for (let k = 0; k < rows.length; k += 2) {
+            const a = rows[k], b = rows[k + 1] || ['', ''];
+            packed.push([a[0], a[1], b[0], b[1]]);
+          }
         }
         doc.autoTable({
           startY: y,
@@ -8673,17 +8698,11 @@
           ['Managed Funds' + js('managed'), money(i.managed)]
         ]);
 
-        if (i.smsfOn && Array.isArray(i.smsfItems) && i.smsfItems.length) {
-          const st = smsfTotals(i.smsfItems);
-          const smsfRows = [];
-          i.smsfItems.forEach(it => {
-            const v = smsfNum(it.value), cp = smsfNum(it.cpct), pp = smsfNum(it.ppct);
-            smsfRows.push([String(it.desc || 'SMSF asset'), fmt(v)]);
-            smsfRows.push(['   Client ' + cp + '% / Partner ' + pp + '%', fmt(v * cp / 100) + ' / ' + fmt(v * pp / 100)]);
-          });
-          smsfRows.push(['FUND TOTAL', fmt(st.total)]);
-          smsfRows.push(['Client share / Partner share', fmt(st.client) + ' / ' + fmt(st.partner)]);
-          section('SMSF Ownership Split', smsfRows);
+        const smsfAny = (Array.isArray(i.smsfAssets) && i.smsfAssets.length)
+          || (Array.isArray(i.smsfDebts) && i.smsfDebts.length);
+        if (i.smsfOn && smsfAny) {
+          section('SMSF Ownership Split',
+            smsfReport(i).rows.map(row => [String(row.label), smsfMoney(row.amt)]), true);
         }
 
         section('Existing Cover', [
@@ -8892,7 +8911,20 @@
     // figures and write them into s-super / p-super. The calculation engine is
     // untouched — it still reads those same two fields. Member shares need not
     // total 100%; any unallocated portion belongs to another member and is excluded.
-    let smsfItems = [];
+    let smsfAssets = [];   // [{ desc, value }]
+    let smsfDebts = [];    // [{ desc, value }]
+    let smsfCpct = 100, smsfPpct = 0;   // whole-of-fund ownership split
+
+    function smsfNum(v) {
+      const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.]/g, ''));
+      return isNaN(n) ? 0 : n;
+    }
+    // Handles negatives, unlike the global fmt() which floors at $0
+    function smsfMoney(n) {
+      const v = Math.round(n);
+      return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString('en-AU');
+    }
+    function smsfList(kind) { return kind === 'debts' ? smsfDebts : smsfAssets; }
 
     function toggleSmsf(on) {
       const wrap = document.getElementById('af-super-asset');
@@ -8907,7 +8939,9 @@
         el.style.background = on ? '#f4f7fa' : '';
       });
       syncSmsfPartnerCols();
-      if (on && !smsfItems.length) { addSmsfItem(); return; }
+      const cEl = document.getElementById('smsf-cpct'); if (cEl) cEl.value = smsfCpct;
+      const pEl = document.getElementById('smsf-ppct'); if (pEl) pEl.value = smsfPpct;
+      if (on && !smsfAssets.length) { addSmsfRow('assets'); return; }
       renderSmsfRows();
       recalcSmsf();
     }
@@ -8918,68 +8952,87 @@
       if (panel) panel.dataset.partner = (sw && sw.checked) ? 'yes' : 'no';
     }
 
-    function addSmsfItem(desc, value, cpct, ppct) {
-      smsfItems.push({
-        desc: desc || '',
-        value: value || '',
-        cpct: cpct === undefined || cpct === null ? 100 : cpct,
-        ppct: ppct === undefined || ppct === null ? 0 : ppct
-      });
+    function addSmsfRow(kind, desc, value) {
+      smsfList(kind).push({ desc: desc || '', value: value || '' });
       renderSmsfRows();
       recalcSmsf();
     }
-
-    function removeSmsfItem(i) { smsfItems.splice(i, 1); renderSmsfRows(); recalcSmsf(); }
+    function removeSmsfRow(kind, i) { smsfList(kind).splice(i, 1); renderSmsfRows(); recalcSmsf(); }
 
     // Only recalcs — never re-renders, so typing doesn't steal focus
-    function updateSmsfItem(i, field, val) {
-      if (!smsfItems[i]) return;
-      smsfItems[i][field] = val;
+    function updateSmsfRow(kind, i, field, val) {
+      const list = smsfList(kind);
+      if (!list[i]) return;
+      list[i][field] = val;
+      recalcSmsf();
+    }
+    function updateSmsfSplit(which, val) {
+      if (which === 'cpct') smsfCpct = val; else smsfPpct = val;
       recalcSmsf();
     }
 
+    // Grow the description box to fit its content
+    function smsfAutoSize(el) {
+      if (!el) return;
+      el.style.height = 'auto';
+      el.style.height = el.scrollHeight + 'px';
+    }
+    // Live thousand separators, matching the app's other dollar fields
+    function smsfFmtCur(el, kind, i) {
+      const raw = el.value.replace(/[^0-9]/g, '');
+      const next = raw ? parseInt(raw, 10).toLocaleString('en-AU') : '';
+      if (el.value !== next) el.value = next;
+      updateSmsfRow(kind, i, 'value', next);
+    }
+
     function renderSmsfRows() {
-      const host = document.getElementById('smsf-rows');
-      if (!host) return;
-      host.innerHTML = smsfItems.map((it, i) =>
-        '<div class="smsf-row">'
-        + '<input type="text" placeholder="e.g. Commercial property - Smith St" value="' + escapeHTML(String(it.desc || '')) + '" oninput="updateSmsfItem(' + i + ',\'desc\',this.value)">'
-        + '<input type="text" inputmode="numeric" class="smsf-num" placeholder="0" value="' + escapeHTML(String(it.value || '')) + '" oninput="updateSmsfItem(' + i + ',\'value\',this.value)">'
-        + '<input type="number" min="0" max="100" class="smsf-num" value="' + escapeHTML(String(it.cpct)) + '" oninput="updateSmsfItem(' + i + ',\'cpct\',this.value)">'
-        + '<input type="number" min="0" max="100" class="smsf-num smsf-p" value="' + escapeHTML(String(it.ppct)) + '" oninput="updateSmsfItem(' + i + ',\'ppct\',this.value)">'
-        + '<button type="button" class="smsf-rm" onclick="removeSmsfItem(' + i + ')" title="Remove">✕</button>'
-        + '</div>'
-      ).join('');
-    }
-
-    function smsfNum(v) {
-      const n = parseFloat(String(v == null ? '' : v).replace(/[^0-9.]/g, ''));
-      return isNaN(n) ? 0 : n;
-    }
-
-    // Returns { client, partner, total, over } for a given item list
-    function smsfTotals(items) {
-      let client = 0, partner = 0, total = 0, over = false;
-      (items || []).forEach(it => {
-        const v = smsfNum(it.value), cp = smsfNum(it.cpct), pp = smsfNum(it.ppct);
-        total += v;
-        client += v * cp / 100;
-        partner += v * pp / 100;
-        if (cp + pp > 100.001) over = true;
+      [['assets', 'smsf-asset-rows', 'e.g. Commercial property - Smith St'],
+       ['debts', 'smsf-debt-rows', 'e.g. LRBA - Smith St property']].forEach(function (cfg) {
+        const kind = cfg[0], host = document.getElementById(cfg[1]);
+        if (!host) return;
+        host.innerHTML = smsfList(kind).map((it, i) =>
+          '<div class="smsf-row">'
+          + '<textarea rows="1" placeholder="' + cfg[2] + '" oninput="smsfAutoSize(this);updateSmsfRow(\'' + kind + '\',' + i + ',\'desc\',this.value)">' + escapeHTML(String(it.desc || '')) + '</textarea>'
+          + '<input type="text" inputmode="numeric" class="smsf-num" placeholder="0" value="' + escapeHTML(String(it.value || '')) + '" oninput="smsfFmtCur(this,\'' + kind + '\',' + i + ')">'
+          + '<button type="button" class="smsf-rm" onclick="removeSmsfRow(\'' + kind + '\',' + i + ')" title="Remove">✕</button>'
+          + '</div>'
+        ).join('');
+        host.querySelectorAll('textarea').forEach(smsfAutoSize);
       });
-      return { client, partner, total, over };
+    }
+
+    // Shared shape used by the results screen and both PDFs
+    function smsfReport(inp) {
+      const assets = Array.isArray(inp.smsfAssets) ? inp.smsfAssets : [];
+      const debts = Array.isArray(inp.smsfDebts) ? inp.smsfDebts : [];
+      const cp = smsfNum(inp.smsfCpct), pp = smsfNum(inp.smsfPpct);
+      const aTot = assets.reduce((s, it) => s + smsfNum(it.value), 0);
+      const dTot = debts.reduce((s, it) => s + smsfNum(it.value), 0);
+      const net = aTot - dTot;
+      const rows = [];
+      assets.forEach(it => rows.push({ label: it.desc || 'SMSF asset', amt: smsfNum(it.value), kind: 'item' }));
+      if (assets.length) rows.push({ label: 'Total Assets', amt: aTot, kind: 'sub' });
+      debts.forEach(it => rows.push({ label: it.desc || 'SMSF debt', amt: -smsfNum(it.value), kind: 'item' }));
+      if (debts.length) rows.push({ label: 'Total Debts', amt: -dTot, kind: 'sub' });
+      rows.push({ label: 'NET FUND VALUE', amt: net, kind: 'net' });
+      rows.push({ label: 'Client share (' + cp + '%)', amt: net * cp / 100, kind: 'share' });
+      rows.push({ label: 'Partner share (' + pp + '%)', amt: net * pp / 100, kind: 'share', partnerOnly: true });
+      return { rows, aTot, dTot, net, cpct: cp, ppct: pp, client: net * cp / 100, partner: net * pp / 100, over: cp + pp > 100.001 };
     }
 
     function recalcSmsf() {
-      const t = smsfTotals(smsfItems);
+      const t = smsfReport({ smsfAssets: smsfAssets, smsfDebts: smsfDebts, smsfCpct: smsfCpct, smsfPpct: smsfPpct });
       const panel = document.getElementById('smsf-panel');
       if (panel) panel.classList.toggle('over', t.over);
-      const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = fmt(v); };
+      const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = smsfMoney(v); };
+      setTxt('smsf-tot-a', t.aTot);
+      setTxt('smsf-tot-d', t.dTot);
+      setTxt('smsf-tot-net', t.net);
       setTxt('smsf-tot-c', t.client);
       setTxt('smsf-tot-p', t.partner);
-      setTxt('smsf-tot-all', t.total);
       const cb = document.getElementById('smsf-toggle');
       if (cb && cb.checked) {
+        // Super balance can't be negative — a net-negative fund contributes nothing
         const sEl = document.getElementById('s-super');
         const pEl = document.getElementById('p-super');
         if (sEl) sEl.value = t.client > 0 ? Math.round(t.client).toLocaleString('en-AU') : '';
@@ -9715,9 +9768,11 @@
         childcare: gv('s-childcare', 0) || '', odep: gv('s-odep', 0) || '', odepyrs: gv('s-odepyrs', 0) || '',
         superBal, superpct: sPct,
         smsfOn: !!(document.getElementById('smsf-toggle') && document.getElementById('smsf-toggle').checked),
-        smsfItems: (document.getElementById('smsf-toggle') && document.getElementById('smsf-toggle').checked)
-          ? smsfItems.map(it => ({ desc: it.desc, value: it.value, cpct: it.cpct, ppct: it.ppct }))
-          : [],
+        smsfAssets: (document.getElementById('smsf-toggle') && document.getElementById('smsf-toggle').checked)
+          ? smsfAssets.map(it => ({ desc: it.desc, value: it.value })) : [],
+        smsfDebts: (document.getElementById('smsf-toggle') && document.getElementById('smsf-toggle').checked)
+          ? smsfDebts.map(it => ({ desc: it.desc, value: it.value })) : [],
+        smsfCpct, smsfPpct,
         cash: aCash, resprop: aResProp, comprop: aComProp, invprop: aInvProp,
         shares: aShares, managed: aManaged,
         earn, infl,
@@ -9985,7 +10040,7 @@
       });
       // Toggle buttons
       // SMSF split back to off/empty
-      smsfItems = [];
+      smsfAssets = []; smsfDebts = []; smsfCpct = 100; smsfPpct = 0;
       if (typeof toggleSmsf === 'function') toggleSmsf(false);
       tbState = { 's-gender': 'male', 's-smoker': 'no', 's-incpct': String(CFG.ipct), 'tpd-ownsres': 'yes', 'p-gender': 'male', 'p-smoker': 'no' };
       document.querySelectorAll('#sc-1 .tbg').forEach(g => {
@@ -10532,23 +10587,23 @@
 
       // SMSF ownership split (full width) — shows the client how the super figure was reached
       let smsfFinalY = null;
-      if (inputs && inputs.smsfOn && Array.isArray(inputs.smsfItems) && inputs.smsfItems.length) {
-        const items = inputs.smsfItems;
-        const t = smsfTotals(items);
+      const _smsfHasAny = inputs && ((Array.isArray(inputs.smsfAssets) && inputs.smsfAssets.length)
+        || (Array.isArray(inputs.smsfDebts) && inputs.smsfDebts.length));
+      if (inputs && inputs.smsfOn && _smsfHasAny) {
+        const t = smsfReport(inputs);
         const swP = document.getElementById('sw-partner-calc');
         const showP = !!(inputs._isDual || inputs._partnerInputs || (swP && swP.checked));
-        const head = showP
-          ? [['SMSF Asset', 'Value', 'Client %', 'Client Share', 'Partner %', 'Partner Share']]
-          : [['SMSF Asset', 'Value', 'Client %', 'Client Share']];
-        const body = items.map(it => {
-          const v = smsfNum(it.value), cp = smsfNum(it.cpct), pp = smsfNum(it.ppct);
-          const base = [String(it.desc || 'SMSF asset'), fmt(v), cp + '%', fmt(v * cp / 100)];
-          return showP ? base.concat([pp + '%', fmt(v * pp / 100)]) : base;
-        });
-        const totRow = showP
-          ? ['TOTAL', fmt(t.total), '', fmt(t.client), '', fmt(t.partner)]
-          : ['TOTAL', fmt(t.total), '', fmt(t.client)];
-        body.push(totRow);
+        const visible = t.rows.filter(row => !(row.partnerOnly && !showP));
+        const head = [['SMSF Assets & Debts', 'Amount']];
+        const body = visible.map(row => [String(row.label), smsfMoney(row.amt)]);
+        const boldIdx = visible.reduce((acc, row, idx) => {
+          if (row.kind !== 'item') acc.push(idx);
+          return acc;
+        }, []);
+        const fillIdx = visible.reduce((acc, row, idx) => {
+          if (row.kind === 'net' || row.kind === 'share') acc.push(idx);
+          return acc;
+        }, []);
         const smsfStartY = Math.max(leftY, rightY) + 4;
         const smsfBodyW = W - M * 2;
         const smsfHdrH = 6.5;
@@ -10561,15 +10616,16 @@
           tableWidth: smsfBodyW,
           styles: { font: 'helvetica', fontSize: 6.6, cellPadding: 1.5, textColor: INK, fillColor: [255, 255, 255], lineWidth: 0 },
           headStyles: { fillColor: [222, 240, 252], textColor: NAVY, fontStyle: 'bold', halign: 'right', fontSize: 6.6 },
-          columnStyles: { 0: { cellWidth: 'auto', halign: 'left' }, 1: { halign: 'right' }, 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } },
+          columnStyles: { 0: { cellWidth: 'auto', halign: 'left' }, 1: { halign: 'right' } },
           alternateRowStyles: { fillColor: [247, 251, 255] },
           didParseCell: function (d) {
             if (d.section === 'head' && d.column.index === 0) d.cell.styles.halign = 'left';
-            if (d.section === 'body' && d.row.index === body.length - 1) {
+            if (d.section !== 'body') return;
+            if (boldIdx.indexOf(d.row.index) !== -1) {
               d.cell.styles.fontStyle = 'bold';
-              d.cell.styles.fillColor = [222, 240, 252];
               d.cell.styles.textColor = NAVY;
             }
+            if (fillIdx.indexOf(d.row.index) !== -1) d.cell.styles.fillColor = [222, 240, 252];
           }
         });
         smsfFinalY = doc.lastAutoTable.finalY;
