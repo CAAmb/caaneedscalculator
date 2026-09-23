@@ -4929,7 +4929,7 @@
                   <option value="no" selected>No – current generation IP</option>
                   <option value="yes">Yes – Pre-2021 IP</option>
                 </select>
-                <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">Pre-2021 IP policies typically allow up to 75% replacement. The comparison will show both the calculated rate and a 75% scenario.</div>
+                <div class="note" style="font-size:11px;color:var(--mid);margin-top:4px">Pre-2021 IP policies typically allow up to 75% replacement of salary plus super. The comparison will show both the calculated rate and a 75% of salary + super scenario.</div>
               </div>
             </div>
           </div>
@@ -6437,7 +6437,9 @@
       const stripN = s => parseFloat(String(s || '0').replace(/[^0-9.-]/g, '')) || 0;
       const isPre2021 = !!ex.ipPre2021;
       const incomeForIp = r.inputs && r.inputs.income ? r.inputs.income : 0;
-      const calcIp75 = (incomeForIp * 0.75) / 12;
+      // Pre-2021 policies insure salary + super, not salary alone
+      const superPctForIp = (r.inputs && r.inputs.superContribPct != null) ? r.inputs.superContribPct : (CFG.ipSuperPct || 12);
+      const calcIp75 = (incomeForIp * (1 + superPctForIp / 100) * 0.75) / 12;
       const ipReplacePctVal = r.inputs && r.inputs.ipReplacePct !== undefined ? r.inputs.ipReplacePct : (CFG.ipReplacePct || 70);
       const baseRows = [
         { product: 'Life Cover', calc: stripN(r.results.life), existing: ex.life || 0, unit: '' },
@@ -6451,7 +6453,7 @@
         unit: '/mo',
         sub: [
           { label: `Calculated @ ${ipReplacePctVal}% (current gen.)`, calc: stripN(r.results.ip) },
-          { label: `Calculated @ 75% (Pre-2021 IP)`,                  calc: calcIp75 }
+          { label: `Calculated @ 75% of salary + super (Pre-2021 IP)`, calc: calcIp75 }
         ]
       } : { product: 'IP Monthly Benefit', calc: stripN(r.results.ip), existing: ex.ip || 0, unit: '/mo' };
       const rows = [...baseRows, ipRow];
@@ -9877,7 +9879,8 @@
       const existingToggle = !!(document.getElementById('sw-existing-cover') && document.getElementById('sw-existing-cover').checked);
       const ipPre2021El = document.getElementById('s-exist-ip-pre2021');
       const ipPre2021 = ipPre2021El ? ipPre2021El.value === 'yes' : false;
-      const ip75Monthly = (income * 0.75) / 12;
+      // Pre-2021 policies insure salary + super, not salary alone
+      const ip75Monthly = (income * (1 + superContribPct / 100) * 0.75) / 12;
       const existing = {
         life: gv('s-exist-life', 0),
         tpd: gv('s-exist-tpd', 0),
@@ -9900,7 +9903,7 @@
         unit: '/mo',
         sub: [
           { label: `Calculated @ ${ipReplacePct}% (current gen.)`, calc: ipMonthly },
-          { label: `Calculated @ 75% (Pre-2021 IP)`,               calc: ip75Monthly }
+          { label: `Calculated @ 75% of salary + super (Pre-2021 IP)`, calc: ip75Monthly }
         ]
       } : { product: 'IP Monthly Benefit', calc: ipMonthly, existing: existing.ip, unit: '/mo' };
       const varianceRows = existingToggle ? [...baseRows, ipRow] : [];
@@ -10661,7 +10664,9 @@
         const calcIp = stripN(results.ip);
         const isPre2021 = !!ex.ipPre2021;
         const incomeForIp = inputs && inputs.income ? inputs.income : 0;
-        const calcIp75 = (incomeForIp * 0.75) / 12;
+        // Pre-2021 policies insure salary + super, not salary alone
+        const superPctForIp = (inputs && inputs.superContribPct != null) ? inputs.superContribPct : (CFG.ipSuperPct || 12);
+        const calcIp75 = (incomeForIp * (1 + superPctForIp / 100) * 0.75) / 12;
         const ipReplacePctVal = inputs && inputs.ipReplacePct !== undefined ? inputs.ipReplacePct : (CFG.ipReplacePct || 70);
         const _vLabel = (calcN, exN, suffix) => {
           const diff = calcN - exN;
@@ -10687,7 +10692,7 @@
             _vLabel(calcIp, ex.ip || 0, '/mo')
           ]);
           varRows.push([
-            'IP Monthly Benefit\nCalculated @ 75% (Pre-2021 IP)',
+            'IP Monthly Benefit\nCalculated @ 75% of salary + super (Pre-2021 IP)',
             fmt(calcIp75) + '/mo',
             // Existing cell is taken by the rowspan above
             _vLabel(calcIp75, ex.ip || 0, '/mo')
