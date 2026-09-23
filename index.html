@@ -2814,6 +2814,8 @@
     .f.asset-row-wrap[data-smsf="yes"] .smsf-panel { display: block; }
     .f.asset-row-wrap[data-smsf="yes"] .joint-bar { display: none !important; }
     .smsf-panel[data-partner="no"] .smsf-p { display: none !important; }
+    /* Same box treatment for the SMSF debts block that lives in the Debts step */
+    .smsf-inline-box { margin-top: 10px; padding: 13px 14px; border: 1.5px solid rgba(235,163,128,.4); border-radius: 12px; background: rgba(253,241,234,.4); }
     .smsf-sub { font-size: 10px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; color: var(--navy); margin: 14px 0 7px; }
     .smsf-sub.first { margin-top: 0; }
     .smsf-head, .smsf-row { display: grid; grid-template-columns: 1fr 132px 30px; gap: 8px; align-items: start; }
@@ -5116,6 +5118,20 @@
               <div class="pfx"><span class="p">$</span><input type="text" inputmode="numeric" id="s-funeral"></div>
             </div>
           </div>
+          <!-- SMSF debts – shown only when the SMSF split is switched on (Assets step) -->
+          <div id="smsf-debt-section" style="display:none">
+            <div class="divline"></div>
+            <div class="sublabel">SMSF Debts</div>
+            <div class="info-tip" style="margin-bottom:10px;font-size:12px">Borrowings held inside the self-managed super fund (e.g. an LRBA). These reduce the fund's net value, and therefore each member's balance &ndash; they are <strong>not</strong> added to personal debt clearance.</div>
+            <div class="smsf-inline-box">
+              <div class="smsf-head"><span>Description</span><span>Amount owing</span><span></span></div>
+              <div id="smsf-debt-rows"></div>
+              <button type="button" class="smsf-add" onclick="addSmsfRow('debts')">+ Add SMSF debt</button>
+              <div class="smsf-tot">
+                <span>Total SMSF debts: <b id="smsf-tot-d2">$0</b></span>
+              </div>
+            </div>
+          </div>
           <!-- Debt clearance % – shown only if admin unlocks -->
           <div id="df-debtclear-section" style="display:none">
             <div class="divline"></div>
@@ -5456,15 +5472,11 @@
                     </div>
                   </div>
                   <div class="smsf-panel" id="smsf-panel" data-partner="no">
-                    <div class="smsf-note">List the fund's assets and any debts, then set each member's ownership share of the fund. Shares don't need to total 100% &ndash; any unallocated portion is simply excluded.</div>
+                    <div class="smsf-note">List the fund's assets, then set each member's ownership share. Shares don't need to total 100% &ndash; any unallocated portion is simply excluded. Any SMSF borrowings are entered under <strong>SMSF Debts</strong> in the Debts step.</div>
                     <div class="smsf-sub first">Assets</div>
                     <div class="smsf-head"><span>Description</span><span>Value</span><span></span></div>
                     <div id="smsf-asset-rows"></div>
                     <button type="button" class="smsf-add" onclick="addSmsfRow('assets')">+ Add asset</button>
-                    <div class="smsf-sub">Debts</div>
-                    <div class="smsf-head"><span>Description</span><span>Amount owing</span><span></span></div>
-                    <div id="smsf-debt-rows"></div>
-                    <button type="button" class="smsf-add" onclick="addSmsfRow('debts')">+ Add debt</button>
                     <div class="smsf-split">
                       <span class="smsf-split-lbl">Ownership split</span>
                       <label>Client <input type="number" min="0" max="100" id="smsf-cpct" value="100" oninput="updateSmsfSplit('cpct', this.value)">%</label>
@@ -8938,6 +8950,9 @@
         el.readOnly = !!on;
         el.style.background = on ? '#f4f7fa' : '';
       });
+      // SMSF debts live in the Debts step — reveal that block alongside the panel
+      const dSec = document.getElementById('smsf-debt-section');
+      if (dSec) dSec.style.display = on ? '' : 'none';
       syncSmsfPartnerCols();
       const cEl = document.getElementById('smsf-cpct'); if (cEl) cEl.value = smsfCpct;
       const pEl = document.getElementById('smsf-ppct'); if (pEl) pEl.value = smsfPpct;
@@ -9027,6 +9042,7 @@
       const setTxt = (id, v) => { const e = document.getElementById(id); if (e) e.textContent = smsfMoney(v); };
       setTxt('smsf-tot-a', t.aTot);
       setTxt('smsf-tot-d', t.dTot);
+      setTxt('smsf-tot-d2', t.dTot);   // mirrored in the Debts step
       setTxt('smsf-tot-net', t.net);
       setTxt('smsf-tot-c', t.client);
       setTxt('smsf-tot-p', t.partner);
