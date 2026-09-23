@@ -5490,6 +5490,7 @@
             <p id="res-client-line">Based on your inputs – figures in today's dollars.</p>
             <div class="res-actions">
               <button class="pdf-btn" onclick="exportPDF()">📄 Export PDF</button>
+              <button class="save-calc-btn" onclick="exportInputsPDF()">📋 Export Inputs</button>
               <button class="save-calc-btn" id="save-calc-btn" onclick="saveCalc()">💾 Save Calculation</button>
               <button class="quote-req-btn" id="req-quote-btn" onclick="requestQuote()">📝 Request Insurance Quote →</button>
             </div>
@@ -7564,6 +7565,7 @@
                <button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}','partner')">↩ Partner Only</button>`
             : `<button class="ubtn load-hist" onclick="loadCalcFromHistory('${h.id}')">↩ Load</button>`}
           <button class="ubtn view-hist" onclick="exportHistPDF('${userId}','${h.id}')">📄 Export PDF</button>
+          <button class="ubtn view-hist" onclick="exportHistInputsPDF('${userId}','${h.id}')">📋 Export Inputs</button>
           <button class="ubtn del-calc" onclick="confirmDeleteCalc('${h.id}','${userId}','${sc}')">🗑 Delete</button>
         </div>
         <div class="hist-rename-row" id="rename-row-${h.id}">
@@ -7664,6 +7666,7 @@
         <button class="ubtn rename-calc" onclick="toggleRename('${h.id}',null)">✏️ Rename</button>
         <button class="ubtn view-inputs-btn" onclick="previewHistInputs('${h.id}')">🔍 View Inputs</button>
         <button class="ubtn view-hist" onclick="exportAllHistPDF('${su}', '${h.id}')">📄 Export PDF</button>
+        <button class="ubtn view-hist" onclick="exportAllHistInputsPDF('${su}', '${h.id}')">📋 Export Inputs</button>
         <button class="ubtn del-calc" onclick="confirmDeleteCalc('${h.id}',null,'${sc}')">🗑 Delete</button>
       </div>
       <div class="hist-rename-row" id="rename-row-${h.id}">
@@ -8397,10 +8400,10 @@
         ['Other Dependant Support', fmtV(inp.odep)],
         ['Superannuation Balance', fmtV(inp.superBal)],
         ['Super Offset %', inp.superpct !== undefined ? inp.superpct + '%' : '–'],
-        ['Savings', fmtV(inp.savings)],
+        ['Savings', fmtV(inp.cash)],
         ['Investment Property', fmtV(inp.invprop)],
         ['Shares', fmtV(inp.shares)],
-        ['Existing Life Cover', fmtV(inp.existing)],
+        ['Existing Life Cover', fmtV((inp.existingCover || {}).life)],
         ['Earnings Rate', inp.earn !== undefined ? inp.earn + '%' : '–'],
         ['Inflation Rate', inp.infl !== undefined ? inp.infl + '%' : '–'],
       ];
@@ -8449,6 +8452,204 @@
           generatePDF(hist.client, hist.date, hist.results, hist.breakdown, tpd2, ip2, trm2, hist.inputs || {}, staffName);
           return;
         }
+      }
+    }
+
+    // ═════ INPUTS SUMMARY PDF ═════
+    // Internal record of every adviser input, for fact-finds and file notes.
+    // Every field is listed; anything not entered shows as "-" so gaps are visible.
+    // Note: jsPDF's standard fonts are Latin-1 only, so keep all text here ASCII.
+    function generateInputsPDF(client, date, inputs, staffName) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const W = 210, H = 297, M = 16;
+      const NAVY = [15, 36, 51], NAVY_MID = [28, 70, 102], PEACH = [235, 163, 128], INK = [50, 60, 70];
+      const D = '-';
+
+      const money = v => (v !== '' && v != null && !isNaN(Number(v)) && Number(v) > 0) ? fmt(Number(v)) : D;
+      const num = (v, sfx) => (v !== '' && v != null && !isNaN(Number(v))) ? Number(v) + (sfx || '') : D;
+      const txt = v => (v != null && String(v).trim() !== '') ? String(v) : D;
+      const cap = v => { const s = txt(v); return s === D ? D : s.charAt(0).toUpperCase() + s.slice(1); };
+      const yn = v => (v === 'yes' || v === true) ? 'Yes' : (v === 'no' || v === false) ? 'No' : D;
+      const SCHOOL = { public: 'Public', cath: 'Catholic / Independent', private: 'Private' };
+
+      function drawPageChrome() {
+        doc.setFillColor(...NAVY); doc.rect(0, 0, W, 16, 'F');
+        doc.setFillColor(...PEACH); doc.rect(0, 16, W, 0.9, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
+        doc.text('INPUTS SUMMARY', M, 6.8, { baseline: 'middle' });
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(7.4); doc.setTextColor(205, 225, 240);
+        doc.text(String(client || 'Unnamed'), M, 12.2, { baseline: 'middle' });
+        doc.text(String(date || ''), W - M, 6.8, { align: 'right', baseline: 'middle' });
+        if (staffName) doc.text('Prepared by ' + staffName, W - M, 12.2, { align: 'right', baseline: 'middle' });
+        doc.setFillColor(...NAVY); doc.rect(0, H - 11, W, 11, 'F');
+        doc.setFillColor(...PEACH); doc.rect(0, H - 11, W, 0.8, 'F');
+        doc.setFontSize(6.6); doc.setFont('helvetica', 'bold'); doc.setTextColor(255, 255, 255);
+        doc.text('Coastal Advisory Australia', M, H - 5.2, { baseline: 'middle' });
+        doc.setFont('helvetica', 'normal'); doc.setTextColor(200, 220, 235);
+        doc.text('Internal use only - record of adviser inputs', W / 2, H - 5.2, { align: 'center', baseline: 'middle' });
+        doc.setTextColor(255, 255, 255);
+        doc.text('Page ' + doc.internal.getNumberOfPages(), W - M, H - 5.2, { align: 'right', baseline: 'middle' });
+      }
+
+      let y = 22;
+      // Two label/value pairs per row so a full record fits ~2 pages per person.
+      function section(title, rows) {
+        const packed = [];
+        for (let k = 0; k < rows.length; k += 2) {
+          const a = rows[k], b = rows[k + 1] || ['', ''];
+          packed.push([a[0], a[1], b[0], b[1]]);
+        }
+        doc.autoTable({
+          startY: y,
+          head: [[{ content: title, colSpan: 4 }]],
+          body: packed,
+          margin: { left: M, right: M, top: 22, bottom: 16 },
+          tableWidth: W - M * 2,
+          styles: { font: 'helvetica', fontSize: 7.6, cellPadding: 1.7, textColor: INK, lineWidth: 0, overflow: 'linebreak' },
+          headStyles: { fillColor: NAVY_MID, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8.4, halign: 'left', cellPadding: 2.2 },
+          columnStyles: {
+            0: { cellWidth: 50 }, 1: { cellWidth: 39, halign: 'right', fontStyle: 'bold' },
+            2: { cellWidth: 50 }, 3: { cellWidth: 39, halign: 'right', fontStyle: 'bold' }
+          },
+          alternateRowStyles: { fillColor: [247, 251, 255] },
+          didDrawPage: drawPageChrome
+        });
+        y = doc.lastAutoTable.finalY + 4.5;
+      }
+
+      function renderPerson(label, i) {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(...NAVY);
+        doc.text(label, M, y + 1);
+        y += 6;
+
+        const joint = i.assetJoint || {};
+        const js = k => joint[k] ? ' (joint)' : '';
+        const ex = i.existingCover || {};
+
+        section('Personal Details', [
+          ['Client Name', txt(i.client)],
+          ['Age', num(i.age)],
+          ['Retirement Age', num(i.retire)],
+          ['Gender', cap(i.gender)],
+          ['Smoker', yn(i.smoker)],
+          ['Marital Status', cap(i.marital)]
+        ]);
+
+        section('Income & Superannuation', [
+          ['Annual Income (gross)', money(i.income)],
+          ['Income Replacement', (i.incPct != null ? i.incPct + '%' : D) + ' for ' + num(i.repYrs, ' yrs')],
+          ['IP Replacement Ratio', num(i.ipReplacePct, '%')],
+          ['Partner Income', money(i.partner)],
+          ['Super Contribution Rate', num(i.superContribPct, '%')],
+          ['Superannuation Balance', money(i.superBal)],
+          ['Super Offset Applied', num(i.superpct, '%')]
+        ]);
+
+        section('Debts & Liabilities', [
+          ['Mortgage / Home Loan', money(i.mortgage)],
+          ['Other Property Loans', money(i.otherloan)],
+          ['Personal / Car Loans', money(i.personal)],
+          ['Credit Card Debt', money(i.cc)],
+          ['Business Debts', money(i.biz)],
+          ['Annual Rent', money(i.rent)],
+          ['Rent Provision Period', num(i.rentYrs, ' yrs')]
+        ]);
+
+        section('Dependants & Children', [
+          ['Number of Dependant Children', num(i.kids)],
+          ['Age of Youngest Child', num(i.youngest)],
+          ['Individual Child Ages', (Array.isArray(i.childAges) && i.childAges.length) ? i.childAges.join(', ') : D],
+          ['School Type', i.school ? (SCHOOL[i.school] || cap(i.school)) : D],
+          ['Primary Education Cost (p.a.)', money(i.edCostPrimary)],
+          ['Secondary Education Cost (p.a.)', money(i.edCostSecondary)],
+          ['Childcare (p.a.)', money(i.childcare)],
+          ['Annual Child-Raising Cost', money(i.lifeChildAmt)],
+          ['Education Cost Growth', num(i.edGrowthPct, '%')],
+          ['Other Dependant Support', money(i.odep)],
+          ['Other Dependant Support Period', num(i.odepyrs, ' yrs')],
+          ['IP Covers Child-Raising', yn(i.childIpIncluded)]
+        ]);
+
+        section('Assets', [
+          ['Cash / Savings' + js('cash'), money(i.cash)],
+          ['Residential Property' + js('resprop'), money(i.resprop)],
+          ['Commercial Property' + js('comprop'), money(i.comprop)],
+          ['Investment Property' + js('invprop'), money(i.invprop)],
+          ['Shares' + js('shares'), money(i.shares)],
+          ['Managed Funds' + js('managed'), money(i.managed)]
+        ]);
+
+        section('Existing Cover', [
+          ['Existing Cover Recorded', i.existingCoverShown ? 'Yes' : 'No'],
+          ['Existing Life Cover', money(ex.life)],
+          ['Existing TPD Cover', money(ex.tpd)],
+          ['Existing Trauma Cover', money(ex.trauma)],
+          ['Existing IP Benefit (monthly)', money(ex.ip)],
+          ['IP Policy Pre-2021', ex.ipPre2021 ? 'Yes' : (i.existingCoverShown ? 'No' : D)]
+        ]);
+
+        section('Fixed Costs & Rates', [
+          ['Legal / Estate Costs', money(i.legalCost)],
+          ['Funeral & Final Expenses', money(i.funeral)],
+          ['Earnings Rate', num(i.earn, '%')],
+          ['Inflation Rate', num(i.infl, '%')]
+        ]);
+
+        section('TPD & Trauma Settings', [
+          ['TPD Deductible Debt %', num(i.tpdDedPct, '%')],
+          ['TPD Non-Deductible Debt %', num(i.tpdNonDedPct, '%')],
+          ['TPD Medical & Rehab Costs', money(i.tpdMedCost)],
+          ['TPD Principal Residence', money(i.tpdBuyRes)],
+          ['TPD Income Replacement %', num(i.tpdIncomePct, '%')],
+          ['TPD Tax Top-Up Applied', yn(i.tpdTaxTopUpApplied)],
+          ['Trauma Medical & Rehab Costs', money(i.traumaMedCost)],
+          ['Trauma Income Provision %', num(i.traumaIncomePct, '%')],
+          ['Trauma Income Period', num(i.traumaIncomeYrs, ' yrs')],
+          ['Trauma Debt Repayment Period', num(i.traumaDebtYears, ' yrs')]
+        ]);
+      }
+
+      const isDual = !!(inputs && inputs._isDual && inputs._partnerInputs);
+      renderPerson(isDual ? 'Client' : 'Client Details', inputs || {});
+      if (isDual) {
+        doc.addPage();
+        y = 22;
+        renderPerson('Partner', inputs._partnerInputs);
+      }
+
+      const safe = String(client || 'Client').replace(/&/g, 'and').replace(/[^\w\s-]/g, '').replace(/\s+/g, ' ').trim() || 'Client';
+      doc.save('Inputs Summary - ' + safe + '.pdf');
+    }
+
+    // Results screen — uses the live calculation (partner included when dual)
+    function exportInputsPDF() {
+      if (!lastResult) return;
+      let inp = lastResult.inputs || {};
+      if (dualResult && dualResult.client && dualResult.partner) {
+        inp = { ...(dualResult.client.inputs || {}), _isDual: true, _partnerInputs: { ...(dualResult.partner.inputs || {}) } };
+      }
+      const name = (dualResult && dualResult.client && dualResult.partner)
+        ? ((dualResult.client.inputs || {}).client || 'Client') + ' & ' + ((dualResult.partner.inputs || {}).client || 'Partner')
+        : (inp.client || 'Client');
+      const staffName = currentUser ? currentUser.name : '';
+      generateInputsPDF(name, new Date().toLocaleString('en-AU'), inp, staffName);
+    }
+
+    // Staff history
+    function exportHistInputsPDF(userId, histId) {
+      const hist = (HISTORY[userId] || []).find(h => h.id === histId);
+      if (!hist) return;
+      const user = USERS.find(u => u.id === userId);
+      const staffName = user ? user.name : (currentUser ? currentUser.name : '');
+      generateInputsPDF(hist.client, hist.date, hist.inputs || {}, staffName);
+    }
+
+    // Admin all-calculations list
+    function exportAllHistInputsPDF(staffName, histId) {
+      for (const uid of Object.keys(HISTORY)) {
+        const hist = (HISTORY[uid] || []).find(h => h.id === histId);
+        if (hist) { generateInputsPDF(hist.client, hist.date, hist.inputs || {}, staffName); return; }
       }
     }
 
